@@ -108,6 +108,33 @@ pnpm lint
 - Create feature branches from main
 - Keep commits atomic and focused
 
+## Release Process
+
+Releases are automated using [Release Please](https://github.com/googleapis/release-please-action).
+
+### Conventional Commits Format
+Use the following prefixes in commit messages:
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `perf:` - Performance improvements
+- `test:` - Adding tests
+- `chore:` - Maintenance tasks
+
+### Release Workflow
+1. Commits to `main` branch trigger Release Please
+2. Release Please creates/updates a PR with changelog
+3. Merging the PR creates the GitHub release
+4. Version follows Semantic Versioning based on commits
+
+### Manual Release
+Trigger via GitHub Actions `workflow_dispatch` or push to main.
+
+### Required Secret
+- `RELEASE_PLEASE_TOKEN` - GitHub Personal Access Token with `repo` scope
+
 ## Accessibility
 
 - Use semantic HTML elements
