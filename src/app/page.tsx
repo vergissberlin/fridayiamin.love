@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import styles from "./page.module.css";
 
 const DAYS = [
@@ -74,18 +74,29 @@ const SongInfo = () => (
 );
 
 const FloatingLyric = ({ text, index }: { text: string; index: number }) => {
-  const randomX = ((index * 17) % 70) + 5;
-  const randomY = ((index * 23) % 60) + 20;
-  const randomRotation = ((index * 13) % 30) - 15;
-  const randomDelay = index * 0.1;
+  const shouldReduceMotion = useReducedMotion();
   
-  const colors = ["var(--pink-neon)", "var(--cyan-neon)", "var(--yellow-neon)", "var(--purple-neon)"];
-  const randomColor = colors[index % colors.length];
-  
-  const fonts = ["var(--font-handwritten)", "var(--font-typewriter)", "var(--font-marker)"];
-  const randomFont = fonts[index % fonts.length];
-  
-  const repeatDelay = ((index * 3.7) % 5) + 3;
+  const { randomX, randomY, randomRotation, randomDelay, randomColor, randomFont, repeatDelay } = useMemo(() => {
+    const colors = ["var(--pink-neon)", "var(--cyan-neon)", "var(--yellow-neon)", "var(--purple-neon)"];
+    const fonts = ["var(--font-handwritten)", "var(--font-typewriter)", "var(--font-marker)"];
+    return {
+      randomX: ((index * 17) % 70) + 5,
+      randomY: ((index * 23) % 60) + 20,
+      randomRotation: ((index * 13) % 30) - 15,
+      randomDelay: index * 0.1,
+      randomColor: colors[index % colors.length],
+      randomFont: fonts[index % fonts.length],
+      repeatDelay: ((index * 3.7) % 5) + 3,
+    };
+  }, [index]);
+
+  const animation = shouldReduceMotion
+    ? { opacity: 1 }
+    : {
+        opacity: [0, 1, 1, 0.8, 1],
+        scale: [0, 1.2, 1],
+        y: [0, -20, 0, 10, 0],
+      };
 
   return (
     <motion.div
@@ -96,17 +107,14 @@ const FloatingLyric = ({ text, index }: { text: string; index: number }) => {
         color: randomColor,
         fontFamily: randomFont,
         transform: `rotate(${randomRotation}deg)`,
+        willChange: 'transform, opacity',
       }}
       initial={{ opacity: 0, scale: 0 }}
-      animate={{ 
-        opacity: [0, 1, 1, 0.8, 1],
-        scale: [0, 1.2, 1],
-        y: [0, -20, 0, 10, 0],
-      }}
+      animate={animation}
       transition={{
-        duration: 2,
+        duration: shouldReduceMotion ? 0 : 2,
         delay: randomDelay,
-        repeat: Infinity,
+        repeat: shouldReduceMotion ? 0 : Infinity,
         repeatDelay: repeatDelay,
       }}
     >
