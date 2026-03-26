@@ -6,6 +6,7 @@ Task:
 
 - Propose and implement exactly one small-to-medium feature enhancement in this repository.
 - The enhancement must be about The Cure and "Friday I'm in Love".
+- Work *with* the existing code – do not assume files are empty or missing.
 - Use existing project stack and conventions:
 
   - Next.js App Router
@@ -39,7 +40,9 @@ Feature pool (choose one that is missing or can be improved):
 
 Hard requirements:
 
-- Do not remove existing sections unless strictly needed.
+- Do not remove existing sections unless strictly needed; prefer extending existing components.
+- Never replace entire files that already have content; modify only the minimal parts you need.
+- Do NOT create new default exports for the root page if one already exists – integrate into the existing `Home`/page component instead.
 - Keep changes focused and non-destructive.
 - Keep visual style aligned with current neon/chaotic 90s aesthetic.
 - Keep code compile-safe and lint-safe.
@@ -48,14 +51,24 @@ Hard requirements:
 
 Implementation targets:
 
-- Prefer updates in `src/app/page.tsx`
-- Update related styles only if needed
-- Update `README.md` if you add a user-facing section or workflow detail
+- Prefer updates in `src/app/page.tsx` and its existing layout/sections.
+- You may add small helper components next to the main page component, but keep the existing export structure intact.
+- Update related styles only if needed (e.g. `src/app/page.module.css`) and add new class names instead of rewriting existing ones.
+- Only touch `README.md` for a very short note when you add a truly new user-facing section; avoid large restructurings of the README.
 
 Output format:
 
-- Return one unified git patch in a fenced code block using `diff` syntax.
-- Do not include explanations outside the patch.
+- Return a single JSON object (no explanations, no Markdown outside optional ```json fences).
+- JSON shape:
+  - `{"files": [{"path": "<relative/path>", "content": "<full new file content>"}]}`
+- For each entry in `files`:
+  - `path` must be an existing file or a new file under `src/app/` or `src/app/**`.
+  - `content` must be the **entire** new file content after your change.
+- Prefer touching only:
+  - `src/app/page.tsx`
+  - `src/app/page.module.css`
+  - and at most adding a short note in `README.md` when you add a new visible section.
+- Do not include git diff headers, `index` lines or `---/+++` – only JSON.
 
 Context hints:
 

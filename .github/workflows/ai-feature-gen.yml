@@ -58,7 +58,7 @@ jobs:
                       "content": prompt,
                   }
               ],
-              "temperature": 0.7,
+              "temperature": 0.4,
               "max_tokens": 2000,
           }
 
@@ -74,30 +74,54 @@ jobs:
 
           echo "$RESPONSE" > /tmp/response.json
 
+          # Convert model JSON response into concrete file changes
           python3 << 'PYEOF'
-          import json, re
+          import json
+          import re
+          from pathlib import Path
+
           data = json.load(open("/tmp/response.json"))
           content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-          match = re.search(r"```(?:diff)?\s*(.*?)```", content, re.DOTALL)
-          if match:
-              patch = match.group(1).strip()
-              open("/tmp/feature.patch", "w").write(patch + "\n")
-              print("Patch created")
-          else:
-              print("No patch found")
-              print(content[:300])
-          PYEOF
 
-      - name: Apply patch
-        run: |
-          if [ -f /tmp/feature.patch ]; then
-            echo "=== PATCH ==="
-            cat /tmp/feature.patch
-            echo "============="
-            git apply --whitespace=fix /tmp/feature.patch || echo "Apply failed"
-          else
-            echo "No patch file"
-          fi
+          # Strip optional ```json fences
+          m = re.search(r"```(?:json)?\s*(\{.*\})\s*```", content, re.DOTALL)
+          if m:
+              content = m.group(1)
+
+          try:
+              payload = json.loads(content)
+          except Exception as e:
+              print("Failed to parse JSON from model output:", e)
+              print("Raw content preview:\n", content[:600])
+              raise SystemExit(0)
+
+          files = payload.get("files", [])
+          if not isinstance(files, list):
+              print("No 'files' array in payload; nothing to do.")
+              raise SystemExit(0)
+
+          written = []
+          for entry in files:
+              path = entry.get("path")
+              text = entry.get("content")
+              if not path or text is None:
+                  continue
+
+              # Allow only safe, expected paths
+              if not (path.startswith("src/app/") or path == "README.md"):
+                  print("Skipping disallowed path:", path)
+                  continue
+
+              p = Path(path)
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text(text, encoding="utf-8")
+              written.append(path)
+
+          if written:
+              print("Updated files:", ", ".join(written))
+          else:
+              print("Model returned no applicable file changes.")
+          PYEOF
 
       - name: Validate
         run: |
