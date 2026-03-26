@@ -104,7 +104,32 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "feat: add nightly ai-generated friday i'm in love fan features"
+
+            DIFF_SUMMARY="$(git diff --cached -- . ':(exclude)pnpm-lock.yaml')"
+            COMMIT_PROMPT="Create exactly one Conventional Commit message in English for these staged changes.
+            Rules:
+            - Output only the commit subject line, no code block, no quotes.
+            - Must match: <type>: <subject>
+            - Allowed types: feat, fix, chore, docs, refactor, perf, test, style, ci.
+            - Keep it concise and meaningful.
+            
+            Staged diff:
+            $DIFF_SUMMARY"
+
+            GENERATED_MESSAGE=""
+            if command -v copilot >/dev/null 2>&1; then
+              GENERATED_MESSAGE="$(copilot -p "$COMMIT_PROMPT" 2>/dev/null | tr -d '\r' | sed -n '1p')"
+            elif gh copilot --help >/dev/null 2>&1; then
+              GENERATED_MESSAGE="$(gh copilot suggest -t shell "$COMMIT_PROMPT" 2>/dev/null | tr -d '\r' | sed -n '1p')"
+            fi
+
+            if printf '%s' "$GENERATED_MESSAGE" | grep -Eq '^(feat|fix|chore|docs|refactor|perf|test|style|ci): .+'; then
+              COMMIT_MESSAGE="$GENERATED_MESSAGE"
+            else
+              COMMIT_MESSAGE="feat: add nightly ai-generated friday i'm in love fan features"
+            fi
+
+            git commit -m "$COMMIT_MESSAGE"
             git push origin main
           else
             echo "No changes generated. Skipping commit."
