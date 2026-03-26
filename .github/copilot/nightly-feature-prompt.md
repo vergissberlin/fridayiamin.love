@@ -60,15 +60,21 @@ Output format:
 
 - Return a single JSON object (no explanations, no Markdown outside optional ```json fences).
 - JSON shape:
-  - `{"files": [{"path": "<relative/path>", "content": "<full new file content>"}]}`
+  - `{"files": [{"path": "<relative/path>", "encoding": "base64", "content": "<base64-encoded full file content>"}]}`
 - For each entry in `files`:
   - `path` must be an existing file or a new file under `src/app/` or `src/app/**`.
-  - `content` must be the **entire** new file content after your change.
+  - `encoding` must be the literal string `"base64"`.
+  - `content` must be the **entire** new file content after your change, UTF-8 encoded and then Base64-encoded.
+  - All JSON must be strictly valid: no comments, no trailing commas, and all quotes/newlines escaped.
 - Prefer touching only:
   - `src/app/page.tsx`
   - `src/app/page.module.css`
   - and at most adding a short note in `README.md` when you add a new visible section.
 - Do not include git diff headers, `index` lines or `---/+++` – only JSON.
+- Example (shortened, illustrative only):
+  - ```json
+    {"files":[{"path":"src/app/page.tsx","encoding":"base64","content":"ZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gUGFnZSgpIHsgcmV0dXJuIDxkaXY+RnJpZGF5IGknbSBpbiBMb3ZlPC9kaXY+OyB9"}]}
+    ```
 
 Context hints:
 

@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: pnpm
 
       - name: Install dependencies
@@ -59,7 +59,7 @@ jobs:
                   }
               ],
               "temperature": 0.4,
-              "max_tokens": 2000,
+              "max_tokens": 6000,
           }
 
           Path('/tmp/feature-request.json').write_text(json.dumps(payload), encoding='utf-8')
@@ -76,6 +76,7 @@ jobs:
 
           # Convert model JSON response into concrete file changes
           python3 << 'PYEOF'
+          import base64
           import json
           import re
           from pathlib import Path
@@ -103,13 +104,24 @@ jobs:
           written = []
           for entry in files:
               path = entry.get("path")
-              text = entry.get("content")
-              if not path or text is None:
+              raw = entry.get("content")
+              encoding = entry.get("encoding", "utf-8")
+              if not path or raw is None:
                   continue
 
               # Allow only safe, expected paths
               if not (path.startswith("src/app/") or path == "README.md"):
                   print("Skipping disallowed path:", path)
+                  continue
+
+              # Decode content
+              try:
+                  if encoding == "base64":
+                      text = base64.b64decode(raw).decode("utf-8")
+                  else:
+                      text = str(raw)
+              except Exception as e:
+                  print(f"Failed to decode content for {path}:", e)
                   continue
 
               p = Path(path)

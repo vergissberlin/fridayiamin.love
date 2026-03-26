@@ -4,7 +4,8 @@
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "versioning-strategy": "always-bump-patch"
     }
   },
   "commit-search-depth": 100,
