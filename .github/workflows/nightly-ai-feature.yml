@@ -1,0 +1,115 @@
+name: Nightly AI Feature Pipeline
+
+on:
+  schedule:
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  models: read
+
+concurrency:
+  group: nightly-ai-feature
+  cancel-in-progress: true
+
+jobs:
+  nightly-feature:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate feature patch
+        id: generate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > /tmp/feature-request.json << 'JSONEOF'
+{
+  "model": "openai/gpt-4o-mini",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an AI developer. Output ONLY a git patch in ```diff code block syntax. No explanations."
+    },
+    {
+      "role": "user",
+      "content": "Add a simple new file called src/test-feature.txt with the text 'Friday I''m in Love'. Output only the diff."
+    }
+  ],
+  "temperature": 0.7,
+  "max_tokens": 2000
+}
+JSONEOF
+
+          RESPONSE=$(curl -s -L "https://models.github.ai/inference/chat/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d @/tmp/feature-request.json)
+
+          echo "$RESPONSE" > /tmp/response.json
+
+          python3 << 'PYEOF'
+import json, re
+data = json.load(open("/tmp/response.json"))
+content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+match = re.search(r"```(?:diff)?\s*(.*?)```", content, re.DOTALL)
+if match:
+    patch = match.group(1).strip()
+    open("/tmp/feature.patch", "w").write(patch + "\n")
+    print("Patch created")
+else:
+    print("No patch found")
+    print(content[:300])
+PYEOF
+
+      - name: Apply patch
+        run: |
+          if [ -f /tmp/feature.patch ]; then
+            echo "=== PATCH ==="
+            cat /tmp/feature.patch
+            echo "============="
+            git apply --whitespace=fix /tmp/feature.patch || echo "Apply failed"
+          else
+            echo "No patch file"
+          fi
+
+      - name: Validate
+        run: |
+          pnpm lint || true
+          pnpm typecheck || true
+          pnpm build || true
+
+      - name: Commit and push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "feat: add AI-generated Friday I'm in Love content"
+            git push origin main
+          else
+            echo "No changes"
+          fi
