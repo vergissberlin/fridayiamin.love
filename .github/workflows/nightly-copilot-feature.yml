@@ -57,7 +57,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -eu
           PROMPT="$(cat /tmp/nightly-feature-prompt.md)"
           OUTPUT_FILE="/tmp/copilot-output.txt"
           : > "$OUTPUT_FILE"
@@ -71,7 +70,7 @@ jobs:
           fi
 
           if [ -s "$OUTPUT_FILE" ]; then
-            python - <<'PY'
+            python3 -c '
             import pathlib
             import re
             import subprocess
@@ -87,7 +86,7 @@ jobs:
             patch_text = match.group(1).strip() + "\n"
             pathlib.Path("/tmp/copilot.patch").write_text(patch_text, encoding="utf-8")
             subprocess.run(["git", "apply", "--whitespace=fix", "/tmp/copilot.patch"], check=False)
-            PY
+            '
           fi
 
       - name: Validate generated changes
