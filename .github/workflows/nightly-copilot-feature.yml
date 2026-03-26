@@ -76,32 +76,31 @@ jobs:
           echo "$RESPONSE" > "$OUTPUT_FILE"
 
           if echo "$RESPONSE" | grep -q '"content"'; then
-            echo "$RESPONSE" | python3 -c '
-              import json
-              import sys
-              import re
+            echo "$RESPONSE" | python3 << 'PYTHON'
+import json
+import sys
+import re
 
-              try:
-                  data = json.load(sys.stdin)
-                  content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-                  if content:
-                      # Extract diff from code block
-                      match = re.search(r"```diff\s*(.*?)```", content, re.DOTALL)
-                      if not match:
-                          match = re.search(r"```\s*(.*?)```", content, re.DOTALL)
-                      if match:
-                          patch = match.group(1).strip()
-                          with open("/tmp/copilot.patch", "w") as f:
-                              f.write(patch + "\n")
-                      else:
-                          print("No patch found in response")
-                          print(content[:500])
-                  else:
-                      print("No content in response")
-              except Exception as e:
-                  print(f"Error: {e}")
-                  print("$RESPONSE"[:500])
-            '
+try:
+    data = json.load(sys.stdin)
+    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    if content:
+        match = re.search(r"```diff\s*(.*?)```", content, re.DOTALL)
+        if not match:
+            match = re.search(r"```\s*(.*?)```", content, re.DOTALL)
+        if match:
+            patch = match.group(1).strip()
+            with open("/tmp/copilot.patch", "w") as f:
+                f.write(patch + "\n")
+        else:
+            print("No patch found in response")
+            print(content[:500])
+    else:
+        print("No content in response")
+except Exception as e:
+    print(f"Error: {e}")
+    print("$RESPONSE"[:500])
+PYTHON
           else
             echo "API call failed:"
             cat "$OUTPUT_FILE"
