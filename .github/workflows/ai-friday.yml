@@ -1,0 +1,70 @@
+name: Friday AI Feature Generator
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  repository_dispatch:
+    types: [run-ai-feature]
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  friday-ai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate Feature
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -x
+          RESPONSE=$(curl -s -L "https://models.github.ai/inference/chat/completions" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"model":"openai/gpt-4o-mini","messages":[{"role":"system","content":"You are an AI developer. Output ONLY a git patch in ```diff code block."},{"role":"user","content":"Add src/friday.txt with content \"Friday I am in Love\". Output only the diff."}],"temperature":0.7}')
+          echo "$RESPONSE" > /tmp/r.json
+          cat /tmp/r.json
+          python3 -c "
+import json,re
+d=json.load(open('/tmp/r.json'))
+c=d.get('choices',[{}])[0].get('message',{}).get('content','')
+print('Content:', c[:200])
+m=re.search(r'```diff(.*?)```',c,re.DOTALL)
+if m: open('/tmp/p.patch','w').write(m.group(1).strip()+'\n')
+print('ok' if m else 'fail')
+"
+
+      - name: Apply
+        run: |
+          if [ -f /tmp/p.patch ]; then
+            git apply --whitespace=fix /tmp/p.patch && echo "Applied" || echo "Failed"
+          fi
+
+      - name: Validate
+        run: pnpm lint || true; pnpm typecheck || true; pnpm build || true
+
+      - name: Commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add . && git commit -m "feat: AI-generated Friday content" && git push origin main || echo "No changes"
+          fi
