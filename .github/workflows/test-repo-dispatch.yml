@@ -1,0 +1,12 @@
+name: Test Workflow
+
+on:
+  repository_dispatch:
+    types: [test-event]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello from test workflow"
+      - run: date
