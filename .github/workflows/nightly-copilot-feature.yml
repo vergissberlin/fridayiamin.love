@@ -47,10 +47,12 @@ jobs:
           npm install -g @github/copilot || true
           gh extension install github/gh-copilot || true
 
-      - name: Generate AI patch prompt
+      - name: Verify Copilot CLI
         run: |
-          mkdir -p .github/copilot
-          cp .github/copilot/nightly-feature-prompt.md /tmp/nightly-feature-prompt.md
+          echo "Checking copilot availability..."
+          which gh
+          gh --version
+          gh copilot --version 2>/dev/null || echo "gh copilot not available"
 
       - name: Ask Copilot CLI for patch
         id: copilot
@@ -61,12 +63,34 @@ jobs:
           OUTPUT_FILE="/tmp/copilot-output.txt"
           : > "$OUTPUT_FILE"
 
-          if command -v copilot >/dev/null 2>&1; then
+          if gh copilot --help >/dev/null 2>&1; then
+            echo "Using gh copilot CLI..."
+            gh copilot suggest -t patch "$PROMPT" > "$OUTPUT_FILE" 2>&1 || true
+          elif command -v copilot >/dev/null 2>&1; then
+            echo "Using npm copilot CLI..."
             copilot -p "$PROMPT" > "$OUTPUT_FILE" || true
-          elif gh copilot --help >/dev/null 2>&1; then
-            gh copilot suggest -t shell "$PROMPT" > "$OUTPUT_FILE" || true
           else
             echo "No Copilot CLI available. Skipping AI generation."
+          fi
+
+          if [ -s "$OUTPUT_FILE" ]; then
+            python3 -c '
+            import pathlib
+            import re
+            import subprocess
+
+            output = pathlib.Path("/tmp/copilot-output.txt").read_text(encoding="utf-8", errors="ignore")
+            match = re.search(r"```diff\s*(.*?)```", output, re.DOTALL | re.IGNORECASE)
+            if not match:
+                match = re.search(r"```patch\s*(.*?)```", output, re.DOTALL | re.IGNORECASE)
+            if not match:
+                pathlib.Path("/tmp/copilot.patch").write_text("", encoding="utf-8")
+                raise SystemExit(0)
+
+            patch_text = match.group(1).strip() + "\n"
+            pathlib.Path("/tmp/copilot.patch").write_text(patch_text, encoding="utf-8")
+            subprocess.run(["git", "apply", "--whitespace=fix", "/tmp/copilot.patch"], check=False)
+            '
           fi
 
           if [ -s "$OUTPUT_FILE" ]; then
