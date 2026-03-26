@@ -1,0 +1,111 @@
+name: Nightly Copilot Feature Pipeline
+
+on:
+  schedule:
+    # 21:00 Europe/Berlin:
+    # - 20:00 UTC during CET (winter)
+    # - 19:00 UTC during CEST (summer)
+    - cron: "0 20 * * *"
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-copilot-feature
+  cancel-in-progress: true
+
+jobs:
+  nightly-feature:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install GitHub Copilot CLI tools
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm install -g @github/copilot || true
+          gh extension install github/gh-copilot || true
+
+      - name: Generate AI patch prompt
+        run: |
+          mkdir -p .github/copilot
+          cp .github/copilot/nightly-feature-prompt.md /tmp/nightly-feature-prompt.md
+
+      - name: Ask Copilot CLI for patch
+        id: copilot
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eu
+          PROMPT="$(cat /tmp/nightly-feature-prompt.md)"
+          OUTPUT_FILE="/tmp/copilot-output.txt"
+          : > "$OUTPUT_FILE"
+
+          if command -v copilot >/dev/null 2>&1; then
+            copilot -p "$PROMPT" > "$OUTPUT_FILE" || true
+          elif gh copilot --help >/dev/null 2>&1; then
+            gh copilot suggest -t shell "$PROMPT" > "$OUTPUT_FILE" || true
+          else
+            echo "No Copilot CLI available. Skipping AI generation."
+          fi
+
+          if [ -s "$OUTPUT_FILE" ]; then
+            python - <<'PY'
+            import pathlib
+            import re
+            import subprocess
+
+            output = pathlib.Path("/tmp/copilot-output.txt").read_text(encoding="utf-8", errors="ignore")
+            match = re.search(r"```diff\s*(.*?)```", output, re.DOTALL | re.IGNORECASE)
+            if not match:
+                match = re.search(r"```patch\s*(.*?)```", output, re.DOTALL | re.IGNORECASE)
+            if not match:
+                pathlib.Path("/tmp/copilot.patch").write_text("", encoding="utf-8")
+                raise SystemExit(0)
+
+            patch_text = match.group(1).strip() + "\n"
+            pathlib.Path("/tmp/copilot.patch").write_text(patch_text, encoding="utf-8")
+            subprocess.run(["git", "apply", "--whitespace=fix", "/tmp/copilot.patch"], check=False)
+            PY
+          fi
+
+      - name: Validate generated changes
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm build
+
+      - name: Commit and push if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "feat: add nightly ai-generated friday i'm in love fan features"
+            git push origin main
+          else
+            echo "No changes generated. Skipping commit."
+          fi
