@@ -43,22 +43,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat > /tmp/feature-request.json << 'JSONEOF'
-{
-  "model": "openai/gpt-4o-mini",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are an AI developer. Output ONLY a git patch in ```diff code block syntax. No explanations."
-    },
-    {
-      "role": "user",
-      "content": "Add a simple new file called src/test-feature.txt with the text 'Friday I''m in Love'. Output only the diff."
-    }
-  ],
-  "temperature": 0.7,
-  "max_tokens": 2000
-}
-JSONEOF
+          {
+            "model": "openai/gpt-4o-mini",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an AI developer. Output ONLY a git patch in ```diff code block syntax. No explanations."
+              },
+              {
+                "role": "user",
+                "content": "Add a simple new file called src/test-feature.txt with the text 'Friday I''m in Love'. Output only the diff."
+              }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 2000
+          }
+          JSONEOF
 
           RESPONSE=$(curl -s -L "https://models.github.ai/inference/chat/completions" \
             -H "Content-Type: application/json" \

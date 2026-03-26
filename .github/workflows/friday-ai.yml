@@ -41,14 +41,14 @@ jobs:
           echo "$RESPONSE" > /tmp/r.json
           cat /tmp/r.json
           python3 -c "
-import json,re
-d=json.load(open('/tmp/r.json'))
-c=d.get('choices',[{}])[0].get('message',{}).get('content','')
-print('Content:', c[:200])
-m=re.search(r'```diff(.*?)```',c,re.DOTALL)
-if m: open('/tmp/p.patch','w').write(m.group(1).strip()+'\n')
-print('ok' if m else 'fail')
-"
+            import json,re
+            d=json.load(open('/tmp/r.json'))
+            c=d.get('choices',[{}])[0].get('message',{}).get('content','')
+            print('Content:', c[:200])
+            m=re.search(r'```diff(.*?)```',c,re.DOTALL)
+            if m: open('/tmp/p.patch','w').write(m.group(1).strip()+'\n')
+            print('ok' if m else 'fail')
+            "
 
       - name: Apply
         run: |
