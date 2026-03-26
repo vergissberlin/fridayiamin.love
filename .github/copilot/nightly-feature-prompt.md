@@ -21,6 +21,7 @@ Feature pool (choose one that is missing or can be improved):
 - Add a MIDI resources section
 - Add a guitar tabs/chords section
 - Improve one existing section with stronger fan-focused content
+- Research news about Band and write it in a short news ticker
 
 Hard requirements:
 
