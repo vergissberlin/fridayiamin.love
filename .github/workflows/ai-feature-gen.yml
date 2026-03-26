@@ -103,9 +103,8 @@ jobs:
 
           echo "$RESPONSE" > /tmp/response.json
 
-          # Convert model JSON response into concrete file changes
+          # Convert model response into concrete file changes
           python3 << 'PYEOF'
-          import base64
           import json
           import re
           from pathlib import Path
@@ -113,55 +112,19 @@ jobs:
           data = json.load(open("/tmp/response.json"))
           content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
 
-          # Strip optional ```json fences
-          m = re.search(r"```(?:json)?\s*(\{.*\})\s*```", content, re.DOTALL)
+          # Extract raw TSX from optional fences
+          m = re.search(r"```(?:tsx|typescript|jsx)?\s*([\s\S]*)```", content)
           if m:
               content = m.group(1)
 
-          try:
-              payload = json.loads(content)
-          except Exception as e:
-              print("Failed to parse JSON from model output:", e)
-              print("Raw content preview:\n", content[:600])
+          # If the model returns no content, do nothing
+          if not content.strip():
+              print("Model returned empty content; nothing to do.")
               raise SystemExit(0)
 
-          files = payload.get("files", [])
-          if not isinstance(files, list):
-              print("No 'files' array in payload; nothing to do.")
-              raise SystemExit(0)
-
-          written = []
-          for entry in files:
-              path = entry.get("path")
-              raw = entry.get("content")
-              encoding = entry.get("encoding", "utf-8")
-              if not path or raw is None:
-                  continue
-
-              # Allow only safe, expected paths
-              if not (path.startswith("src/app/") or path == "README.md"):
-                  print("Skipping disallowed path:", path)
-                  continue
-
-              # Decode content (be tolerant if base64 is malformed)
-              try:
-                  if encoding == "base64":
-                      text = base64.b64decode(raw).decode("utf-8")
-                  else:
-                      text = str(raw)
-              except Exception as e:
-                  print(f"Failed to decode content for {path} (falling back to raw text):", e)
-                  text = str(raw)
-
-              p = Path(path)
-              p.parent.mkdir(parents=True, exist_ok=True)
-              p.write_text(text, encoding="utf-8")
-              written.append(path)
-
-          if written:
-              print("Updated files:", ", ".join(written))
-          else:
-              print("Model returned no applicable file changes.")
+          target = Path("src/app/page.tsx")
+          target.write_text(content, encoding="utf-8")
+          print("Updated files:", target.as_posix())
           PYEOF
 
       - name: Validate

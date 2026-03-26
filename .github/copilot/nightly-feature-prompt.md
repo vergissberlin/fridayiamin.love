@@ -58,23 +58,15 @@ Implementation targets:
 
 Output format:
 
-- Return a single JSON object (no explanations, no Markdown outside optional ```json fences).
-- JSON shape:
-  - `{"files": [{"path": "<relative/path>", "encoding": "base64", "content": "<base64-encoded full file content>"}]}`
-- For each entry in `files`:
-  - `path` must be an existing file or a new file under `src/app/` or `src/app/**`.
-  - `encoding` must be the literal string `"base64"`.
-  - `content` must be the **entire** new file content after your change, UTF-8 encoded and then Base64-encoded.
-  - All JSON must be strictly valid: no comments, no trailing commas, and all quotes/newlines escaped.
-- Prefer touching only:
-  - `src/app/page.tsx`
-  - `src/app/page.module.css`
-  - and at most adding a short note in `README.md` when you add a new visible section.
-- Do not include git diff headers, `index` lines or `---/+++` – only JSON.
-- Example (shortened, illustrative only):
-  - ```json
-    {"files":[{"path":"src/app/page.tsx","encoding":"base64","content":"ZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gUGFnZSgpIHsgcmV0dXJuIDxkaXY+RnJpZGF5IGknbSBpbiBMb3ZlPC9kaXY+OyB9"}]}
+- Return only the **full updated source code** for `src/app/page.tsx`.
+- No JSON, no diff format, no natural-language explanation.
+- You may optionally wrap the code in a single fenced block like:
+  - ```tsx
+    // full contents of src/app/page.tsx here
     ```
+  but do not include anything else before or after the fence.
+- The file must remain a valid Next.js client component with the existing `"use client"` directive and default export preserved.
+- Keep as much of the existing structure and sections as possible; extend and tweak instead of rewriting everything from scratch.
 
 Context hints:
 
