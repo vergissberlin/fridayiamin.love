@@ -42,7 +42,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Build request payload from nightly feature prompt
+          # Build request payload from nightly feature prompt + current app context
           python3 << 'PYEOF'
           import json
           from pathlib import Path
@@ -50,14 +50,43 @@ jobs:
           prompt_path = Path('.github/copilot/nightly-feature-prompt.md')
           prompt = prompt_path.read_text(encoding='utf-8')
 
+          # Collect key project files as context for the model
+          context_files = [
+              Path('src/app/page.tsx'),
+              Path('src/app/page.module.css'),
+              Path('README.md'),
+          ]
+
+          context_parts = []
+          for file_path in context_files:
+              if file_path.is_file():
+                  try:
+                      content = file_path.read_text(encoding='utf-8')
+                  except Exception:
+                      continue
+                  # Keep simple separators so the model can target specific files
+                  context_parts.append(f"--- FILE: {file_path.as_posix()} ---\n{content}")
+
+          context = "\n\n".join(context_parts)
+
+          messages = [
+              {
+                  "role": "system",
+                  "content": prompt,
+              }
+          ]
+
+          if context:
+              messages.append(
+                  {
+                      "role": "user",
+                      "content": "Here is the current application context. Propose and apply exactly one enhancement as specified.\n\n" + context,
+                  }
+              )
+
           payload = {
               "model": "openai/gpt-4o-mini",
-              "messages": [
-                  {
-                      "role": "system",
-                      "content": prompt,
-                  }
-              ],
+              "messages": messages,
               "temperature": 0.4,
               "max_tokens": 6000,
           }
@@ -114,15 +143,15 @@ jobs:
                   print("Skipping disallowed path:", path)
                   continue
 
-              # Decode content
+              # Decode content (be tolerant if base64 is malformed)
               try:
                   if encoding == "base64":
                       text = base64.b64decode(raw).decode("utf-8")
                   else:
                       text = str(raw)
               except Exception as e:
-                  print(f"Failed to decode content for {path}:", e)
-                  continue
+                  print(f"Failed to decode content for {path} (falling back to raw text):", e)
+                  text = str(raw)
 
               p = Path(path)
               p.parent.mkdir(parents=True, exist_ok=True)
