@@ -65,13 +65,15 @@ jobs:
 
           if gh copilot --help >/dev/null 2>&1; then
             echo "Using gh copilot CLI..."
-            gh copilot suggest -t patch "$PROMPT" > "$OUTPUT_FILE" 2>&1 || true
+            gh copilot suggest "$PROMPT" > "$OUTPUT_FILE" 2>&1 || true
           elif command -v copilot >/dev/null 2>&1; then
             echo "Using npm copilot CLI..."
             copilot -p "$PROMPT" > "$OUTPUT_FILE" || true
           else
             echo "No Copilot CLI available. Skipping AI generation."
           fi
+
+          cat "$OUTPUT_FILE" || true
 
           if [ -s "$OUTPUT_FILE" ]; then
             python3 -c '
@@ -90,7 +92,7 @@ jobs:
             patch_text = match.group(1).strip() + "\n"
             pathlib.Path("/tmp/copilot.patch").write_text(patch_text, encoding="utf-8")
             subprocess.run(["git", "apply", "--whitespace=fix", "/tmp/copilot.patch"], check=False)
-            '
+            ' || true
           fi
 
           if [ -s "$OUTPUT_FILE" ]; then
