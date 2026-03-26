@@ -1,0 +1,17 @@
+name: Minimal Test Both Triggers
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  repository_dispatch:
+    types: [test-minimal]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello from minimal workflow"
+      - run: date
