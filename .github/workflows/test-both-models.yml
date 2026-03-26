@@ -1,0 +1,17 @@
+name: Test Both Triggers With Models
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  repository_dispatch:
+    types: [test-both]
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello from both triggers with models"
