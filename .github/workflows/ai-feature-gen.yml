@@ -1,11 +1,8 @@
-name: Nightly AI Feature Pipeline
+name: AI Feature Generator
 
 on:
   schedule:
     - cron: "0 20 * * *"
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -13,11 +10,11 @@ permissions:
   models: read
 
 concurrency:
-  group: nightly-ai-feature
+  group: ai-feature-gen
   cancel-in-progress: true
 
 jobs:
-  nightly-feature:
+  generate-feature:
     runs-on: ubuntu-latest
 
     steps:
