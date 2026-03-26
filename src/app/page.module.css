@@ -384,6 +384,90 @@
   gap: 2rem;
 }
 
+.translationWrapper {
+  max-width: 900px;
+  margin: 2.5rem auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.translationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--cyan-neon);
+  border-radius: 15px;
+}
+
+.translationLabel {
+  font-family: var(--font-typewriter);
+  font-size: 0.9rem;
+  color: var(--cyan-neon);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.languageSelect {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 2px solid var(--pink-neon);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-family: var(--font-handwritten);
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.languageSelect:focus {
+  border-color: var(--cyan-neon);
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2);
+}
+
+.lyricSummaryCard {
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  border: 2px solid var(--pink-neon);
+  position: relative;
+  overflow: hidden;
+}
+
+.lyricSummaryCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255, 45, 149, 0.1));
+  pointer-events: none;
+}
+
+.lyricSummaryText {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-typewriter);
+  color: var(--cyan-neon);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.lyricSummaryBody {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-handwritten);
+  color: #fff;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  line-height: 1.85;
+  opacity: 0.98;
+}
+
 .lyricBlock {
   padding: 2rem;
   background: rgba(0, 0, 0, 0.4);

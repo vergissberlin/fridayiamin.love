@@ -12,6 +12,40 @@ const DAYS = [
   { name: "Friday", mood: "vibrant", color: "#ff2d95", emoji: "💖" },
 ];
 
+type LanguageCode = "en" | "de" | "es" | "fr" | "it" | "pt" | "tr" | "nl" | "pl" | "sv" | "ja";
+
+const LANGUAGE_OPTIONS: Array<{ code: LanguageCode; label: string }> = [
+  { code: "en", label: "English" },
+  { code: "de", label: "Deutsch" },
+  { code: "es", label: "Español" },
+  { code: "fr", label: "Français" },
+  { code: "it", label: "Italiano" },
+  { code: "pt", label: "Português" },
+  { code: "tr", label: "Türkçe" },
+  { code: "nl", label: "Nederlands" },
+  { code: "pl", label: "Polski" },
+  { code: "sv", label: "Svenska" },
+  { code: "ja", label: "日本語" },
+];
+
+const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
+  en: "The voice basically shrugs off the other days: when Friday arrives, love takes over and turns the week into a playful, upbeat celebration that lasts well into the night.",
+  de: "Die Person ist emotional “ready” für den Freitag: Alles andere wirkt egal, während Liebe/Begeisterung den Alltag aufmischt. Traurige Tage werden weggedrückt, stattdessen gibt es ein verspieltes, selbstbewusstes Feiern bis in die Nacht.",
+  es: "La voz narrativa no le da importancia a los demás días: lo que realmente importa es el “viernes”, cuando aparece el amor. La tristeza se deja atrás y todo se vuelve una celebración juguetona, con energía que se queda incluso hasta la noche.",
+  fr: "Le narrateur s’en fiche des autres jours : seul le vendredi compte, parce que l’amour arrive et change tout. Les jours sombres sont balayés et l’ambiance devient légère, drôle et carrément festive, surtout jusqu’au milieu de la nuit.",
+  it: "Il testo mostra un disprezzo quasi totale per gli altri giorni: il venerdì è “il momento” per l’amore. La tristezza si rompe, l’energia si alza e la scena si sente festiva, surreale e con ritmo notturno.",
+  pt: "A ideia central é que os dias de antes não importam tanto: quando chega a “sexta”, o amor toma conta. A dor vira passado, e o clima fica leve e divertido, como uma comemoração que continua durante a noite.",
+  tr: "Şarkı, diğer günleri umursamayı bırakıp yalnızca “Cuma”ya odaklanmayı anlatıyor: aşk her şeyi değiştiriyor. Kırgınlık ve karamsarlık geride kalıyor; sahne daha neşeli, oyunbaz ve geceye yayılan bir kutlamaya dönüşüyor.",
+  nl: "De verteller geeft om andere dagen bijna niks: alleen de vrijdag voelt echt belangrijk, omdat liefde alles opligt. Verdriet verdwijnt, en het wordt juist een speelse, energieke vibe—alsof het feest doorgaat tot diep in de nacht.",
+  pl: "Podmiot mówi, że reszta dni nie ma znaczenia, bo liczy się piątek i miłość, która wszystko odwraca. Smutek zostaje porzucony, a atmosfera staje się lekka, figlarna i nocno-imprezowa.",
+  sv: "Texten handlar om att andra dagar spelar mindre roll, medan kärleken gör fredagen till höjdpunkten. Sorg och motstånd släpps taget om, och allt får en lekfull och festlig känsla som fortsätter långt in på natten.",
+  ja: "物語の中心は、「金曜」だけが特別で、愛が気分をひっくり返すこと。ほかの時間はどうでもよくなって、悲しさは置き去りにされ、夜まで続くような陽気で遊び心のある盛り上がりになる。",
+};
+
+const isLanguageCode = (value: string): value is LanguageCode => {
+  return Object.prototype.hasOwnProperty.call(LYRIC_SUMMARIES, value);
+};
+
 const LYRICS = [
   "Friday I’m in Love",
   "doing anything",
@@ -254,6 +288,12 @@ export default function Home() {
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
   const y = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
 
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(() => {
+    const guess = typeof navigator !== "undefined" ? navigator.language : "en";
+    const code = guess.toLowerCase().split("-")[0];
+    return isLanguageCode(code) ? code : "en";
+  });
+
   return (
     <main className={styles.main}>
       <motion.section className={styles.hero} ref={containerRef}>
@@ -444,6 +484,41 @@ export default function Home() {
               <span className={styles.lyricNote}>Love conquers all mundane despair</span>
             </motion.div>
           </AnimatePresence>
+        </div>
+
+        <div className={styles.translationWrapper} aria-live="polite">
+          <div className={styles.translationHeader}>
+            <label className={styles.translationLabel} htmlFor="language-select">
+              Language
+            </label>
+            <select
+              id="language-select"
+              className={styles.languageSelect}
+              value={selectedLanguage}
+              onChange={(e) => {
+                const code = e.target.value;
+                setSelectedLanguage(isLanguageCode(code) ? code : "en");
+              }}
+            >
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <option key={opt.code} value={opt.code}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <motion.div
+            key={selectedLanguage}
+            className={styles.lyricSummaryCard}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+          >
+            <p className={styles.lyricSummaryText}>Lyric Summary</p>
+            <p className={styles.lyricSummaryBody}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
+          </motion.div>
         </div>
       </section>
 
