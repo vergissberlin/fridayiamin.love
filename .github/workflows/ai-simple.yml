@@ -1,0 +1,38 @@
+name: Friday AI
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  repository_dispatch:
+    types: [run-ai-feature]
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: pnpm install
+
+      - name: Generate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -s -L https://models.github.ai/inference/chat/completions \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' > /tmp/r.json
+          cat /tmp/r.json
+
+      - name: Commit
+        run: |
+          echo "test" > /tmp/test.txt
+          git add /tmp/test.txt || echo "no files"
+          git config user.name "bot"
+          git config user.email "bot@example.com"
+          git add -A || true
+          git status || true
