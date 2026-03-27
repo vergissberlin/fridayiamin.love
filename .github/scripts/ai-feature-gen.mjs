@@ -68,7 +68,7 @@ function buildRequest(mode = "full") {
   }
 
   const payload = {
-    model: "openai/gpt-5.4",
+    model: "openai/gpt-4.1",
     messages,
     temperature: 0.4,
     max_tokens: 6000,
