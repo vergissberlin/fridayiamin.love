@@ -96,13 +96,28 @@ function applyResponse() {
 
   debugLog(`Response contains ${data.choices.length} choice(s)`);
 
-  let content = data?.choices?.[0]?.message?.content ?? "";
-  debugLog(`Raw first choice content length: ${content.length}`);
+  const rawContent = data?.choices?.[0]?.message?.content ?? "";
+  debugLog(`Raw first choice content length: ${rawContent.length}`);
 
-  const fenceMatch = content.match(/```(?:tsx|typescript|jsx)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
-    [, content] = fenceMatch;
-    debugLog("Detected fenced code block; extracted inner content.");
+  let content = "";
+  const preferredFencePattern = /```(?:tsx|typescript|jsx)\s*([\s\S]*?)```/i;
+  const anyFencePattern = /```[a-zA-Z]*\s*([\s\S]*?)```/;
+
+  const preferredFenceMatch = rawContent.match(preferredFencePattern);
+  if (preferredFenceMatch) {
+    [, content] = preferredFenceMatch;
+    debugLog("Detected TSX/TypeScript/JSX fenced code block; extracted inner content.");
+  } else {
+    const anyFenceMatch = rawContent.match(anyFencePattern);
+    if (anyFenceMatch) {
+      [, content] = anyFenceMatch;
+      debugLog("Detected generic fenced code block; extracted inner content.");
+    }
+  }
+
+  if (!content.trim()) {
+    console.error("Model response does not contain a fenced code block with file content.");
+    process.exit(1);
   }
 
   if (!content.trim()) {

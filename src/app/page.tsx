@@ -1,4 +1,3 @@
-```tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -581,4 +580,46 @@ export default function Home() {
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
+<<<<<<< HEAD
            
+=======
+            💜
+          </motion.div>
+          <motion.div 
+            className={styles.musicNote}
+            animate={{ 
+              y: [-20, 0, -20],
+              rotate: [0, 10, 0],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            ♫
+          </motion.div>
+          <motion.div 
+            className={styles.star}
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 180, 360],
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            ⭐
+          </motion.div>
+        </div>
+      </section>
+
+      <footer className={styles.footer}>
+        <div className={styles.footerContent}>
+          <p>Made with 💜 for fans of The Cure</p>
+          <p className={styles.footerNote}>
+            A celebration of love, music, and the joy of Friday
+          </p>
+        </div>
+        <div className={styles.footerDecor}>
+          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+        </div>
+      </footer>
+    </main>
+  );
+}
+>>>>>>> 200e9e5d (feat: enhance AI feature generation script and workflow)
