@@ -20,5 +20,5 @@ test("assertProvider accepts supported providers", () => {
 });
 
 test("assertProvider throws for unsupported provider", () => {
-  assert.throws(() => assertProvider("other"));
+  assert.throws(() => assertProvider("other"), /Unsupported AI provider/);
 });

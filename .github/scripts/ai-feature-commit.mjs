@@ -1,30 +1,39 @@
 import { execSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 
-function run(command) {
+export function run(command) {
   execSync(command, { stdio: "inherit" });
 }
 
-function runCapture(command) {
+export function runCapture(command) {
   return execSync(command, { encoding: "utf-8" }).trim();
 }
 
-function main() {
-  const status = runCapture("git status --porcelain");
+export function main(deps = {}) {
+  const runCommand = deps.run ?? run;
+  const runCaptureCommand = deps.runCapture ?? runCapture;
+  const log = deps.log ?? console.log;
+
+  const status = runCaptureCommand("git status --porcelain");
   if (!status) {
-    console.log("No changes");
+    log("No changes");
     return;
   }
 
-  run('git config user.name "github-actions[bot]"');
-  run('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"');
-  run("git add .");
-  run('git commit -m "feat: add AI-generated Friday I\'m in Love content"');
-  run("git push origin main");
+  runCommand('git config user.name "github-actions[bot]"');
+  runCommand('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"');
+  runCommand("git add .");
+  runCommand('git commit -m "feat: add AI-generated Friday I\'m in Love content"');
+  runCommand("git push origin main");
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
+const isDirectRun = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : false;
+
+if (isDirectRun) {
+  try {
+    main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }
