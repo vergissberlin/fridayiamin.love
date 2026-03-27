@@ -8,6 +8,18 @@ const FULL_CONTEXT_BUDGET = 70_000;
 const SLIM_CONTEXT_BUDGET = 25_000;
 const REPAIR_LOG_BUDGET = 20_000;
 
+function resolveMaxOutputTokens() {
+  const raw = process.env.AI_MAX_OUTPUT_TOKENS;
+  if (raw) {
+    const parsed = Number.parseInt(String(raw), 10);
+    if (Number.isFinite(parsed) && parsed >= 1024 && parsed <= 32768) {
+      return parsed;
+    }
+  }
+  // Default must fit a full `page.tsx` plus edits; 6000 was too tight and caused truncated output → lint/tsc failures.
+  return 16_384;
+}
+
 function debugLog(message) {
   if (isDebug) {
     console.log(`[ai-feature-gen][debug] ${message}`);
@@ -85,7 +97,7 @@ function buildRequest(mode = "full", provider = "copilot") {
     model: resolveModel(provider),
     messages,
     temperature: 0.4,
-    max_tokens: 6000,
+    max_tokens: resolveMaxOutputTokens(),
   };
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
@@ -142,7 +154,7 @@ function buildRepairRequest(provider = "copilot", lintPath = "", typecheckPath =
     model: resolveModel(provider),
     messages,
     temperature: 0.2,
-    max_tokens: 6000,
+    max_tokens: resolveMaxOutputTokens(),
   };
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");

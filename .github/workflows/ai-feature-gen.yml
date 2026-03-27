@@ -75,6 +75,8 @@ jobs:
           DEBUG_AI_FEATURE_GEN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_ai_feature_gen || 'false' }}
           AI_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.provider || 'openai' }}
           AI_MAX_REPAIR_ATTEMPTS: ${{ vars.AI_MAX_REPAIR_ATTEMPTS || '3' }}
+          # Raised default in script (16k); override via repo variable if the model/API allows higher completion limits.
+          AI_MAX_OUTPUT_TOKENS: ${{ vars.AI_MAX_OUTPUT_TOKENS || '16384' }}
         run: node .github/scripts/ai-feature-gen-runner.mjs
 
       - name: Commit and push

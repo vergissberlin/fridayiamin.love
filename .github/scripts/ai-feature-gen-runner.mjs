@@ -128,6 +128,18 @@ function runValidationStep(command, outputPath) {
   return result.status ?? 1;
 }
 
+/** Best-effort ESLint fixes on the generated page only (imports order, hooks deps, etc.). */
+export function runEslintAutofixOnPage() {
+  const result = spawnSync('pnpm exec eslint "src/app/page.tsx" --fix', { shell: true, encoding: "utf-8" });
+  const out = `${result.stdout || ""}${result.stderr || ""}`.trim();
+  if (out) {
+    console.log(out);
+  }
+  if ((result.status ?? 1) !== 0) {
+    console.log("ESLint --fix still reports issues; full repo lint will capture details.");
+  }
+}
+
 export function validateGeneratedPage() {
   const lintExit = runValidationStep("pnpm lint", LINT_LOG_PATH);
   const typecheckExit = runValidationStep("pnpm typecheck", TYPECHECK_LOG_PATH);
@@ -176,6 +188,7 @@ export function generateOrRepair(attempt, provider) {
 
   debugLog(`Model API request succeeded with status ${httpCode}`);
   runNodeScript(".github/scripts/ai-feature-gen.mjs", "apply-response");
+  runEslintAutofixOnPage();
 }
 
 function restoreBackupIfPresent() {

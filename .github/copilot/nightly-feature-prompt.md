@@ -47,6 +47,9 @@ Hard requirements:
 - Keep changes focused and non-destructive.
 - Keep visual style aligned with current neon/chaotic 90s aesthetic.
 - Keep code compile-safe and lint-safe.
+- **React / Next.js hydration:** never compute initial UI from `navigator`, `window`, `localStorage`, `Date.now()`, or `new Date()` in a way that differs between server and client on the first paint. If you need locale/time, use a stable server default (for example English) and only update after mount in a way that passes this repo’s ESLint React Compiler rules (do **not** call `setState` synchronously in a `useEffect` body just to "sync" browser-only data; prefer user-driven updates or patterns that do not trigger cascading renders).
+- **No `Math.random()` during render**; use fixed values or deterministic sequences.
+- **Output length:** the model must return the **complete** `src/app/page.tsx` file. Truncated or partial files will fail CI; if in doubt, shorten the feature instead of cutting the file off.
 - If prior validation errors are provided, prioritize fixing only those errors first before making any additional edits.
 - Update docs when new feature behavior is introduced.
 - Use inclusive, respectful language.
@@ -62,7 +65,7 @@ Output format:
 
 - Return only the **full updated source code** for `src/app/page.tsx`.
 - No JSON, no diff format, no natural-language explanation.
-- You may optionally wrap the code in a single fenced block (for example: ```tsx ... ```), but do not include anything else before or after the fence.
+- Prefer wrapping the code in a single fenced block (for example: ```tsx ... ```) so extractors never misparse the file; do not include anything else before or after the fence.
 - The file must remain a valid Next.js client component with the existing `"use client"` directive and default export preserved.
 - Keep as much of the existing structure and sections as possible; extend and tweak instead of rewriting everything from scratch.
 - Do not include explanations, markdown prose, or notes outside the code itself.
