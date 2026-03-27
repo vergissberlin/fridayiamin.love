@@ -1,3 +1,5 @@
+# fridayiamin.love
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -5,13 +7,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -35,24 +32,33 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## Nightly Copilot Feature Pipeline
+## Nightly AI Feature Pipeline
 
-This repository includes a scheduled GitHub Actions workflow at `.github/workflows/nightly-copilot-feature.yml`.
+This repository includes a scheduled GitHub Actions workflow at `.github/workflows/ai-feature-gen.yml`.
 
-- **Schedule**: every day at 21:00 Europe/Berlin.
-- **Cron note**: GitHub Actions cron uses UTC. The workflow includes both `19:00 UTC` (CEST) and `20:00 UTC` (CET) to stay aligned with Berlin evening runs across daylight saving changes.
-- **Purpose**: run GitHub Copilot CLI to propose and apply one fan-focused feature improvement around The Cure and "Friday I'm in Love" (for example Spotify embed, fan links, MIDI or guitar tabs section).
+- **Schedule**: every day at `20:00 UTC` (`21:00` Europe/Berlin during CET).
+- **Cron note**: GitHub Actions cron uses UTC.
+- **Purpose**: generate and apply one fan-focused feature improvement around The Cure and "Friday I'm in Love" (for example Spotify embed, fan links, MIDI or guitar tabs section).
+- **Providers**: `openai`, `copilot`, `opencode`.
+- **Default provider**: scheduled runs use `openai`; manual `workflow_dispatch` runs can pick the provider input.
 - **Validation gates**: `pnpm lint`, `pnpm typecheck`, and `pnpm build` must pass before any commit is created.
 - **Push behavior**: if changes exist and checks pass, the workflow commits using a Conventional Commit message and pushes to `main`.
 
 ### Permissions and Authentication
 
 - Workflow permission `contents: write` is required to commit and push.
-- `GITHUB_TOKEN` is used for repository write access and Copilot CLI authentication in the workflow environment.
+- `GITHUB_TOKEN` is used for repository write access and GitHub Models (`provider=copilot`).
+- `OPENAI_API_KEY` is required for `provider=openai`.
+- `OPENCODE_CLI_CMD` (Repository Secret or Variable) is required for `provider=opencode`. It should contain the full command to run the opencode CLI and print the model output to stdout.
+
+Example `OPENCODE_CLI_CMD`:
+
+```bash
+opencode run --input /tmp/feature-request.json
+```
 
 ### Disable, Pause, or Roll Back
 
 - **Pause nightly runs**: disable the workflow in GitHub Actions UI, or remove/comment the `schedule` trigger.
 - **Manual test**: use `workflow_dispatch` from the Actions tab.
 - **Roll back changes**: revert the generated commit on `main` like any standard commit rollback.
-# Test

@@ -25,7 +25,17 @@ function trimToBudget(text, budget) {
   return `${start}\n\n/* ... truncated for payload size ... */\n\n${end}`;
 }
 
-function buildRequest(mode = "full") {
+function resolveModel(provider) {
+  if (provider === "openai") {
+    return process.env.OPENAI_MODEL ?? "gpt-4.1";
+  }
+  if (provider === "opencode") {
+    return process.env.OPENCODE_MODEL ?? "gpt-4.1";
+  }
+  return process.env.GITHUB_MODELS_MODEL ?? "openai/gpt-5.4";
+}
+
+function buildRequest(mode = "full", provider = "copilot") {
   const promptPath = ".github/copilot/nightly-feature-prompt.md";
   const prompt = readFileSync(promptPath, "utf-8");
 
@@ -68,7 +78,7 @@ function buildRequest(mode = "full") {
   }
 
   const payload = {
-    model: "openai/gpt-4.1",
+    model: resolveModel(provider),
     messages,
     temperature: 0.4,
     max_tokens: 6000,
@@ -76,8 +86,48 @@ function buildRequest(mode = "full") {
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
   debugLog(
-    `Built ${mode} request with ${messages.length} message(s), context files: ${contextParts.length}, context length: ${context.length}`,
+    `Built ${mode} request for provider=${provider} with ${messages.length} message(s), context files: ${contextParts.length}, context length: ${context.length}`,
   );
+}
+
+function extractRawContent(data) {
+  const direct = data?.choices?.[0]?.message?.content;
+  if (typeof direct === "string") {
+    return direct;
+  }
+
+  if (Array.isArray(direct)) {
+    const joined = direct
+      .map((part) => {
+        if (typeof part === "string") {
+          return part;
+        }
+        if (typeof part?.text === "string") {
+          return part.text;
+        }
+        return "";
+      })
+      .join("\n");
+    if (joined.trim()) {
+      return joined;
+    }
+  }
+
+  if (typeof data?.output_text === "string" && data.output_text.trim()) {
+    return data.output_text;
+  }
+
+  if (Array.isArray(data?.output)) {
+    const outputJoined = data.output
+      .flatMap((item) => (Array.isArray(item?.content) ? item.content : []))
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("\n");
+    if (outputJoined.trim()) {
+      return outputJoined;
+    }
+  }
+
+  return "";
 }
 
 function applyResponse() {
@@ -96,7 +146,7 @@ function applyResponse() {
 
   debugLog(`Response contains ${data.choices.length} choice(s)`);
 
-  const rawContent = data?.choices?.[0]?.message?.content ?? "";
+  const rawContent = extractRawContent(data);
   debugLog(`Raw first choice content length: ${rawContent.length}`);
 
   let content = "";
@@ -120,24 +170,45 @@ function applyResponse() {
     process.exit(1);
   }
 
-  if (!content.trim()) {
-    console.log("Model returned empty content; nothing to do.");
-    process.exit(0);
-  }
-
   writeFileSync(TARGET_PATH, content, "utf-8");
   debugLog(`Wrote ${content.length} characters to ${TARGET_PATH}`);
   console.log("Updated files:", TARGET_PATH);
 }
 
+function normalizeOpencodeResponse(inputPath) {
+  const raw = readFileSync(inputPath, "utf-8");
+  const payload = {
+    choices: [
+      {
+        message: {
+          content: raw,
+        },
+      },
+    ],
+  };
+  writeFileSync(RESPONSE_PATH, JSON.stringify(payload), "utf-8");
+  debugLog(`Normalized opencode output (${raw.length} chars) into ${RESPONSE_PATH}`);
+}
+
 const command = process.argv[2];
-const arg = process.argv[3];
+const arg1 = process.argv[3];
+const arg2 = process.argv[4];
 
 if (command === "build-request") {
-  buildRequest(arg === "slim" ? "slim" : "full");
+  const mode = arg1 === "slim" ? "slim" : "full";
+  const provider = arg2 === "openai" || arg2 === "opencode" || arg2 === "copilot" ? arg2 : "copilot";
+  buildRequest(mode, provider);
 } else if (command === "apply-response") {
   applyResponse();
+} else if (command === "normalize-opencode") {
+  if (!arg1) {
+    console.error("Usage: node .github/scripts/ai-feature-gen.mjs normalize-opencode <input-path>");
+    process.exit(1);
+  }
+  normalizeOpencodeResponse(arg1);
 } else {
-  console.error("Usage: node .github/scripts/ai-feature-gen.mjs <build-request|apply-response> [slim]");
+  console.error(
+    "Usage: node .github/scripts/ai-feature-gen.mjs <build-request|apply-response|normalize-opencode> [mode] [provider]",
+  );
   process.exit(1);
 }
