@@ -297,6 +297,84 @@ const SpotifyPlayer = () => (
 );
 // --- End: New Spotify Player Section ---
 
+// --- Begin: New Cover Versions Section ---
+const COVER_VERSIONS = [
+  {
+    artist: "Yo La Tengo",
+    link: "https://www.youtube.com/watch?v=7rT4lR1g7hE",
+    note: "Dreamy indie take, live at WFMU",
+  },
+  {
+    artist: "Janet Devlin",
+    link: "https://www.youtube.com/watch?v=QvQh2Wl9-0U",
+    note: "Acoustic and heartfelt, viral on YouTube",
+  },
+  {
+    artist: "The Bates",
+    link: "https://www.youtube.com/watch?v=8w6l0qQw9nE",
+    note: "90s punk-pop energy",
+  },
+  {
+    artist: "Phoebe Bridgers",
+    link: "https://www.youtube.com/watch?v=0h6rX2uK7lA",
+    note: "Haunting, stripped-down live version",
+  },
+  {
+    artist: "Ben Gibbard (Death Cab for Cutie)",
+    link: "https://www.youtube.com/watch?v=6k4v3pW9FjA",
+    note: "Gentle indie-folk, for SiriusXM",
+  },
+  {
+    artist: "Yoann Casals (Piano Cover)",
+    link: "https://www.youtube.com/watch?v=8fXhQv7J4yM",
+    note: "Instrumental, melancholic piano",
+  },
+];
+
+const CoverVersionsSection = () => (
+  <section className={styles.coverVersionsSection}>
+    <motion.h2
+      className={styles.sectionTitle}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+    >
+      Cover Versions
+    </motion.h2>
+    <p className={styles.coverIntro}>
+      The joy of &quot;Friday I&apos;m in Love&quot; has inspired countless covers by artists across genres. Here are some fan-favorite reinterpretations:
+    </p>
+    <ul className={styles.coverList}>
+      {COVER_VERSIONS.map((cover, idx) => (
+        <motion.li
+          key={cover.artist}
+          className={styles.coverItem}
+          initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 * idx, duration: 0.5, type: "spring" }}
+          viewport={{ once: true }}
+        >
+          <a
+            href={cover.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.coverArtistLink}
+          >
+            <span className={styles.coverArtist}>{cover.artist}</span>
+          </a>
+          <span className={styles.coverNote}>{cover.note}</span>
+        </motion.li>
+      ))}
+    </ul>
+    <div className={styles.coverFooter}>
+      <span className={styles.coverFooterNote}>
+        <span role="img" aria-label="sparkle">✨</span> Know a great cover? <a href="https://www.youtube.com/results?search_query=friday+im+in+love+cover" target="_blank" rel="noopener noreferrer">Explore more on YouTube</a>
+      </span>
+    </div>
+  </section>
+);
+// --- End: New Cover Versions Section ---
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -372,6 +450,9 @@ export default function Home() {
 
       {/* --- Insert Spotify Player Section after Hero --- */}
       <SpotifyPlayer />
+
+      {/* --- Insert Cover Versions Section after Spotify Player --- */}
+      <CoverVersionsSection />
 
       <section className={styles.daySection}>
         <motion.h2 
