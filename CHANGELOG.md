@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0](https://github.com/vergissberlin/fridayiamin.love/compare/v1.1.0...v1.2.0) (2026-03-27)
+
+
+### Features
+
+* add confetti animation for Fridays ([5c70f52](https://github.com/vergissberlin/fridayiamin.love/commit/5c70f5233badaf1cebccfdf6ba1aca7a033d6738))
+* add Friday party celebration feature ([b33f219](https://github.com/vergissberlin/fridayiamin.love/commit/b33f2194743145ae5817a7194581ccb0aa8c119f))
+* add Vitest for testing and update package dependencies ([9d925f6](https://github.com/vergissberlin/fridayiamin.love/commit/9d925f6b407c74183d582888bd59eded90957ddc))
+* implement Friday countdown component ([b75f427](https://github.com/vergissberlin/fridayiamin.love/commit/b75f427c134347a4aee7c124746d6261771e72d6))
+
 ## [1.1.0](https://github.com/vergissberlin/fridayiamin.love/compare/v1.0.0...v1.1.0) (2026-03-27)
 
 
