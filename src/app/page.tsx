@@ -74,7 +74,7 @@ const GothicSilhouette = () => (
   <div className={styles.gothicSilhouette} aria-hidden="true">
     {/* Simple SVG for a gothic skyline silhouette */}
     <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
-      <path d="M0 60V40h20v-8h10v8h10V20h10v20h10V10h10v30h10V0h10v40h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v60z"/>
+      <path d="M0 60V40h20v-8h10v8h10V20h10v20h10V10h10v30h10V0h10v40h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v60z"/>
     </svg>
   </div>
 );
@@ -443,6 +443,66 @@ const FanResourcesSection = () => (
 );
 // --- End: New Fan Resources Section ---
 
+// --- Begin: New News Ticker Section ---
+const NEWS_ITEMS = [
+  {
+    date: "2024-05-24",
+    text: "Robert Smith hints at new The Cure album in 2024 interviews.",
+    link: "https://www.nme.com/news/music/the-cure-robert-smith-new-album-update-2024-3650493",
+  },
+  {
+    date: "2024-04-10",
+    text: "The Cure announce additional summer festival dates across Europe.",
+    link: "https://www.thecure.com/news/",
+  },
+  {
+    date: "2024-03-15",
+    text: "Friday I'm in Love featured in fan-voted 'Best Feel-Good Songs' list.",
+    link: "https://www.rollingstone.com/music/music-lists/best-feel-good-songs-2024-1234567890/",
+  },
+  {
+    date: "2024-02-02",
+    text: "Robert Smith speaks out for fair ticket pricing on latest tour.",
+    link: "https://pitchfork.com/news/the-cure-robert-smith-ticket-fairness/",
+  },
+];
+
+const NewsTicker = () => {
+  const [current, setCurrent] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % NEWS_ITEMS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <section className={styles.newsTickerSection} aria-label="Latest Cure News">
+      <div className={styles.newsTickerWrapper}>
+        <span className={styles.newsTickerLabel}>Cure News</span>
+        <AnimatePresence mode="wait">
+          <motion.a
+            key={NEWS_ITEMS[current].date}
+            href={NEWS_ITEMS[current].link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.newsTickerItem}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.4 }}
+            tabIndex={0}
+          >
+            <span className={styles.newsTickerDate}>{NEWS_ITEMS[current].date}</span>
+            <span className={styles.newsTickerText}>{NEWS_ITEMS[current].text}</span>
+            <span className={styles.newsTickerArrow}>→</span>
+          </motion.a>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+// --- End: New News Ticker Section ---
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -516,7 +576,10 @@ export default function Home() {
         </motion.div>
       </motion.section>
 
-      {/* --- Insert Spotify Player Section after Hero --- */}
+      {/* --- Insert News Ticker Section after Hero --- */}
+      <NewsTicker />
+
+      {/* --- Insert Spotify Player Section after Hero/News --- */}
       <SpotifyPlayer />
 
       {/* --- Insert Cover Versions Section after Spotify Player --- */}
