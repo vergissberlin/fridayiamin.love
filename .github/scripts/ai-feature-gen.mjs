@@ -68,7 +68,7 @@ function buildRequest(mode = "full") {
   }
 
   const payload = {
-    model: "openai/gpt-4o-mini",
+    model: "openai/gpt-4o",
     messages,
     temperature: 0.4,
     max_tokens: 6000,
