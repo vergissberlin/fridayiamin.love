@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { getNextFridayCountdown, type CountdownParts } from "@/lib/friday-countdown";
+import { getNextFridayCountdown } from "@/lib/friday-countdown";
 import styles from "./page.module.css";
 
 // --- Begin: Helper Types and Data ---
@@ -304,11 +304,7 @@ export default function Home() {
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
   const y = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
 
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>(() => {
-    const guess = typeof navigator !== "undefined" ? navigator.language : "en";
-    const code = guess.toLowerCase().split("-")[0];
-    return isLanguageCode(code) ? code : "en";
-  });
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>("en");
 
   return (
     <main className={styles.main}>
