@@ -6,6 +6,7 @@ const TARGET_PATH = "src/app/page.tsx";
 const isDebug = String(process.env.DEBUG_AI_FEATURE_GEN ?? "").toLowerCase() === "true";
 const FULL_CONTEXT_BUDGET = 70_000;
 const SLIM_CONTEXT_BUDGET = 25_000;
+const REPAIR_LOG_BUDGET = 20_000;
 
 function debugLog(message) {
   if (isDebug) {
@@ -35,10 +36,7 @@ function resolveModel(provider) {
   return process.env.GITHUB_MODELS_MODEL ?? "openai/gpt-5.4";
 }
 
-function buildRequest(mode = "full", provider = "copilot") {
-  const promptPath = ".github/copilot/nightly-feature-prompt.md";
-  const prompt = readFileSync(promptPath, "utf-8");
-
+function collectContext(mode = "full") {
   const contextFiles =
     mode === "slim" ? ["src/app/page.tsx"] : ["src/app/page.tsx", "src/app/page.module.css", "README.md"];
   const contextBudget = mode === "slim" ? SLIM_CONTEXT_BUDGET : FULL_CONTEXT_BUDGET;
@@ -65,7 +63,13 @@ function buildRequest(mode = "full", provider = "copilot") {
     }
   }
 
-  const context = contextParts.join("\n\n");
+  return contextParts.join("\n\n");
+}
+
+function buildRequest(mode = "full", provider = "copilot") {
+  const promptPath = ".github/copilot/nightly-feature-prompt.md";
+  const prompt = readFileSync(promptPath, "utf-8");
+  const context = collectContext(mode);
   const messages = [{ role: "system", content: prompt }];
 
   if (context) {
@@ -86,8 +90,63 @@ function buildRequest(mode = "full", provider = "copilot") {
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
   debugLog(
-    `Built ${mode} request for provider=${provider} with ${messages.length} message(s), context files: ${contextParts.length}, context length: ${context.length}`,
+    `Built ${mode} request for provider=${provider} with ${messages.length} message(s), context length: ${context.length}`,
   );
+}
+
+function readIfExists(path) {
+  if (!path) {
+    return "";
+  }
+  if (!existsSync(path)) {
+    return "";
+  }
+  try {
+    return readFileSync(path, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
+function buildRepairRequest(provider = "copilot", lintPath = "", typecheckPath = "", buildPath = "") {
+  const promptPath = ".github/copilot/nightly-feature-prompt.md";
+  const prompt = readFileSync(promptPath, "utf-8");
+  const currentPage = readIfExists(TARGET_PATH);
+  const lintLog = trimToBudget(readIfExists(lintPath), REPAIR_LOG_BUDGET);
+  const typecheckLog = trimToBudget(readIfExists(typecheckPath), REPAIR_LOG_BUDGET);
+  const buildLog = trimToBudget(readIfExists(buildPath), REPAIR_LOG_BUDGET);
+
+  const diagnostics = [
+    `--- LINT OUTPUT ---\n${lintLog || "No lint output captured."}`,
+    `--- TYPECHECK OUTPUT ---\n${typecheckLog || "No typecheck output captured."}`,
+    `--- BUILD OUTPUT ---\n${buildLog || "No build output captured."}`,
+  ].join("\n\n");
+
+  const repairInstruction = [
+    "Repair mode: the previous AI-generated file failed project validation.",
+    "Your task is to fix only the issues that block lint/typecheck/build while keeping the intended feature intact.",
+    "Do not introduce new sections unless required to fix the errors.",
+    "Keep existing behavior and styling direction; apply minimal, deterministic edits.",
+    "Return the full updated source code for src/app/page.tsx only.",
+  ].join("\n");
+
+  const messages = [
+    { role: "system", content: prompt },
+    {
+      role: "user",
+      content: `${repairInstruction}\n\n${diagnostics}\n\n--- FILE: ${TARGET_PATH} ---\n${currentPage}`,
+    },
+  ];
+
+  const payload = {
+    model: resolveModel(provider),
+    messages,
+    temperature: 0.2,
+    max_tokens: 6000,
+  };
+
+  writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
+  debugLog(`Built repair request for provider=${provider}`);
 }
 
 function extractRawContent(data) {
@@ -214,6 +273,9 @@ if (command === "build-request") {
   const mode = arg1 === "slim" ? "slim" : "full";
   const provider = arg2 === "openai" || arg2 === "opencode" || arg2 === "copilot" ? arg2 : "copilot";
   buildRequest(mode, provider);
+} else if (command === "build-repair-request") {
+  const provider = arg1 === "openai" || arg1 === "opencode" || arg1 === "copilot" ? arg1 : "copilot";
+  buildRepairRequest(provider, process.argv[4] ?? "", process.argv[5] ?? "", process.argv[6] ?? "");
 } else if (command === "apply-response") {
   applyResponse();
 } else if (command === "normalize-opencode") {
@@ -224,7 +286,7 @@ if (command === "build-request") {
   normalizeOpencodeResponse(arg1);
 } else {
   console.error(
-    "Usage: node .github/scripts/ai-feature-gen.mjs <build-request|apply-response|normalize-opencode> [mode] [provider]",
+    "Usage: node .github/scripts/ai-feature-gen.mjs <build-request|build-repair-request|apply-response|normalize-opencode> ...",
   );
   process.exit(1);
 }

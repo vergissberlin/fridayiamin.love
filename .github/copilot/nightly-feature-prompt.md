@@ -46,6 +46,7 @@ Hard requirements:
 - Keep changes focused and non-destructive.
 - Keep visual style aligned with current neon/chaotic 90s aesthetic.
 - Keep code compile-safe and lint-safe.
+- If prior validation errors are provided, prioritize fixing only those errors first before making any additional edits.
 - Update docs when new feature behavior is introduced.
 - Use inclusive, respectful language.
 
@@ -60,13 +61,11 @@ Output format:
 
 - Return only the **full updated source code** for `src/app/page.tsx`.
 - No JSON, no diff format, no natural-language explanation.
-- You may optionally wrap the code in a single fenced block like:
-  - ```tsx
-    // full contents of src/app/page.tsx here
-    ```
-  but do not include anything else before or after the fence.
+- You may optionally wrap the code in a single fenced block (for example: ```tsx ... ```), but do not include anything else before or after the fence.
 - The file must remain a valid Next.js client component with the existing `"use client"` directive and default export preserved.
 - Keep as much of the existing structure and sections as possible; extend and tweak instead of rewriting everything from scratch.
+- Do not include explanations, markdown prose, or notes outside the code itself.
+- Avoid introducing unescaped apostrophes/quotes in JSX text nodes that would violate strict lint rules.
 
 Context hints:
 

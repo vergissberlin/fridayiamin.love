@@ -74,6 +74,7 @@ jobs:
           OPENCODE_CLI_CMD: ${{ secrets.OPENCODE_CLI_CMD || vars.OPENCODE_CLI_CMD || '' }}
           DEBUG_AI_FEATURE_GEN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_ai_feature_gen || 'false' }}
           AI_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.provider || 'openai' }}
+          AI_MAX_REPAIR_ATTEMPTS: ${{ vars.AI_MAX_REPAIR_ATTEMPTS || '3' }}
         run: |
           set -euo pipefail
 
@@ -83,10 +84,7 @@ jobs:
           fi
 
           echo "Using AI provider: ${AI_PROVIDER}"
-
-          # Build request payload from nightly feature prompt + current app context
-          node .github/scripts/ai-feature-gen.mjs build-request full "${AI_PROVIDER}"
-          echo "Request payload size (full): $(wc -c < /tmp/feature-request.json) bytes"
+          echo "Max repair attempts: ${AI_MAX_REPAIR_ATTEMPTS}"
 
           run_provider_request() {
             if [ "${AI_PROVIDER}" = "copilot" ]; then
@@ -125,34 +123,80 @@ jobs:
             fi
           }
 
-          run_provider_request
+          validate_generated_page() {
+            set +e
+            pnpm lint > /tmp/ai-feature-lint.log 2>&1
+            local lint_exit=$?
+            pnpm typecheck > /tmp/ai-feature-typecheck.log 2>&1
+            local typecheck_exit=$?
+            pnpm build > /tmp/ai-feature-build.log 2>&1
+            local build_exit=$?
+            set -e
 
-          if [ "$HTTP_CODE" -eq 413 ] && [ "${AI_PROVIDER}" != "opencode" ]; then
-            echo "Model API request returned 413 (payload too large), retrying with slim context..."
-            node .github/scripts/ai-feature-gen.mjs build-request slim "${AI_PROVIDER}"
-            echo "Request payload size (slim): $(wc -c < /tmp/feature-request.json) bytes"
+            if [ $lint_exit -eq 0 ] && [ $typecheck_exit -eq 0 ] && [ $build_exit -eq 0 ]; then
+              return 0
+            fi
+
+            echo "Validation failed (lint=$lint_exit, typecheck=$typecheck_exit, build=$build_exit)"
+            return 1
+          }
+
+          generate_or_repair() {
+            local attempt="$1"
+            if [ "$attempt" -eq 1 ]; then
+              node .github/scripts/ai-feature-gen.mjs build-request full "${AI_PROVIDER}"
+              echo "Request payload size (full): $(wc -c < /tmp/feature-request.json) bytes"
+            else
+              node .github/scripts/ai-feature-gen.mjs build-repair-request "${AI_PROVIDER}" \
+                /tmp/ai-feature-lint.log \
+                /tmp/ai-feature-typecheck.log \
+                /tmp/ai-feature-build.log
+              echo "Request payload size (repair): $(wc -c < /tmp/feature-request.json) bytes"
+            fi
+
             run_provider_request
-          fi
 
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "Model API request failed with status $HTTP_CODE (provider=${AI_PROVIDER})"
-            exit 1
-          fi
+            if [ "$HTTP_CODE" -eq 413 ] && [ "${AI_PROVIDER}" != "opencode" ] && [ "$attempt" -eq 1 ]; then
+              echo "Model API request returned 413 (payload too large), retrying initial request with slim context..."
+              node .github/scripts/ai-feature-gen.mjs build-request slim "${AI_PROVIDER}"
+              echo "Request payload size (slim): $(wc -c < /tmp/feature-request.json) bytes"
+              run_provider_request
+            fi
 
-          if [ "${DEBUG_AI_FEATURE_GEN}" = "true" ]; then
-            echo "Debug: model API request succeeded with status $HTTP_CODE"
-          fi
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "Model API request failed with status $HTTP_CODE (provider=${AI_PROVIDER})"
+              exit 1
+            fi
 
-          # Convert model response into concrete file changes
+            if [ "${DEBUG_AI_FEATURE_GEN}" = "true" ]; then
+              echo "Debug: model API request succeeded with status $HTTP_CODE"
+            fi
+
+            node .github/scripts/ai-feature-gen.mjs apply-response
+          }
+
+          # Keep backup to allow clean restore if all attempts fail.
           cp src/app/page.tsx /tmp/page.tsx.backup
-          node .github/scripts/ai-feature-gen.mjs apply-response
+          attempt=1
+          max_attempts="${AI_MAX_REPAIR_ATTEMPTS}"
+          success="false"
 
-      - name: Validate
-        run: |
-          set -euo pipefail
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo "AI generation attempt ${attempt}/${max_attempts}"
+            generate_or_repair "$attempt"
 
-          if ! pnpm lint || ! pnpm typecheck || ! pnpm build; then
-            echo "Generated page did not pass validation. Restoring previous src/app/page.tsx and skipping commit."
+            if validate_generated_page; then
+              echo "Validation passed on attempt ${attempt}."
+              success="true"
+              break
+            fi
+
+            echo "Validation failed on attempt ${attempt}. Preparing repair attempt."
+            attempt=$((attempt + 1))
+          done
+
+          if [ "$success" != "true" ]; then
+            echo "All attempts failed. Restoring previous src/app/page.tsx and skipping commit."
             cp /tmp/page.tsx.backup src/app/page.tsx
             exit 0
           fi
