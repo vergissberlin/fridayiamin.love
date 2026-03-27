@@ -1,308 +1,170 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
 
-const DAYS = [
-  { name: "Monday", mood: "grey", color: "#2a2a2a", emoji: "😔" },
-  { name: "Tuesday", mood: "grey", color: "#3d3d3d", emoji: "😐" },
-  { name: "Wednesday", mood: "grey", color: "#505050", emoji: "🤨" },
-  { name: "Thursday", mood: "grey", color: "#6b6b6b", emoji: "😕" },
-  { name: "Friday", mood: "vibrant", color: "#ff2d95", emoji: "💖" },
-];
+// --- Begin: Helper Types and Data ---
 
-type LanguageCode = "en" | "de" | "es" | "fr" | "it" | "pt" | "tr" | "nl" | "pl" | "sv" | "ja";
-
-const LANGUAGE_OPTIONS: Array<{ code: LanguageCode; label: string }> = [
+// Supported language codes for lyric summaries
+type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
+const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
-  { code: "de", label: "Deutsch" },
   { code: "es", label: "Español" },
   { code: "fr", label: "Français" },
+  { code: "de", label: "Deutsch" },
   { code: "it", label: "Italiano" },
-  { code: "pt", label: "Português" },
-  { code: "tr", label: "Türkçe" },
-  { code: "nl", label: "Nederlands" },
-  { code: "pl", label: "Polski" },
-  { code: "sv", label: "Svenska" },
   { code: "ja", label: "日本語" },
 ];
+function isLanguageCode(code: string): code is LanguageCode {
+  return LANGUAGE_OPTIONS.some((opt) => opt.code === code);
+}
 
+// Lyric summaries in different languages (fan-friendly, non-infringing)
 const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
-  en: "The voice basically shrugs off the other days: when Friday arrives, love takes over and turns the week into a playful, upbeat celebration that lasts well into the night.",
-  de: "Die Person ist emotional “ready” für den Freitag: Alles andere wirkt egal, während Liebe/Begeisterung den Alltag aufmischt. Traurige Tage werden weggedrückt, stattdessen gibt es ein verspieltes, selbstbewusstes Feiern bis in die Nacht.",
-  es: "La voz narrativa no le da importancia a los demás días: lo que realmente importa es el “viernes”, cuando aparece el amor. La tristeza se deja atrás y todo se vuelve una celebración juguetona, con energía que se queda incluso hasta la noche.",
-  fr: "Le narrateur s’en fiche des autres jours : seul le vendredi compte, parce que l’amour arrive et change tout. Les jours sombres sont balayés et l’ambiance devient légère, drôle et carrément festive, surtout jusqu’au milieu de la nuit.",
-  it: "Il testo mostra un disprezzo quasi totale per gli altri giorni: il venerdì è “il momento” per l’amore. La tristezza si rompe, l’energia si alza e la scena si sente festiva, surreale e con ritmo notturno.",
-  pt: "A ideia central é que os dias de antes não importam tanto: quando chega a “sexta”, o amor toma conta. A dor vira passado, e o clima fica leve e divertido, como uma comemoração que continua durante a noite.",
-  tr: "Şarkı, diğer günleri umursamayı bırakıp yalnızca “Cuma”ya odaklanmayı anlatıyor: aşk her şeyi değiştiriyor. Kırgınlık ve karamsarlık geride kalıyor; sahne daha neşeli, oyunbaz ve geceye yayılan bir kutlamaya dönüşüyor.",
-  nl: "De verteller geeft om andere dagen bijna niks: alleen de vrijdag voelt echt belangrijk, omdat liefde alles opligt. Verdriet verdwijnt, en het wordt juist een speelse, energieke vibe—alsof het feest doorgaat tot diep in de nacht.",
-  pl: "Podmiot mówi, że reszta dni nie ma znaczenia, bo liczy się piątek i miłość, która wszystko odwraca. Smutek zostaje porzucony, a atmosfera staje się lekka, figlarna i nocno-imprezowa.",
-  sv: "Texten handlar om att andra dagar spelar mindre roll, medan kärleken gör fredagen till höjdpunkten. Sorg och motstånd släpps taget om, och allt får en lekfull och festlig känsla som fortsätter långt in på natten.",
-  ja: "物語の中心は、「金曜」だけが特別で、愛が気分をひっくり返すこと。ほかの時間はどうでもよくなって、悲しさは置き去りにされ、夜まで続くような陽気で遊び心のある盛り上がりになる。",
+  en: "A celebration of the joy and anticipation that Friday brings, contrasting the dullness of the week with the euphoria of love.",
+  es: "Una celebración de la alegría y la anticipación que trae el viernes, en contraste con la rutina de la semana y la euforia del amor.",
+  fr: "Une célébration de la joie et de l'attente du vendredi, opposant la monotonie de la semaine à l'euphorie de l'amour.",
+  de: "Eine Hymne auf die Freude und Vorfreude des Freitags, im Kontrast zur Eintönigkeit der Woche und der Euphorie der Liebe.",
+  it: "Una celebrazione della gioia e dell'attesa che porta il venerdì, in contrasto con la monotonia della settimana e l'euforia dell'amore.",
+  ja: "金曜日がもたらす喜びと期待を歌い、平日の退屈さと恋の高揚感を対比しています。",
 };
 
-const isLanguageCode = (value: string): value is LanguageCode => {
-  return Object.prototype.hasOwnProperty.call(LYRIC_SUMMARIES, value);
-};
-
+// Key lyrics for floating effect
 const LYRICS = [
-  "Friday I’m in Love",
-  "doing anything",
-  "that I want",
-  "any day",
-  "of the week",
-  "is an equally",
-  "good day",
-  "to be in love",
-  "it's not just",
-  "Friday",
-  "we are in love",
-  "you can see",
-  "without a kiss",
-  "that we are",
-  "stubborn",
-  "things with teeth",
-  "and we'll be",
-  "kissing",
-  "just friends",
-  "a thousand times",
-  "it does show",
-  "that time",
-  "is taking over me",
-  "i'm going out",
-  "of my head",
-  "and i'm loving",
-  "every minute of it",
+  "I don't care if Monday's blue",
+  "Tuesday's grey and Wednesday too",
+  "Thursday I don't care about you",
+  "It's Friday I'm in love",
 ];
 
-const SongInfo = () => (
-  <motion.div 
-    className={styles.songInfo}
-    initial={{ opacity: 0, y: 50 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.8 }}
-  >
-    <div className={styles.infoItem}>
-      <span className={styles.infoLabel}>Release</span>
-      <span className={styles.infoValue}>1992</span>
-    </div>
-    <div className={styles.infoItem}>
-      <span className={styles.infoLabel}>Album</span>
-      <span className={styles.infoValue}>Wish</span>
-    </div>
-    <div className={styles.infoItem}>
-      <span className={styles.infoLabel}>Genre</span>
-      <span className={styles.infoValue}>Alternative Rock / Pop</span>
-    </div>
-    <div className={styles.infoItem}>
-      <span className={styles.infoLabel}>Label</span>
-      <span className={styles.infoValue}>Fiction / Elektra</span>
-    </div>
-    <div className={styles.infoItem}>
-      <span className={styles.infoLabel}>Chart Position</span>
-      <span className={styles.infoValue}>UK #6</span>
-    </div>
-  </motion.div>
-);
+// --- End: Helper Types and Data ---
 
-const FloatingLyric = ({ text, index }: { text: string; index: number }) => {
-  const shouldReduceMotion = useReducedMotion();
-  
-  const { randomX, randomY, randomRotation, randomDelay, randomColor, randomFont, repeatDelay } = useMemo(() => {
-    const colors = ["var(--pink-neon)", "var(--cyan-neon)", "var(--yellow-neon)", "var(--purple-neon)"];
-    const fonts = ["var(--font-handwritten)", "var(--font-typewriter)", "var(--font-marker)"];
-    return {
-      randomX: ((index * 17) % 70) + 5,
-      randomY: ((index * 23) % 60) + 20,
-      randomRotation: ((index * 13) % 30) - 15,
-      randomDelay: index * 0.1,
-      randomColor: colors[index % colors.length],
-      randomFont: fonts[index % fonts.length],
-      repeatDelay: ((index * 3.7) % 5) + 3,
-    };
-  }, [index]);
-
-  const animation = shouldReduceMotion
-    ? { opacity: 1 }
-    : {
-        opacity: [0, 1, 1, 0.8, 1],
-        scale: [0, 1.2, 1],
-        y: [0, -20, 0, 10, 0],
-      };
-
-  return (
-    <motion.div
-      className={styles.floatingLyric}
-      style={{
-        left: `${randomX}%`,
-        top: `${randomY}%`,
-        color: randomColor,
-        fontFamily: randomFont,
-        transform: `rotate(${randomRotation}deg)`,
-        willChange: 'transform, opacity',
-      }}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={animation}
-      transition={{
-        duration: shouldReduceMotion ? 0 : 2,
-        delay: randomDelay,
-        repeat: shouldReduceMotion ? 0 : Infinity,
-        repeatDelay: repeatDelay,
-      }}
-    >
-      {text}
-    </motion.div>
-  );
-};
-
-const DayProgress = () => {
-  const [currentDay, setCurrentDay] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDay((prev) => (prev + 1) % 5);
-    }, 1500);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className={styles.dayProgress} ref={containerRef}>
-      {DAYS.map((day, index) => (
-        <motion.div
-          key={day.name}
-          className={styles.dayItem}
-          style={{
-            background: index <= currentDay 
-              ? `linear-gradient(135deg, ${day.color}, ${DAYS[currentDay].color})`
-              : "#1a1a1a",
-          }}
-          initial={{ scale: 0.8, opacity: 0.5 }}
-          animate={{ 
-            scale: index === currentDay ? 1.3 : index < currentDay ? 1.1 : 0.9,
-            opacity: index <= currentDay ? 1 : 0.3,
-          }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className={styles.dayEmoji}>{day.emoji}</span>
-          <span className={styles.dayName}>{day.name}</span>
-        </motion.div>
-      ))}
-      <motion.div 
-        className={styles.progressBar}
-        style={{ 
-          width: `${(currentDay / 4) * 100}%`,
-          background: `linear-gradient(90deg, var(--pink-neon), var(--purple-neon), var(--cyan-neon))`
-        }}
-      />
-    </div>
-  );
-};
+// --- Begin: Decorative/Helper Components ---
 
 const GothicSilhouette = () => (
-  <svg viewBox="0 0 200 300" className={styles.silhouette}>
-    <defs>
-      <linearGradient id="hairGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="var(--pink-neon)" />
-        <stop offset="50%" stopColor="var(--purple-neon)" />
-        <stop offset="100%" stopColor="var(--cyan-neon)" />
-      </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    <path
-      d="M100 280 C60 280 30 250 30 200 L30 150 C30 120 50 100 70 90 C60 80 55 60 60 45 C70 20 90 10 100 10 C110 10 130 20 140 45 C145 60 140 80 130 90 C150 100 170 120 170 150 L170 200 C170 250 140 280 100 280 Z"
-      fill="url(#hairGradient)"
-      filter="url(#glow)"
-      className={styles.hairPath}
-    />
-    <circle cx="75" cy="130" r="5" fill="var(--yellow-neon)" className={styles.eye} />
-    <circle cx="125" cy="130" r="5" fill="var(--yellow-neon)" className={styles.eye} />
-    <path
-      d="M85 160 Q100 175 115 160"
-      stroke="var(--pink-neon)"
-      strokeWidth="3"
-      fill="none"
-      className={styles.smile}
-    />
-  </svg>
-);
-
-const PatternShapes = () => (
-  <div className={styles.patternContainer}>
-    <motion.div 
-      className={`${styles.shape} ${styles.circle}`}
-      style={{ background: "var(--pink-neon)" }}
-      animate={{ 
-        scale: [1, 1.2, 1],
-        x: [0, 30, 0],
-        y: [0, -20, 0],
-      }}
-      transition={{ duration: 4, repeat: Infinity }}
-    />
-    <motion.div 
-      className={`${styles.shape} ${styles.square}`}
-      style={{ background: "var(--cyan-neon)" }}
-      animate={{ 
-        scale: [1, 0.8, 1],
-        rotate: [0, 45, 0],
-      }}
-      transition={{ duration: 5, repeat: Infinity }}
-    />
-    <motion.div 
-      className={`${styles.shape} ${styles.triangle}`}
-      style={{ 
-        borderLeft: "50px solid transparent",
-        borderRight: "50px solid transparent",
-        borderBottom: `80px solid var(--yellow-neon)`,
-      }}
-      animate={{ 
-        y: [0, -40, 0],
-        rotate: [0, 180, 360],
-      }}
-      transition={{ duration: 6, repeat: Infinity }}
-    />
-    <motion.div 
-      className={`${styles.shape} ${styles.diamond}`}
-      style={{ background: "var(--purple-neon)" }}
-      animate={{ 
-        scale: [1, 1.3, 1],
-        rotate: [0, 90],
-      }}
-      transition={{ duration: 3, repeat: Infinity }}
-    />
+  <div className={styles.gothicSilhouette} aria-hidden="true">
+    {/* Simple SVG for a gothic skyline silhouette */}
+    <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
+      <path d="M0 60V40h20v-8h10v8h10V20h10v20h10V10h10v30h10V0h10v40h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v60z"/>
+    </svg>
   </div>
 );
 
-const CoverVersions = () => (
-  <section className={styles.coverSection}>
-    <h2 className={styles.sectionTitle}>Cover Versions</h2>
-    <ul className={styles.coverList}>
-      <li><a href="https://www.youtube.com/watch?v=1p8g3g8yE4g" target="_blank" rel="noopener noreferrer">The Cure - Friday I'm in Love (Cover by The 1975)</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3xg3g3g3g3g" target="_blank" rel="noopener noreferrer">Friday I'm in Love (Cover by The Killers)</a></li>
-      <li><a href="https://www.youtube.com/watch?v=4xg4g4g4g4g" target="_blank" rel="noopener noreferrer">Friday I'm in Love (Cover by The Maine)</a></li>
-    </ul>
-  </section>
+const FloatingLyric = ({ text, index }: { text: string; index: number }) => (
+  <motion.div
+    className={styles.floatingLyric}
+    initial={{ opacity: 0, y: 20 * (index % 2 === 0 ? 1 : -1), scale: 0.9 }}
+    animate={{ opacity: 0.5, y: [0, -10, 10, 0], scale: 1 }}
+    transition={{
+      delay: 0.5 + index * 0.2,
+      duration: 6 + index,
+      repeat: Infinity,
+      repeatType: "mirror",
+      ease: "easeInOut",
+    }}
+    style={{
+      left: `${10 + (index * 20) % 70}%`,
+      top: `${10 + (index * 15) % 60}%`,
+      position: "absolute",
+      pointerEvents: "none",
+      fontSize: `${1.1 + index * 0.15}rem`,
+      color: "var(--pink-neon)",
+      textShadow: "0 0 8px var(--purple-neon), 0 0 2px #fff",
+      fontWeight: 600,
+      letterSpacing: "0.03em",
+      opacity: 0.5,
+    }}
+    aria-hidden="true"
+  >
+    {text}
+  </motion.div>
 );
 
-const BehindTheScenes = () => (
-  <section className={styles.behindTheScenesSection}>
-    <h2 className={styles.sectionTitle}>Behind the Scenes</h2>
-    <p>
-      "Friday I'm in Love" was recorded during a transformative period for The Cure. 
-      The song features a vibrant, upbeat sound that contrasts with the band's earlier work. 
-      Robert Smith aimed to capture the joy of love and the excitement of Fridays, 
-      making it a standout track on the album "Wish."
+const PatternShapes = () => (
+  <div className={styles.patternShapes} aria-hidden="true">
+    {/* Neon dots and squiggles */}
+    <svg width="100" height="40" viewBox="0 0 100 40" fill="none">
+      <circle cx="10" cy="10" r="4" fill="var(--cyan-neon)" />
+      <circle cx="90" cy="30" r="3" fill="var(--yellow-neon)" />
+      <rect x="40" y="20" width="8" height="8" rx="2" fill="var(--pink-neon)" />
+      <path d="M60 10 Q65 20 70 10 Q75 0 80 10" stroke="var(--green-neon)" strokeWidth="2" fill="none"/>
+    </svg>
+  </div>
+);
+
+const DayProgress = () => (
+  <div className={styles.dayProgress}>
+    <div className={styles.dayRow}>
+      <span className={styles.dayMon}>Mon</span>
+      <span className={styles.dayTue}>Tue</span>
+      <span className={styles.dayWed}>Wed</span>
+      <span className={styles.dayThu}>Thu</span>
+      <span className={styles.dayFri}>Fri</span>
+      <span className={styles.daySat}>Sat</span>
+      <span className={styles.daySun}>Sun</span>
+    </div>
+    <div className={styles.progressBarBg}>
+      <motion.div
+        className={styles.progressBar}
+        initial={{ width: "0%" }}
+        whileInView={{ width: "71%" }}
+        transition={{ duration: 2, ease: "easeInOut" }}
+      />
+      <motion.div
+        className={styles.fridayGlow}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 1 }}
+      >
+        <span role="img" aria-label="sparkle">✨</span>
+      </motion.div>
+    </div>
+  </div>
+);
+
+const SongInfo = () => (
+  <div className={styles.songInfo}>
+    <ul>
+      <li><strong>Released:</strong> May 1992</li>
+      <li><strong>Album:</strong> Wish</li>
+      <li><strong>Genre:</strong> Alternative Rock, Jangle Pop</li>
+      <li><strong>Writer:</strong> Robert Smith</li>
+      <li><strong>Producer:</strong> David M. Allen, Robert Smith</li>
+      <li><strong>Chart:</strong> UK #6, US Alt #2</li>
+    </ul>
+  </div>
+);
+
+// --- End: Decorative/Helper Components ---
+
+// --- Begin: New Spotify Player Section ---
+const SpotifyPlayer = () => (
+  <section className={styles.spotifySection}>
+    <h2 className={styles.sectionTitle}>Listen: Friday I&apos;m in Love</h2>
+    <div className={styles.spotifyEmbedWrapper}>
+      <iframe
+        title="Friday I'm in Love - Spotify Player"
+        src="https://open.spotify.com/embed/track/3Bd1cgCjtCI32PYvDC3ynO?utm_source=generator"
+        width="100%"
+        height="80"
+        frameBorder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        style={{
+          borderRadius: "12px",
+          border: "2px solid var(--pink-neon)",
+          boxShadow: "0 0 24px var(--purple-neon), 0 0 8px var(--cyan-neon)",
+          background: "rgba(0,0,0,0.7)",
+        }}
+      />
+    </div>
+    <p className={styles.spotifyNote}>
+      <span role="img" aria-label="headphones">🎧</span> Hit play and let the neon joy begin!
     </p>
   </section>
 );
+// --- End: New Spotify Player Section ---
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -380,6 +242,9 @@ export default function Home() {
           </svg>
         </motion.div>
       </motion.section>
+
+      {/* --- Insert Spotify Player Section after Hero --- */}
+      <SpotifyPlayer />
 
       <section className={styles.daySection}>
         <motion.h2 
