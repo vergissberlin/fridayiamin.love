@@ -2,18 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { getNextFridayCountdown, type CountdownParts } from "@/lib/friday-countdown";
 import styles from "./page.module.css";
 
 // --- Begin: Helper Types and Data ---
 
 // Supported language codes for lyric summaries
 type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
-type CountdownParts = {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-};
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -70,38 +65,6 @@ const FRIDAY_PARTY_CONFETTI = [
   { left: 76, delay: 0.5, duration: 2.7, size: 8, color: "var(--pink-neon)" },
   { left: 88, delay: 0.35, duration: 2.4, size: 7, color: "var(--cyan-neon)" },
 ];
-
-function getNextFridayCountdown(now: Date): CountdownParts {
-  const target = new Date(now);
-  target.setHours(0, 0, 0, 0);
-  const day = now.getDay();
-  let daysUntil = (5 - day + 7) % 7;
-  const isAlreadyFriday =
-    day === 5 &&
-    (now.getHours() > 0 ||
-      now.getMinutes() > 0 ||
-      now.getSeconds() > 0 ||
-      now.getMilliseconds() > 0);
-
-  if (isAlreadyFriday) {
-    daysUntil = 7;
-  }
-
-  target.setDate(target.getDate() + daysUntil);
-  const diffMs = Math.max(0, target.getTime() - now.getTime());
-  const totalSeconds = Math.floor(diffMs / 1000);
-  const daysPart = Math.floor(totalSeconds / 86400);
-  const hoursPart = Math.floor((totalSeconds % 86400) / 3600);
-  const minutesPart = Math.floor((totalSeconds % 3600) / 60);
-  const secondsPart = totalSeconds % 60;
-
-  return {
-    days: daysPart,
-    hours: hoursPart,
-    minutes: minutesPart,
-    seconds: secondsPart,
-  };
-}
 
 // --- End: Helper Types and Data ---
 

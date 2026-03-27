@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "test:ai-feature-gen": "node --test .github/scripts/ai-feature-gen-runner.test.mjs .github/scripts/ai-feature-commit.test.mjs"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "vitest": "^3.2.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
