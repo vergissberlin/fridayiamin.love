@@ -375,6 +375,74 @@ const CoverVersionsSection = () => (
 );
 // --- End: New Cover Versions Section ---
 
+// --- Begin: New Fan Resources Section ---
+const FAN_RESOURCES = [
+  {
+    name: "The Cure Official Website",
+    url: "https://www.thecure.com/",
+    desc: "Official band news, tour dates, and releases",
+  },
+  {
+    name: "Chain of Flowers",
+    url: "https://craigjparker.blogspot.com/",
+    desc: "Long-running Cure fan blog with news, setlists, and deep dives",
+  },
+  {
+    name: "The Cure on Reddit",
+    url: "https://www.reddit.com/r/TheCure/",
+    desc: "Active fan community, discussions, and fan art",
+  },
+  {
+    name: "The Cure on Discogs",
+    url: "https://www.discogs.com/artist/10898-The-Cure",
+    desc: "Comprehensive discography and collector info",
+  },
+  {
+    name: "Friday I'm in Love Wikipedia",
+    url: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love",
+    desc: "Background, chart info, and song history",
+  },
+];
+
+const FanResourcesSection = () => (
+  <section className={styles.fanResourcesSection}>
+    <motion.h2
+      className={styles.sectionTitle}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+    >
+      Fan Links & Resources
+    </motion.h2>
+    <p className={styles.fanResourcesIntro}>
+      Dive deeper into The Cure and the world of &quot;Friday I&apos;m in Love&quot; with these curated fan resources:
+    </p>
+    <ul className={styles.fanResourcesList}>
+      {FAN_RESOURCES.map((res, idx) => (
+        <motion.li
+          key={res.url}
+          className={styles.fanResourceItem}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 * idx, duration: 0.5, type: "spring" }}
+          viewport={{ once: true }}
+        >
+          <a
+            href={res.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.fanResourceLink}
+          >
+            <span className={styles.fanResourceName}>{res.name}</span>
+          </a>
+          <span className={styles.fanResourceDesc}>{res.desc}</span>
+        </motion.li>
+      ))}
+    </ul>
+  </section>
+);
+// --- End: New Fan Resources Section ---
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -404,7 +472,7 @@ export default function Home() {
             animate={{ scale: 1 }}
             transition={{ type: "spring", duration: 1 }}
           >
-            FRIDAY I&apos;M IN LOVE
+            FRIDAY I&apos;m in LOVE
           </motion.h1>
           
           <motion.p 
@@ -453,6 +521,9 @@ export default function Home() {
 
       {/* --- Insert Cover Versions Section after Spotify Player --- */}
       <CoverVersionsSection />
+
+      {/* --- Insert Fan Resources Section after Cover Versions --- */}
+      <FanResourcesSection />
 
       <section className={styles.daySection}>
         <motion.h2 
