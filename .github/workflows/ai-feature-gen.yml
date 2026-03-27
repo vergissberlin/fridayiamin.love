@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "0 20 * * *"
   workflow_dispatch:
+    inputs:
+      debug_ai_feature_gen:
+        description: "Enable debug logs for AI feature generation"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -41,91 +47,31 @@ jobs:
         id: generate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEBUG_AI_FEATURE_GEN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_ai_feature_gen || 'false' }}
         run: |
+          set -euo pipefail
+
           # Build request payload from nightly feature prompt + current app context
-          python3 << 'PYEOF'
-          import json
-          from pathlib import Path
+          node .github/scripts/ai-feature-gen.mjs build-request
 
-          prompt_path = Path('.github/copilot/nightly-feature-prompt.md')
-          prompt = prompt_path.read_text(encoding='utf-8')
-
-          # Collect key project files as context for the model
-          context_files = [
-              Path('src/app/page.tsx'),
-              Path('src/app/page.module.css'),
-              Path('README.md'),
-          ]
-
-          context_parts = []
-          for file_path in context_files:
-              if file_path.is_file():
-                  try:
-                      content = file_path.read_text(encoding='utf-8')
-                  except Exception:
-                      continue
-                  # Keep simple separators so the model can target specific files
-                  context_parts.append(f"--- FILE: {file_path.as_posix()} ---\n{content}")
-
-          context = "\n\n".join(context_parts)
-
-          messages = [
-              {
-                  "role": "system",
-                  "content": prompt,
-              }
-          ]
-
-          if context:
-              messages.append(
-                  {
-                      "role": "user",
-                      "content": "Here is the current application context. Propose and apply exactly one enhancement as specified.\n\n" + context,
-                  }
-              )
-
-          payload = {
-              "model": "openai/gpt-4o-mini",
-              "messages": messages,
-              "temperature": 0.4,
-              "max_tokens": 6000,
-          }
-
-          Path('/tmp/feature-request.json').write_text(json.dumps(payload), encoding='utf-8')
-          PYEOF
-
-          RESPONSE=$(curl -s -L "https://models.github.ai/inference/chat/completions" \
+          HTTP_CODE=$(curl -sS -L -o /tmp/response.json -w "%{http_code}" "https://models.github.ai/inference/chat/completions" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             -d @/tmp/feature-request.json)
 
-          echo "$RESPONSE" > /tmp/response.json
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "Model API request failed with status $HTTP_CODE"
+            exit 1
+          fi
+
+          if [ "${DEBUG_AI_FEATURE_GEN}" = "true" ]; then
+            echo "Debug: model API request succeeded with status $HTTP_CODE"
+          fi
 
           # Convert model response into concrete file changes
-          python3 << 'PYEOF'
-          import json
-          import re
-          from pathlib import Path
-
-          data = json.load(open("/tmp/response.json"))
-          content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-
-          # Extract raw TSX from optional fences
-          m = re.search(r"```(?:tsx|typescript|jsx)?\s*([\s\S]*)```", content)
-          if m:
-              content = m.group(1)
-
-          # If the model returns no content, do nothing
-          if not content.strip():
-              print("Model returned empty content; nothing to do.")
-              raise SystemExit(0)
-
-          target = Path("src/app/page.tsx")
-          target.write_text(content, encoding="utf-8")
-          print("Updated files:", target.as_posix())
-          PYEOF
+          node .github/scripts/ai-feature-gen.mjs apply-response
 
       - name: Validate
         run: |
