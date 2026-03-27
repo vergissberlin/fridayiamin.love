@@ -60,6 +60,17 @@ const FRIDAY_CONFETTI = [
   { left: 95, delay: 0.15, duration: 3.25, size: 6, color: "var(--yellow-neon)" },
 ];
 
+const FRIDAY_PARTY_CONFETTI = [
+  { left: 6, delay: 0.05, duration: 2.4, size: 8, color: "var(--yellow-neon)" },
+  { left: 15, delay: 0.3, duration: 2.1, size: 9, color: "var(--pink-neon)" },
+  { left: 27, delay: 0.6, duration: 2.6, size: 7, color: "var(--cyan-neon)" },
+  { left: 39, delay: 0.15, duration: 2.3, size: 10, color: "var(--green-neon)" },
+  { left: 52, delay: 0.45, duration: 2.5, size: 8, color: "var(--purple-neon)" },
+  { left: 64, delay: 0.2, duration: 2.2, size: 9, color: "var(--yellow-neon)" },
+  { left: 76, delay: 0.5, duration: 2.7, size: 8, color: "var(--pink-neon)" },
+  { left: 88, delay: 0.35, duration: 2.4, size: 7, color: "var(--cyan-neon)" },
+];
+
 function getNextFridayCountdown(now: Date): CountdownParts {
   const target = new Date(now);
   target.setHours(0, 0, 0, 0);
@@ -200,40 +211,70 @@ const DayProgress = () => {
 };
 
 const FridayCountdown = () => {
-  const [countdown, setCountdown] = useState<CountdownParts | null>(null);
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    const tick = () => setCountdown(getNextFridayCountdown(new Date()));
+    const tick = () => setNow(new Date());
     tick();
     const intervalId = window.setInterval(tick, 1000);
     return () => window.clearInterval(intervalId);
   }, []);
 
-  if (!countdown) {
+  if (!now) {
     return null;
   }
 
+  const countdown = getNextFridayCountdown(now);
+  const isFriday = now.getDay() === 5;
+
   return (
     <div className={styles.fridayCountdown} aria-live="polite">
-      <p className={styles.fridayCountdownLabel}>Countdown to next Friday</p>
-      <div className={styles.fridayCountdownGrid}>
-        <div className={styles.fridayCountdownItem}>
-          <span>{countdown.days}</span>
-          <small>days</small>
+      {isFriday && (
+        <div className={styles.fridayParty} role="status" aria-label="Today is Friday celebration">
+          <div className={styles.fridayPartyConfetti} aria-hidden="true">
+            {FRIDAY_PARTY_CONFETTI.map((piece, index) => (
+              <span
+                key={`${piece.left}-party-${index}`}
+                className={styles.fridayPartyConfettiPiece}
+                style={{
+                  left: `${piece.left}%`,
+                  animationDelay: `${piece.delay}s`,
+                  animationDuration: `${piece.duration}s`,
+                  width: `${piece.size}px`,
+                  height: `${Math.round(piece.size * 1.45)}px`,
+                  background: piece.color,
+                }}
+              />
+            ))}
+          </div>
+          <p className={styles.fridayPartyKicker}>it is happening</p>
+          <p className={styles.fridayPartyTitle}>Today is Friday</p>
+          <p className={styles.fridayPartySubline}>Party mode unlocked for all Friday lovers. ✨</p>
         </div>
-        <div className={styles.fridayCountdownItem}>
-          <span>{countdown.hours}</span>
-          <small>hours</small>
+      )}
+      {!isFriday && (
+        <div>
+          <p className={styles.fridayCountdownLabel}>Countdown to next Friday</p>
+          <div className={styles.fridayCountdownGrid}>
+            <div className={styles.fridayCountdownItem}>
+              <span>{countdown.days}</span>
+              <small>days</small>
+            </div>
+            <div className={styles.fridayCountdownItem}>
+              <span>{countdown.hours}</span>
+              <small>hours</small>
+            </div>
+            <div className={styles.fridayCountdownItem}>
+              <span>{countdown.minutes}</span>
+              <small>minutes</small>
+            </div>
+            <div className={styles.fridayCountdownItem}>
+              <span>{countdown.seconds}</span>
+              <small>seconds</small>
+            </div>
+          </div>
         </div>
-        <div className={styles.fridayCountdownItem}>
-          <span>{countdown.minutes}</span>
-          <small>minutes</small>
-        </div>
-        <div className={styles.fridayCountdownItem}>
-          <span>{countdown.seconds}</span>
-          <small>seconds</small>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -488,6 +488,98 @@
   text-transform: uppercase;
 }
 
+.fridayParty {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 238, 0, 0.6);
+  background:
+    radial-gradient(circle at 15% 12%, rgba(255, 238, 0, 0.25), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(0, 240, 255, 0.2), transparent 50%),
+    rgba(12, 12, 24, 0.9);
+  box-shadow: 0 0 26px rgba(255, 238, 0, 0.25), inset 0 0 20px rgba(255, 45, 149, 0.15);
+  padding: 1.2rem 1rem 1.35rem;
+  text-align: center;
+  animation: friday-party-pulse 1.8s ease-in-out infinite;
+}
+
+.fridayPartyKicker {
+  font-family: var(--font-typewriter);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+  margin-bottom: 0.45rem;
+}
+
+.fridayPartyTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3rem);
+  color: var(--yellow-neon);
+  text-shadow: 0 0 10px rgba(255, 238, 0, 0.8), 2px 2px 0 var(--pink-neon), -2px -2px 0 var(--cyan-neon);
+  animation: friday-party-title-pop 1.2s ease-in-out infinite alternate;
+}
+
+.fridayPartySubline {
+  margin-top: 0.45rem;
+  font-family: var(--font-handwritten);
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.fridayPartyConfetti {
+  position: absolute;
+  inset: -14px 0 auto;
+  height: 115px;
+  pointer-events: none;
+}
+
+.fridayPartyConfettiPiece {
+  position: absolute;
+  top: -12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: friday-party-confetti linear infinite;
+}
+
+@keyframes friday-party-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+  50% {
+    transform: scale(1.01);
+    filter: saturate(1.25);
+  }
+}
+
+@keyframes friday-party-title-pop {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-2px) scale(1.03);
+  }
+}
+
+@keyframes friday-party-confetti {
+  0% {
+    transform: translate3d(0, -10px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate3d(10px, 70px, 0) rotate(240deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(-8px, 130px, 0) rotate(480deg);
+    opacity: 0;
+  }
+}
+
 .quote {
   font-family: var(--font-typewriter);
   font-size: 1.1rem;
