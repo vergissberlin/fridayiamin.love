@@ -88,13 +88,18 @@ jobs:
           fi
 
           # Convert model response into concrete file changes
+          cp src/app/page.tsx /tmp/page.tsx.backup
           node .github/scripts/ai-feature-gen.mjs apply-response
 
       - name: Validate
         run: |
-          pnpm lint
-          pnpm typecheck
-          pnpm build
+          set -euo pipefail
+
+          if ! pnpm lint || ! pnpm typecheck || ! pnpm build; then
+            echo "Generated page did not pass validation. Restoring previous src/app/page.tsx and skipping commit."
+            cp /tmp/page.tsx.backup src/app/page.tsx
+            exit 0
+          fi
 
       - name: Commit and push
         env:
