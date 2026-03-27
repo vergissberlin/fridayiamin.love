@@ -1,36 +1,52 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { main } from "./ai-feature-commit.mjs";
+import {
+  buildConventionalCommitSubject,
+  normalizeConventionalSubject,
+  parseChangedFiles,
+} from "./ai-feature-commit.mjs";
 
-test("commit script exits early when there are no changes", () => {
-  const executedCommands = [];
-  const logs = [];
-
-  main({
-    runCapture: () => "",
-    run: (command) => executedCommands.push(command),
-    log: (message) => logs.push(message),
-  });
-
-  assert.deepEqual(executedCommands, []);
-  assert.deepEqual(logs, ["No changes"]);
+test("parseChangedFiles splits and trims paths", () => {
+  assert.deepEqual(parseChangedFiles("a.ts\n\nb.ts\n"), ["a.ts", "b.ts"]);
 });
 
-test("commit script runs expected git commands when changes exist", () => {
-  const executedCommands = [];
+test("normalizeConventionalSubject trims and caps length", () => {
+  assert.equal(normalizeConventionalSubject("  feat: hello  "), "feat: hello");
+  const long = `feat: ${"x".repeat(80)}`;
+  assert.ok(normalizeConventionalSubject(long).length <= 72);
+});
 
-  main({
-    runCapture: () => " M src/app/page.tsx",
-    run: (command) => executedCommands.push(command),
-    log: () => {},
-  });
+test("buildConventionalCommitSubject detects docs-only changes", () => {
+  assert.equal(
+    buildConventionalCommitSubject({ files: ["README.md"], diffSample: "" }),
+    "docs: update documentation",
+  );
+});
 
-  assert.deepEqual(executedCommands, [
-    'git config user.name "github-actions[bot]"',
-    'git config user.email "41898282+github-actions[bot]@users.noreply.github.com"',
-    "git add .",
-    'git commit -m "feat: add AI-generated Friday I\'m in Love content"',
-    "git push origin main",
-  ]);
+test("buildConventionalCommitSubject detects workflow-only changes", () => {
+  assert.equal(
+    buildConventionalCommitSubject({
+      files: [".github/workflows/ai-feature-gen.yml"],
+      diffSample: "on:\n  push:",
+    }),
+    "ci: update GitHub Actions workflows",
+  );
+});
+
+test("buildConventionalCommitSubject uses diff keywords for page.tsx", () => {
+  assert.equal(
+    buildConventionalCommitSubject({
+      files: ["src/app/page.tsx"],
+      diffSample: "+ const x = 'SpotifyPlayer'",
+    }),
+    "feat: improve Spotify section on landing page",
+  );
+  assert.equal(
+    buildConventionalCommitSubject({
+      files: ["src/app/page.tsx", "src/app/page.module.css"],
+      diffSample: "+ .fridayCountdown",
+    }),
+    "feat: enhance landing page content and styles",
+  );
 });
