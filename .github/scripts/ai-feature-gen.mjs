@@ -4,6 +4,8 @@ const REQUEST_PATH = "/tmp/feature-request.json";
 const RESPONSE_PATH = "/tmp/response.json";
 const TARGET_PATH = "src/app/page.tsx";
 const isDebug = String(process.env.DEBUG_AI_FEATURE_GEN ?? "").toLowerCase() === "true";
+const FULL_CONTEXT_BUDGET = 70_000;
+const SLIM_CONTEXT_BUDGET = 25_000;
 
 function debugLog(message) {
   if (isDebug) {
@@ -11,21 +13,43 @@ function debugLog(message) {
   }
 }
 
-function buildRequest() {
+function trimToBudget(text, budget) {
+  if (text.length <= budget) {
+    return text;
+  }
+
+  const keepStart = Math.floor(budget * 0.7);
+  const keepEnd = Math.max(0, budget - keepStart);
+  const start = text.slice(0, keepStart);
+  const end = text.slice(text.length - keepEnd);
+  return `${start}\n\n/* ... truncated for payload size ... */\n\n${end}`;
+}
+
+function buildRequest(mode = "full") {
   const promptPath = ".github/copilot/nightly-feature-prompt.md";
   const prompt = readFileSync(promptPath, "utf-8");
 
-  const contextFiles = ["src/app/page.tsx", "src/app/page.module.css", "README.md"];
+  const contextFiles =
+    mode === "slim" ? ["src/app/page.tsx"] : ["src/app/page.tsx", "src/app/page.module.css", "README.md"];
+  const contextBudget = mode === "slim" ? SLIM_CONTEXT_BUDGET : FULL_CONTEXT_BUDGET;
   const contextParts = [];
+  let remainingBudget = contextBudget;
 
   for (const filePath of contextFiles) {
+    if (remainingBudget <= 0) {
+      break;
+    }
+
     if (!existsSync(filePath)) {
       continue;
     }
 
     try {
       const content = readFileSync(filePath, "utf-8");
-      contextParts.push(`--- FILE: ${filePath} ---\n${content}`);
+      const fileBlock = `--- FILE: ${filePath} ---\n${content}`;
+      const trimmedBlock = trimToBudget(fileBlock, remainingBudget);
+      contextParts.push(trimmedBlock);
+      remainingBudget -= trimmedBlock.length + 2;
     } catch {
       // Skip unreadable files to preserve previous behavior.
     }
@@ -51,7 +75,9 @@ function buildRequest() {
   };
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
-  debugLog(`Built request with ${messages.length} message(s) and context files: ${contextParts.length}`);
+  debugLog(
+    `Built ${mode} request with ${messages.length} message(s), context files: ${contextParts.length}, context length: ${context.length}`,
+  );
 }
 
 function applyResponse() {
@@ -90,12 +116,13 @@ function applyResponse() {
 }
 
 const command = process.argv[2];
+const arg = process.argv[3];
 
 if (command === "build-request") {
-  buildRequest();
+  buildRequest(arg === "slim" ? "slim" : "full");
 } else if (command === "apply-response") {
   applyResponse();
 } else {
-  console.error("Usage: node .github/scripts/ai-feature-gen.mjs <build-request|apply-response>");
+  console.error("Usage: node .github/scripts/ai-feature-gen.mjs <build-request|apply-response> [slim]");
   process.exit(1);
 }
