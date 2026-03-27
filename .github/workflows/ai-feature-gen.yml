@@ -57,6 +57,7 @@ jobs:
 
           # Build request payload from nightly feature prompt + current app context
           node .github/scripts/ai-feature-gen.mjs build-request
+          echo "Request payload size (full): $(wc -c < /tmp/feature-request.json) bytes"
 
           HTTP_CODE=$(curl -sS -L -o /tmp/response.json -w "%{http_code}" "https://models.github.ai/inference/chat/completions" \
             -H "Content-Type: application/json" \
@@ -68,6 +69,7 @@ jobs:
           if [ "$HTTP_CODE" -eq 413 ]; then
             echo "Model API request returned 413 (payload too large), retrying with slim context..."
             node .github/scripts/ai-feature-gen.mjs build-request slim
+            echo "Request payload size (slim): $(wc -c < /tmp/feature-request.json) bytes"
             HTTP_CODE=$(curl -sS -L -o /tmp/response.json -w "%{http_code}" "https://models.github.ai/inference/chat/completions" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $GH_TOKEN" \
