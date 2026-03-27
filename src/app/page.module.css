@@ -289,6 +289,44 @@
   box-shadow: 0 0 24px rgba(191, 0, 255, 0.25);
 }
 
+.confettiRain {
+  position: absolute;
+  inset: -10px 0 auto;
+  height: 120px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -12px;
+  border-radius: 2px;
+  opacity: 0;
+  box-shadow: 0 0 8px currentColor;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.2, 0.75, 0.25, 1);
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -14px, 0) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate3d(14px, 72px, 0) rotate(220deg) scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(-10px, 130px, 0) rotate(460deg) scale(0.92);
+    opacity: 0;
+  }
+}
+
 .dayRow {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

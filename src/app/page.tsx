@@ -38,6 +38,22 @@ const LYRICS = [
   "It's Friday I'm in love",
 ];
 
+const FRIDAY_CONFETTI = [
+  { left: 4, delay: 0, duration: 3.4, size: 7, color: "var(--pink-neon)" },
+  { left: 11, delay: 0.3, duration: 2.9, size: 8, color: "var(--yellow-neon)" },
+  { left: 18, delay: 0.1, duration: 3.1, size: 6, color: "var(--cyan-neon)" },
+  { left: 25, delay: 0.7, duration: 3.5, size: 7, color: "var(--purple-neon)" },
+  { left: 33, delay: 0.2, duration: 2.8, size: 9, color: "var(--green-neon)" },
+  { left: 41, delay: 0.9, duration: 3.3, size: 6, color: "var(--pink-neon)" },
+  { left: 49, delay: 0.4, duration: 3.7, size: 8, color: "var(--cyan-neon)" },
+  { left: 56, delay: 0.05, duration: 3, size: 7, color: "var(--yellow-neon)" },
+  { left: 64, delay: 0.6, duration: 2.7, size: 8, color: "var(--purple-neon)" },
+  { left: 72, delay: 0.45, duration: 3.2, size: 6, color: "var(--green-neon)" },
+  { left: 80, delay: 0.8, duration: 3.6, size: 9, color: "var(--pink-neon)" },
+  { left: 88, delay: 0.35, duration: 2.95, size: 7, color: "var(--cyan-neon)" },
+  { left: 95, delay: 0.15, duration: 3.25, size: 6, color: "var(--yellow-neon)" },
+];
+
 // --- End: Helper Types and Data ---
 
 // --- Begin: Decorative/Helper Components ---
@@ -93,35 +109,57 @@ const PatternShapes = () => (
   </div>
 );
 
-const DayProgress = () => (
-  <div className={styles.dayProgress}>
-    <div className={styles.dayRow}>
-      <span className={styles.dayMon}>Mon</span>
-      <span className={styles.dayTue}>Tue</span>
-      <span className={styles.dayWed}>Wed</span>
-      <span className={styles.dayThu}>Thu</span>
-      <span className={styles.dayFri}>Fri</span>
-      <span className={styles.daySat}>Sat</span>
-      <span className={styles.daySun}>Sun</span>
+const DayProgress = () => {
+  const isFriday = new Date().getDay() === 5;
+
+  return (
+    <div className={styles.dayProgress}>
+      {isFriday && (
+        <div className={styles.confettiRain} aria-hidden="true">
+          {FRIDAY_CONFETTI.map((piece, index) => (
+            <span
+              key={`${piece.left}-${index}`}
+              className={styles.confettiPiece}
+              style={{
+                left: `${piece.left}%`,
+                animationDelay: `${piece.delay}s`,
+                animationDuration: `${piece.duration}s`,
+                width: `${piece.size}px`,
+                height: `${Math.round(piece.size * 1.6)}px`,
+                background: piece.color,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      <div className={styles.dayRow}>
+        <span className={styles.dayMon}>Mon</span>
+        <span className={styles.dayTue}>Tue</span>
+        <span className={styles.dayWed}>Wed</span>
+        <span className={styles.dayThu}>Thu</span>
+        <span className={styles.dayFri}>Fri</span>
+        <span className={styles.daySat}>Sat</span>
+        <span className={styles.daySun}>Sun</span>
+      </div>
+      <div className={styles.progressBarBg}>
+        <motion.div
+          className={styles.progressBar}
+          initial={{ width: "0%" }}
+          whileInView={{ width: "71%" }}
+          transition={{ duration: 2, ease: "easeInOut" }}
+        />
+        <motion.div
+          className={styles.fridayGlow}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 1 }}
+        >
+          <span role="img" aria-label="sparkle">✨</span>
+        </motion.div>
+      </div>
     </div>
-    <div className={styles.progressBarBg}>
-      <motion.div
-        className={styles.progressBar}
-        initial={{ width: "0%" }}
-        whileInView={{ width: "71%" }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-      />
-      <motion.div
-        className={styles.fridayGlow}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 1 }}
-      >
-        <span role="img" aria-label="sparkle">✨</span>
-      </motion.div>
-    </div>
-  </div>
-);
+  );
+};
 
 const SongInfo = () => (
   <div className={styles.songInfo}>
