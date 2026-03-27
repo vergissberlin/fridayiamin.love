@@ -293,6 +293,18 @@ const CoverVersions = () => (
   </section>
 );
 
+const BehindTheScenes = () => (
+  <section className={styles.behindTheScenesSection}>
+    <h2 className={styles.sectionTitle}>Behind the Scenes</h2>
+    <p>
+      "Friday I'm in Love" was recorded during a transformative period for The Cure. 
+      The song features a vibrant, upbeat sound that contrasts with the band's earlier work. 
+      Robert Smith aimed to capture the joy of love and the excitement of Fridays, 
+      making it a standout track on the album "Wish."
+    </p>
+  </section>
+);
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -569,20 +581,4 @@ export default function Home() {
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            💜
-          </motion.div>
-          <motion.div 
-            className={styles.musicNote}
-            animate={{ 
-              y: [-20, 0, -20],
-              rotate: [0, 10, 0],
-            }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            ♫
-          </motion.div>
-          <motion.div 
-            className={styles.star}
-            animate={{ 
-              scale: [1, 1.2, 1],
-              rotate: [0, 180, 360
+           
