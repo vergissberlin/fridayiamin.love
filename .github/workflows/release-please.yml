@@ -4,15 +4,28 @@ on:
   push:
     branches:
       - main
+      - master
   workflow_dispatch:
+  # Fallback when AI workflow pushes with GITHUB_TOKEN only (no PAT on checkout): the push
+  # webhook is skipped, but this still runs after the bot workflow finishes.
+  workflow_run:
+    workflows:
+      - AI Feature Generator
+    types:
+      - completed
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: googleapis/release-please-action@v4
         with:

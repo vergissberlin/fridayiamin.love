@@ -112,6 +112,15 @@ function gitCommit(message) {
   execFileSync("git", ["commit", "-m", message], { stdio: "inherit" });
 }
 
+function gitPush() {
+  const branch = process.env.GIT_PUSH_BRANCH?.trim();
+  if (branch) {
+    execFileSync("git", ["push", "origin", branch], { stdio: "inherit" });
+    return;
+  }
+  execFileSync("git", ["push", "origin", "HEAD"], { stdio: "inherit" });
+}
+
 export function main(deps = {}) {
   const runCommand = deps.run ?? run;
   const runCaptureCommand = deps.runCapture ?? runCapture;
@@ -136,7 +145,7 @@ export function main(deps = {}) {
 
   log(`Commit subject: ${subject}`);
   gitCommit(subject);
-  runCommand("git push origin main");
+  gitPush();
 }
 
 const isDirectRun = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : false;

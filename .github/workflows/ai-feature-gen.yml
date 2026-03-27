@@ -37,10 +37,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Use RELEASE_PLEASE_TOKEN (PAT) when set so `git push` triggers other workflows
+      # (pushes with the default GITHUB_TOKEN do not fire `on: push` workflows — Release
+      # Please would never run after bot commits). Falls back to github.token if unset.
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -81,5 +85,5 @@ jobs:
 
       - name: Commit and push
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PUSH_BRANCH: ${{ github.ref_name }}
         run: node .github/scripts/ai-feature-commit.mjs
