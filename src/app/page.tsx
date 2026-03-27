@@ -580,9 +580,7 @@ export default function Home() {
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-<<<<<<< HEAD
-           
-=======
+
             💜
           </motion.div>
           <motion.div 
@@ -622,4 +620,3 @@ export default function Home() {
     </main>
   );
 }
->>>>>>> 200e9e5d (feat: enhance AI feature generation script and workflow)
