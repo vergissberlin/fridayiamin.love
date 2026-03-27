@@ -434,6 +434,60 @@
   box-shadow: 0 0 18px rgba(255, 238, 0, 0.75);
 }
 
+.fridayCountdown {
+  max-width: 800px;
+  margin: -1rem auto 2rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 45, 149, 0.5);
+  background: rgba(8, 10, 20, 0.72);
+  box-shadow: 0 0 22px rgba(255, 45, 149, 0.25);
+}
+
+.fridayCountdownLabel {
+  text-align: center;
+  color: var(--cyan-neon);
+  font-family: var(--font-typewriter);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+
+.fridayCountdownGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.fridayCountdownItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 84px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.fridayCountdownItem span {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
+  color: var(--yellow-neon);
+  line-height: 1;
+}
+
+.fridayCountdownItem small {
+  margin-top: 0.35rem;
+  font-family: var(--font-typewriter);
+  color: #fff;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
 .quote {
   font-family: var(--font-typewriter);
   font-size: 1.1rem;
@@ -820,6 +874,10 @@
   
   .dayProgress {
     gap: 0.5rem;
+  }
+
+  .fridayCountdownGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   
   .dayItem {
