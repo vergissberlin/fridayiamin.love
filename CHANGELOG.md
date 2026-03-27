@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.1.0](https://github.com/vergissberlin/fridayiamin.love/compare/v1.0.0...v1.1.0) (2026-03-27)
+
+
+### Features
+
+* add AI feature generation tests and enhance script structure ([fc5e74e](https://github.com/vergissberlin/fridayiamin.love/commit/fc5e74eb7907e28c7e9ce4be9647701450aa7d41))
+* add AI-generated Friday I'm in Love content ([61de7ed](https://github.com/vergissberlin/fridayiamin.love/commit/61de7edc5db85109b39ebaf6f040e224f5514c28))
+* add AI-generated Friday I'm in Love content ([7db5a97](https://github.com/vergissberlin/fridayiamin.love/commit/7db5a97edcf25086b2566a629e6017b84b5f3ffb))
+* add AI-generated Friday I'm in Love content ([992c262](https://github.com/vergissberlin/fridayiamin.love/commit/992c2626028f40b40b9593a599d1d36b58544415))
+* enhance AI feature generation script and workflow ([3fb2321](https://github.com/vergissberlin/fridayiamin.love/commit/3fb23215c0ce7c2f2a5579450334002dd75ea35e))
+* **workflow:** add debug logging option for AI feature generation ([cec66d3](https://github.com/vergissberlin/fridayiamin.love/commit/cec66d3a7a9404ec0f6ededbd5412c12d6accc68))
+* **workflow:** add logging for request payload sizes in AI feature generation ([58a376f](https://github.com/vergissberlin/fridayiamin.love/commit/58a376fbc5d45663732e19f14e14f8db4257d56c))
+* **workflow:** enhance AI feature generation with current app context ([41c18ea](https://github.com/vergissberlin/fridayiamin.love/commit/41c18ea679408474a293cd887dfecbb0efe57fe4))
+* **workflow:** implement context budget management for AI feature generation ([d0070c0](https://github.com/vergissberlin/fridayiamin.love/commit/d0070c064ec6b6714e2b6acbeb4aba20376b585c))
+
+
+### Bug Fixes
+
+* change model from openai/gpt-5.4 to openai/gpt-4.1 in AI feature generator ([af9ed77](https://github.com/vergissberlin/fridayiamin.love/commit/af9ed775d8acb83ce0107137e5f2e2bac866b0ab))
+* consolidate AI feature generation workflows and enhance request payload structure ([1b35934](https://github.com/vergissberlin/fridayiamin.love/commit/1b359348b1745bc82f062f3e63ee53197a70da7e))
+* **page:** remove merge conflict markers from Home component ([d58ba9d](https://github.com/vergissberlin/fridayiamin.love/commit/d58ba9d91cd1926e36efc863a28d81343da3098f))
+* remove unused AI-generated components with unescaped JSX entities ([c9d7577](https://github.com/vergissberlin/fridayiamin.love/commit/c9d75774a8df5396d3e94c23e747eed9caf8e091))
+* remove unused CoverVersions and BehindTheScenes components with unescaped entities ([4c1fd12](https://github.com/vergissberlin/fridayiamin.love/commit/4c1fd1257001d648de89a941df1eedea8d910a2e))
+* restore valid GitHub Models API model identifier in AI feature generator ([9220353](https://github.com/vergissberlin/fridayiamin.love/commit/9220353c7277124b4b068aa06d1ef9f706630b52))
+* switch AI pipeline model from gpt-4o-mini to gpt-4o ([9a4b8e4](https://github.com/vergissberlin/fridayiamin.love/commit/9a4b8e488d999f1f053eafa606d74af1424e6a08))
+* switch AI pipeline model from gpt-4o-mini to gpt-4o ([ef58df0](https://github.com/vergissberlin/fridayiamin.love/commit/ef58df04810b0da1893aa442ca13048b360e2db0))
+* update AI pipeline model to gpt-5.4 for improved performance ([a124a71](https://github.com/vergissberlin/fridayiamin.love/commit/a124a716ae424756c7400150991fb6b24435f1a1))
+* **workflow:** improve validation process in AI feature generation ([27404e4](https://github.com/vergissberlin/fridayiamin.love/commit/27404e41a7664bf925ea4fec06e350b8fdc508ff))
+
 ## 1.0.0 (2026-03-26)
 
 
