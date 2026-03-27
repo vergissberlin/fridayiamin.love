@@ -83,6 +83,37 @@
     12px 12px 0 var(--purple-neon);
   letter-spacing: 0.05em;
   animation: rainbow-shift 10s linear infinite;
+  transition: transform 220ms ease, filter 220ms ease, letter-spacing 220ms ease;
+  will-change: transform, filter;
+}
+
+.title:hover {
+  animation:
+    rainbow-shift 6s linear infinite,
+    eccentric-burst 850ms cubic-bezier(0.22, 1.4, 0.36, 1);
+  letter-spacing: 0.08em;
+  filter: saturate(1.35) contrast(1.2);
+}
+
+@keyframes eccentric-burst {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translate3d(-2px, -3px, 0) rotate(-1.2deg) scale(1.02);
+  }
+  40% {
+    transform: translate3d(3px, -1px, 0) rotate(1.6deg) scale(1.04);
+  }
+  60% {
+    transform: translate3d(-1px, 3px, 0) rotate(-1deg) scale(1.015);
+  }
+  80% {
+    transform: translate3d(2px, 0, 0) rotate(0.8deg) scale(1.02);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
 }
 
 .subtitle {
@@ -341,11 +372,33 @@
   gap: 3rem;
   flex-wrap: wrap;
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.55);
   border-radius: 20px;
   max-width: 900px;
   margin: 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(191, 0, 255, 0.2);
+}
+
+.songInfo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.songInfo li {
+  font-family: var(--font-handwritten);
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: #fff;
+}
+
+.songInfo strong {
+  color: var(--cyan-neon);
+  margin-right: 0.35rem;
 }
 
 .infoItem {
@@ -603,6 +656,41 @@
 .footerDecor span:nth-child(3) { animation-delay: 0.4s; }
 .footerDecor span:nth-child(4) { animation-delay: 0.6s; }
 .footerDecor span:nth-child(5) { animation-delay: 0.8s; }
+
+/* Spotify Section */
+.spotifySection {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2rem;
+}
+
+.spotifyEmbedWrapper {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.spotifyEmbedWrapper iframe {
+  display: block;
+}
+
+.spotifyNote {
+  margin-top: 1rem;
+  text-align: center;
+  font-family: var(--font-handwritten);
+  color: #fff;
+}
+
+.spotifyNote a {
+  color: var(--cyan-neon);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.spotifyNote a:hover {
+  color: var(--yellow-neon);
+}
 
 /* Responsive */
 @media (max-width: 768px) {

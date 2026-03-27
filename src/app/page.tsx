@@ -145,11 +145,12 @@ const SpotifyPlayer = () => (
     <div className={styles.spotifyEmbedWrapper}>
       <iframe
         title="Friday I'm in Love - Spotify Player"
-        src="https://open.spotify.com/embed/track/3Bd1cgCjtCI32PYvDC3ynO?utm_source=generator"
+        src="https://open.spotify.com/embed/track/263aNAQCeFSWipk896byo6?utm_source=generator"
         width="100%"
         height="80"
         frameBorder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        allowFullScreen
         loading="lazy"
         style={{
           borderRadius: "12px",
@@ -161,6 +162,17 @@ const SpotifyPlayer = () => (
     </div>
     <p className={styles.spotifyNote}>
       <span role="img" aria-label="headphones">🎧</span> Hit play and let the neon joy begin!
+    </p>
+    <p className={styles.spotifyNote}>
+      If the embed is blocked, open it on{" "}
+      <a
+        href="https://open.spotify.com/track/263aNAQCeFSWipk896byo6"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Spotify
+      </a>
+      .
     </p>
   </section>
 );
