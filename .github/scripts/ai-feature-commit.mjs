@@ -41,7 +41,6 @@ export function buildConventionalCommitSubject(opts) {
     return "chore: update repository";
   }
 
-  const diff = diffSample.toLowerCase();
   const onlyMarkdown = files.every((f) => f.endsWith(".md"));
   const onlyWorkflows = files.every((f) => f.startsWith(".github/workflows/"));
   const hasPage =
@@ -69,19 +68,24 @@ export function buildConventionalCommitSubject(opts) {
   }
 
   if (hasPage) {
-    if (diff.includes("spotify")) {
+    // Match "Spotify", identifiers like SpotifyPlayer, embed URLs, etc. (avoid requiring a word boundary after "spotify").
+    if (/spotify/i.test(diffSample)) {
       return "feat: improve Spotify section on landing page";
     }
-    if (diff.includes("countdown")) {
+    if (/\bcountdown\b/i.test(diffSample)) {
       return "feat: add Friday countdown to landing page";
     }
-    if (diff.includes("confetti") || diff.includes("party") || diff.includes("celebration")) {
+    if (/\bconfetti\b/i.test(diffSample) || /\bparty\b/i.test(diffSample) || /\bcelebration\b/i.test(diffSample)) {
       return "feat: add Friday party visuals to landing page";
     }
-    if (diff.includes("quiz")) {
+    if (/\bquiz\b/i.test(diffSample)) {
       return "feat: add interactive fan quiz to landing page";
     }
-    if (diff.includes("lyric") || diff.includes("translation") || diff.includes("language")) {
+    if (
+      /\blyrics?\b/i.test(diffSample) ||
+      /\btranslation\b/i.test(diffSample) ||
+      /\blanguage\b/i.test(diffSample)
+    ) {
       return "feat: expand lyrics experience on landing page";
     }
     if (hasPageCss) {
