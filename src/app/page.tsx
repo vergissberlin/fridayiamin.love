@@ -281,28 +281,6 @@ const PatternShapes = () => (
   </div>
 );
 
-const CoverVersions = () => (
-  <section className={styles.coverSection}>
-    <h2 className={styles.sectionTitle}>Cover Versions</h2>
-    <ul className={styles.coverList}>
-      <li><a href="https://www.youtube.com/watch?v=1p8g3g8yE4g" target="_blank" rel="noopener noreferrer">The Cure - Friday I'm in Love (Cover by The 1975)</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3xg3g3g3g3g" target="_blank" rel="noopener noreferrer">Friday I'm in Love (Cover by The Killers)</a></li>
-      <li><a href="https://www.youtube.com/watch?v=4xg4g4g4g4g" target="_blank" rel="noopener noreferrer">Friday I'm in Love (Cover by The Maine)</a></li>
-    </ul>
-  </section>
-);
-
-const BehindTheScenes = () => (
-  <section className={styles.behindTheScenesSection}>
-    <h2 className={styles.sectionTitle}>Behind the Scenes</h2>
-    <p>
-      "Friday I'm in Love" was recorded during a transformative period for The Cure. 
-      The song features a vibrant, upbeat sound that contrasts with the band's earlier work. 
-      Robert Smith aimed to capture the joy of love and the excitement of Fridays, 
-      making it a standout track on the album "Wish."
-    </p>
-  </section>
-);
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
