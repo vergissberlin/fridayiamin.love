@@ -130,6 +130,36 @@ function extractRawContent(data) {
   return "";
 }
 
+function extractCodeFromRawContent(rawContent) {
+  const preferredFencePattern = /```(?:tsx|typescript|jsx)\s*([\s\S]*?)```/i;
+  const anyFencePattern = /```[a-zA-Z]*\s*([\s\S]*?)```/;
+
+  const preferredFenceMatch = rawContent.match(preferredFencePattern);
+  if (preferredFenceMatch?.[1]?.trim()) {
+    debugLog("Detected TSX/TypeScript/JSX fenced code block; extracted inner content.");
+    return preferredFenceMatch[1];
+  }
+
+  const anyFenceMatch = rawContent.match(anyFencePattern);
+  if (anyFenceMatch?.[1]?.trim()) {
+    debugLog("Detected generic fenced code block; extracted inner content.");
+    return anyFenceMatch[1];
+  }
+
+  // Fallback: some providers return plain code without markdown fences.
+  const plain = rawContent.trim();
+  const directCodeStart = plain.search(/(^|\n)(["']use client["'];?|\s*import\s|\s*export\s+default\s+function\s+)/m);
+  if (directCodeStart >= 0) {
+    const code = plain.slice(directCodeStart).trim();
+    if (code) {
+      debugLog("No fenced block found; using raw content fallback from detected code start.");
+      return code;
+    }
+  }
+
+  return "";
+}
+
 function applyResponse() {
   const data = JSON.parse(readFileSync(RESPONSE_PATH, "utf-8"));
   const apiError = data?.error;
@@ -149,24 +179,10 @@ function applyResponse() {
   const rawContent = extractRawContent(data);
   debugLog(`Raw first choice content length: ${rawContent.length}`);
 
-  let content = "";
-  const preferredFencePattern = /```(?:tsx|typescript|jsx)\s*([\s\S]*?)```/i;
-  const anyFencePattern = /```[a-zA-Z]*\s*([\s\S]*?)```/;
-
-  const preferredFenceMatch = rawContent.match(preferredFencePattern);
-  if (preferredFenceMatch) {
-    [, content] = preferredFenceMatch;
-    debugLog("Detected TSX/TypeScript/JSX fenced code block; extracted inner content.");
-  } else {
-    const anyFenceMatch = rawContent.match(anyFencePattern);
-    if (anyFenceMatch) {
-      [, content] = anyFenceMatch;
-      debugLog("Detected generic fenced code block; extracted inner content.");
-    }
-  }
+  const content = extractCodeFromRawContent(rawContent);
 
   if (!content.trim()) {
-    console.error("Model response does not contain a fenced code block with file content.");
+    console.error("Model response does not contain parsable page source content.");
     process.exit(1);
   }
 
