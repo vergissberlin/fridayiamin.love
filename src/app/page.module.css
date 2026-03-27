@@ -275,16 +275,73 @@
 
 .dayProgress {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.68);
   border-radius: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(0, 240, 255, 0.35);
   position: relative;
   max-width: 800px;
   margin: 0 auto 3rem;
   flex-wrap: wrap;
+  box-shadow: 0 0 24px rgba(191, 0, 255, 0.25);
+}
+
+.dayRow {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.dayRow span {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.35rem;
+  border-radius: 10px;
+  font-family: var(--font-typewriter);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.dayMon,
+.dayTue,
+.dayWed,
+.dayThu {
+  opacity: 0.85;
+}
+
+.dayFri {
+  color: #000;
+  background: var(--yellow-neon);
+  border-color: var(--yellow-neon);
+  box-shadow: 0 0 14px rgba(255, 238, 0, 0.6);
+  text-shadow: none;
+  font-weight: 700;
+}
+
+.daySat,
+.daySun {
+  color: var(--cyan-neon);
+  border-color: rgba(0, 240, 255, 0.45);
+}
+
+.progressBarBg {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .dayItem {
@@ -314,11 +371,29 @@
 
 .progressBar {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  height: 4px;
-  border-radius: 2px;
+  height: 100%;
+  border-radius: 999px;
   transition: width 0.5s ease;
+  background: linear-gradient(90deg, var(--pink-neon), var(--purple-neon), var(--cyan-neon));
+  box-shadow: 0 0 16px rgba(255, 45, 149, 0.65);
+}
+
+.fridayGlow {
+  position: absolute;
+  top: 50%;
+  left: 71%;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 238, 0, 0.2);
+  border: 1px solid rgba(255, 238, 0, 0.65);
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.75);
 }
 
 .quote {
