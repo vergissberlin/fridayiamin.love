@@ -503,6 +503,195 @@ const NewsTicker = () => {
 };
 // --- End: New News Ticker Section ---
 
+// --- Begin: New Chord Tabs Section ---
+const CHORDS = [
+  { name: "D", fingering: "xx0232" },
+  { name: "A", fingering: "x02220" },
+  { name: "E", fingering: "022100" },
+  { name: "G", fingering: "320003" },
+  { name: "Bm", fingering: "x24432" },
+  { name: "F#m", fingering: "244222" },
+];
+
+const CHORD_PROGRESSIONS = [
+  {
+    label: "Verse",
+    chords: ["D", "A", "E", "G", "D", "A", "E"],
+  },
+  {
+    label: "Chorus",
+    chords: ["D", "A", "E", "G", "D", "A", "E"],
+  },
+  {
+    label: "Bridge",
+    chords: ["Bm", "F#m", "G", "D", "A", "E"],
+  },
+];
+
+function getChordFingering(name: string) {
+  const chord = CHORDS.find((c) => c.name === name);
+  return chord ? chord.fingering : "";
+}
+
+const ChordTabsSection = () => {
+  const [selectedProg, setSelectedProg] = useState(0);
+  return (
+    <section className={styles.chordTabsSection}>
+      <motion.h2
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Guitar Tabs & Chords
+      </motion.h2>
+      <p className={styles.chordTabsIntro}>
+        Want to play along? Here are the main chords and progressions for &quot;Friday I&apos;m in Love&quot;. Grab your guitar and let the neon strumming begin!
+      </p>
+      <div className={styles.chordTabsProgNav}>
+        {CHORD_PROGRESSIONS.map((prog, idx) => (
+          <button
+            key={prog.label}
+            className={`${styles.chordTabsProgBtn} ${selectedProg === idx ? styles.chordTabsProgBtnActive : ""}`}
+            onClick={() => setSelectedProg(idx)}
+            aria-pressed={selectedProg === idx}
+            tabIndex={0}
+            type="button"
+          >
+            {prog.label}
+          </button>
+        ))}
+      </div>
+      <div className={styles.chordTabsProgDisplay}>
+        <motion.ul
+          className={styles.chordTabsChordList}
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          key={selectedProg}
+        >
+          {CHORD_PROGRESSIONS[selectedProg].chords.map((chord, idx) => (
+            <li key={chord + idx} className={styles.chordTabsChordItem}>
+              <span className={styles.chordTabsChordName}>{chord}</span>
+              <span className={styles.chordTabsFingering}>{getChordFingering(chord)}</span>
+              <ChordDiagram chord={chord} fingering={getChordFingering(chord)} />
+            </li>
+          ))}
+        </motion.ul>
+      </div>
+      <div className={styles.chordTabsFooter}>
+        <span>
+          <a
+            href="https://tabs.ultimate-guitar.com/tab/the-cure/friday-im-in-love-chords-8351"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.chordTabsExternalLink}
+          >
+            Full tabs on Ultimate Guitar
+          </a>
+        </span>
+      </div>
+    </section>
+  );
+};
+
+function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }) {
+  // Only support basic open chords and barre for this simple SVG
+  // fingering: e.g. "xx0232" (EADGBE, x = mute)
+  const stringPos = [0, 1, 2, 3, 4, 5]; // EADGBE
+  const fretNumbers = fingering.split("").map((f) => (f === "x" ? null : parseInt(f, 10)));
+  const minFret = Math.min(...fretNumbers.filter((n) => typeof n === "number" && n > 0) as number[], 1);
+  const maxFret = Math.max(...fretNumbers.filter((n) => typeof n === "number") as number[], 1);
+  const fretRange = maxFret > 3 ? [minFret, minFret + 3] : [1, 4];
+  return (
+    <svg
+      width="52"
+      height="70"
+      viewBox="0 0 52 70"
+      className={styles.chordTabsDiagram}
+      aria-label={`Chord diagram for ${chord}`}
+    >
+      {/* Strings */}
+      {stringPos.map((s, i) => (
+        <line
+          key={`string-${i}`}
+          x1={8 + i * 7}
+          y1={18}
+          x2={8 + i * 7}
+          y2={58}
+          stroke="#fff"
+          strokeWidth={1.2}
+        />
+      ))}
+      {/* Frets */}
+      {[0, 1, 2, 3].map((f) => (
+        <line
+          key={`fret-${f}`}
+          x1={8}
+          y1={18 + f * 10}
+          x2={8 + 35}
+          y2={18 + f * 10}
+          stroke="#fff"
+          strokeWidth={f === 0 ? 2.2 : 1.2}
+        />
+      ))}
+      {/* Dots */}
+      {fretNumbers.map((fret, i) =>
+        fret === null ? (
+          // Muted string
+          <text
+            key={`mute-${i}`}
+            x={8 + i * 7}
+            y={12}
+            fontSize="10"
+            fill="var(--pink-neon)"
+            textAnchor="middle"
+            fontFamily="monospace"
+          >
+            x
+          </text>
+        ) : fret === 0 ? (
+          // Open string
+          <text
+            key={`open-${i}`}
+            x={8 + i * 7}
+            y={12}
+            fontSize="10"
+            fill="var(--yellow-neon)"
+            textAnchor="middle"
+            fontFamily="monospace"
+          >
+            o
+          </text>
+        ) : (
+          // Pressed fret
+          <circle
+            key={`dot-${i}`}
+            cx={8 + i * 7}
+            cy={18 + (fret - fretRange[0]) * 10 + 5}
+            r={4}
+            fill="var(--cyan-neon)"
+            stroke="var(--pink-neon)"
+            strokeWidth={1}
+          />
+        )
+      )}
+      {/* Fret numbers */}
+      <text
+        x={44}
+        y={65}
+        fontSize="8"
+        fill="var(--purple-neon)"
+        textAnchor="end"
+        fontFamily="monospace"
+      >
+        {fretRange[0]}fr
+      </text>
+    </svg>
+  );
+}
+// --- End: New Chord Tabs Section ---
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -587,6 +776,9 @@ export default function Home() {
 
       {/* --- Insert Fan Resources Section after Cover Versions --- */}
       <FanResourcesSection />
+
+      {/* --- Insert Chord Tabs Section after Fan Resources --- */}
+      <ChordTabsSection />
 
       <section className={styles.daySection}>
         <motion.h2 
