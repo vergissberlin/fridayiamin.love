@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.3.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.2.0...fridayiamin.love-v1.3.0) (2026-03-29)
+## [1.3.0](https://github.com/vergissberlin/fridayiamin.love/compare/v1.2.0...v1.3.0) (2026-03-29)
 
 
 ### Features
