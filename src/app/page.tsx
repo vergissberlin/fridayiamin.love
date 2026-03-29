@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { getNextFridayCountdown } from "@/lib/friday-countdown";
+import {
+  ChordMidiPlayer,
+  CHORD_PROGRESSION_MIDI_IDS,
+  type ChordMidiPlayerHandle,
+} from "@/components/chord-midi-player";
 import styles from "./page.module.css";
 
 // --- Begin: Helper Types and Data ---
@@ -535,6 +540,8 @@ function getChordFingering(name: string) {
 
 const ChordTabsSection = () => {
   const [selectedProg, setSelectedProg] = useState(0);
+  const [activeMidiChordIndex, setActiveMidiChordIndex] = useState<number | null>(null);
+  const chordMidiRef = useRef<ChordMidiPlayerHandle>(null);
   return (
     <section className={styles.chordTabsSection}>
       <motion.h2
@@ -563,6 +570,11 @@ const ChordTabsSection = () => {
         ))}
       </div>
       <div className={styles.chordTabsProgDisplay}>
+        <ChordMidiPlayer
+          ref={chordMidiRef}
+          progressionId={CHORD_PROGRESSION_MIDI_IDS[selectedProg]}
+          onActiveChordIndex={setActiveMidiChordIndex}
+        />
         <motion.ul
           className={styles.chordTabsChordList}
           initial={{ opacity: 0, y: 24 }}
@@ -571,10 +583,21 @@ const ChordTabsSection = () => {
           key={selectedProg}
         >
           {CHORD_PROGRESSIONS[selectedProg].chords.map((chord, idx) => (
-            <li key={chord + idx} className={styles.chordTabsChordItem}>
-              <span className={styles.chordTabsChordName}>{chord}</span>
-              <span className={styles.chordTabsFingering}>{getChordFingering(chord)}</span>
-              <ChordDiagram chord={chord} fingering={getChordFingering(chord)} />
+            <li
+              key={chord + idx}
+              className={`${styles.chordTabsChordItem} ${activeMidiChordIndex === idx ? styles.chordTabsChordItemActive : ""}`}
+              aria-current={activeMidiChordIndex === idx ? "step" : undefined}
+            >
+              <button
+                type="button"
+                className={styles.chordTabsChordHit}
+                onClick={() => chordMidiRef.current?.playFromChordIndex(idx)}
+                aria-label={`Play progression from chord ${chord}`}
+              >
+                <span className={styles.chordTabsChordName}>{chord}</span>
+                <span className={styles.chordTabsFingering}>{getChordFingering(chord)}</span>
+                <ChordDiagram chord={chord} fingering={getChordFingering(chord)} />
+              </button>
             </li>
           ))}
         </motion.ul>
