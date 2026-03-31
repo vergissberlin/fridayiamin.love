@@ -297,7 +297,7 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           playbackEventsRef.current.length > 0 &&
           chordStartsSecRef.current.length > 0;
 
-        if (hasSession) {
+        if (hasSession && toneRef.current) {
           await toneRef.current.start();
           beginPlayback(index);
           return;
