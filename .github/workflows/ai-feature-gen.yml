@@ -73,9 +73,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1' }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.4' }}
           GITHUB_MODELS_MODEL: ${{ vars.GITHUB_MODELS_MODEL || 'openai/gpt-5.4' }}
-          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'gpt-4.1' }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'gpt-5.4' }}
           OPENCODE_CLI_CMD: ${{ secrets.OPENCODE_CLI_CMD || vars.OPENCODE_CLI_CMD || '' }}
           DEBUG_AI_FEATURE_GEN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_ai_feature_gen || 'false' }}
           AI_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.provider || 'openai' }}
