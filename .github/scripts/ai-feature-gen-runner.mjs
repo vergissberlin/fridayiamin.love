@@ -224,7 +224,7 @@ export function main() {
   if (!success) {
     console.log("All attempts failed. Restoring previous src/app/page.tsx and skipping commit.");
     restoreBackupIfPresent();
-    process.exit(0);
+    process.exit(1);
   }
 }
 
