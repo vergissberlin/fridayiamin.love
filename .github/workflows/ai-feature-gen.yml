@@ -25,6 +25,7 @@ permissions:
   models: read
   id-token: write
   actions: write
+  issues: write
   packages: write
   pull-requests: write
 
@@ -82,6 +83,23 @@ jobs:
           # Raised default in script (16k); override via repo variable if the model/API allows higher completion limits.
           AI_MAX_OUTPUT_TOKENS: ${{ vars.AI_MAX_OUTPUT_TOKENS || '16384' }}
         run: node .github/scripts/ai-feature-gen-runner.mjs
+
+      - name: Notify on failure
+        if: failure() && steps.generate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "🚨 AI Feature Generator failed after all attempts ($(date -u +'%Y-%m-%d'))" \
+            --body "The AI feature generator workflow failed after exhausting all repair attempts.
+
+          **Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          **Triggered by:** \`${{ github.event_name }}\`
+          **Branch:** \`${{ github.ref_name }}\`
+          **Provider:** \`${{ github.event_name == 'workflow_dispatch' && github.event.inputs.provider || 'openai' }}\`
+
+          Please check the workflow logs for details." \
+            --label "bug"
 
       - name: Commit and push
         env:
