@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.3.1...fridayiamin.love-v1.4.0) (2026-03-31)
+
+
+### Features
+
+* update default OpenAI model from gpt-4.1 to gpt-5.4 ([b32b253](https://github.com/vergissberlin/fridayiamin.love/commit/b32b2533a8908989150ac9707acb553802ab540d))
+* update OpenAI model from gpt-4.1 to gpt-5.4 ([eb7af1a](https://github.com/vergissberlin/fridayiamin.love/commit/eb7af1a2b215f6a1f86e4a51d3954b7e5383f6ad))
+
+
+### Bug Fixes
+
+* add null guard for toneRef.current to fix TypeScript build error ([b392b31](https://github.com/vergissberlin/fridayiamin.love/commit/b392b319c6273968e86866a63bfa5afb87469143))
+* resolve TypeScript null error for toneRef.current in chord-midi-player ([4e4e729](https://github.com/vergissberlin/fridayiamin.love/commit/4e4e7296d2f8692499e3acc233c0f89b6854f0c3))
+
 ## [1.3.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.3.0...fridayiamin.love-v1.3.1) (2026-03-31)
 
 
