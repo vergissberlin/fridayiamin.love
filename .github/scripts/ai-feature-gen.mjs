@@ -40,10 +40,10 @@ function trimToBudget(text, budget) {
 
 function resolveModel(provider) {
   if (provider === "openai") {
-    return process.env.OPENAI_MODEL ?? "gpt-4.1";
+    return process.env.OPENAI_MODEL ?? "gpt-5.4";
   }
   if (provider === "opencode") {
-    return process.env.OPENCODE_MODEL ?? "gpt-4.1";
+    return process.env.OPENCODE_MODEL ?? "gpt-5.4";
   }
   return process.env.GITHUB_MODELS_MODEL ?? "openai/gpt-5.4";
 }
