@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.3.0...fridayiamin.love-v1.3.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* signal AI feature generator failure after all attempts via exit code and GitHub Issue ([59302ab](https://github.com/vergissberlin/fridayiamin.love/commit/59302ab1d87ec61669ae687b2f6fc3ada6141872))
+* signal AI feature generator failure after all repair attempts ([a91d031](https://github.com/vergissberlin/fridayiamin.love/commit/a91d03170b3c6303d4a60dfa57b6fc852cec3000))
+
 ## [1.3.0](https://github.com/vergissberlin/fridayiamin.love/compare/v1.2.0...v1.3.0) (2026-03-29)
 
 
