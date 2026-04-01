@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.0...fridayiamin.love-v1.4.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* harden ai feature generation fallbacks ([60e2411](https://github.com/vergissberlin/fridayiamin.love/commit/60e24114392a5846edeb0721ffe282e188e99f2b))
+
 ## [1.4.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.3.1...fridayiamin.love-v1.4.0) (2026-03-31)
 
 
