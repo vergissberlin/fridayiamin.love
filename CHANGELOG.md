@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.1...fridayiamin.love-v1.4.2) (2026-04-01)
+
+
+### Bug Fixes
+
+* handle openai request size fallback ([f825f24](https://github.com/vergissberlin/fridayiamin.love/commit/f825f2458935dee919455632823aa99bfeb0490e))
+
 ## [1.4.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.0...fridayiamin.love-v1.4.1) (2026-04-01)
 
 
