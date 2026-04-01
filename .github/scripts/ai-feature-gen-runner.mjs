@@ -14,6 +14,7 @@ const ALLOWED_PROVIDERS = new Set(["copilot", "openai", "opencode"]);
 const FIRST_ATTEMPT = 1;
 const MODEL_ERROR_PATTERN = /model.*(not found|does not exist|unknown|unsupported)/i;
 const CONTEXT_ERROR_PATTERN = /(context|token).*(exceeded|length|limit|too (long|large))/i;
+const REQUEST_SIZE_ERROR_PATTERN = /(request|payload|input|body).*(too (long|large)|exceeds|exceeded|max(imum)? (size|length))/i;
 const MAX_ERROR_MESSAGE_LENGTH = 500;
 
 function isDebugEnabled() {
@@ -155,7 +156,9 @@ export function classifyOpenAiFallback(httpCode, errorMessage, attempt) {
   if (MODEL_ERROR_PATTERN.test(errorMessage)) {
     return "switch-provider";
   }
-  if (attempt === FIRST_ATTEMPT && CONTEXT_ERROR_PATTERN.test(errorMessage)) {
+  const isContextOrSizeError =
+    CONTEXT_ERROR_PATTERN.test(errorMessage) || REQUEST_SIZE_ERROR_PATTERN.test(errorMessage);
+  if (attempt === FIRST_ATTEMPT && isContextOrSizeError) {
     return "retry-slim";
   }
   return "none";
