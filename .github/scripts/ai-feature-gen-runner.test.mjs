@@ -61,6 +61,13 @@ test("classifyOpenAiFallback detects model errors", () => {
   assert.equal(action, "switch-provider");
 });
 
+test("classifyOpenAiFallback retries slim context for request-size errors on first attempt", () => {
+  const action = classifyOpenAiFallback(400, "Request too large: max input length is 65536 bytes", 1);
+  assert.equal(action, "retry-slim");
+  const laterAttempt = classifyOpenAiFallback(400, "Request too large: max input length is 65536 bytes", 2);
+  assert.equal(laterAttempt, "none");
+});
+
 test("parseProviderError falls back for invalid JSON or missing file", () => {
   withResponseFile("not-json", () => {
     assert.deepEqual(parseProviderError(), { message: "not-json", type: "" });
