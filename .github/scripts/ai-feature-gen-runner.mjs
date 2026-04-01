@@ -3,7 +3,7 @@ import { execSync, spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
 const REQUEST_PATH = "/tmp/feature-request.json";
-const RESPONSE_PATH = "/tmp/response.json";
+export const RESPONSE_PATH = "/tmp/response.json";
 const OPENCODE_RAW_PATH = "/tmp/opencode-response.txt";
 const LINT_LOG_PATH = "/tmp/ai-feature-lint.log";
 const TYPECHECK_LOG_PATH = "/tmp/ai-feature-typecheck.log";
@@ -11,6 +11,10 @@ const BUILD_LOG_PATH = "/tmp/ai-feature-build.log";
 const PAGE_PATH = "src/app/page.tsx";
 const PAGE_BACKUP_PATH = "/tmp/page.tsx.backup";
 const ALLOWED_PROVIDERS = new Set(["copilot", "openai", "opencode"]);
+const FIRST_ATTEMPT = 1;
+const MODEL_ERROR_PATTERN = /model.*(not found|does not exist|unknown|unsupported)/i;
+const CONTEXT_ERROR_PATTERN = /(context|token).*(exceeded|length|limit|too (long|large))/i;
+const MAX_ERROR_MESSAGE_LENGTH = 500;
 
 function isDebugEnabled() {
   return String(process.env.DEBUG_AI_FEATURE_GEN ?? "").toLowerCase() === "true";
@@ -50,6 +54,14 @@ function readRequestPayload() {
 
 function writeResponsePayload(payload) {
   writeFileSync(RESPONSE_PATH, payload, "utf-8");
+}
+
+function readResponsePayload() {
+  try {
+    return readFileSync(RESPONSE_PATH, "utf-8");
+  } catch {
+    return "";
+  }
 }
 
 function executeHttpRequest({ url, headers, body }) {
@@ -121,6 +133,73 @@ export function runProviderRequest(provider) {
   return 200;
 }
 
+export function parseProviderError() {
+  const raw = readResponsePayload();
+  if (!raw) {
+    return { message: "", type: "" };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    const message = parsed?.error?.message ?? "";
+    const type = parsed?.error?.type ?? "";
+    return { message, type };
+  } catch {
+    return { message: raw, type: "" };
+  }
+}
+
+export function classifyOpenAiFallback(httpCode, errorMessage, attempt) {
+  if (httpCode !== 400 || !errorMessage) {
+    return "none";
+  }
+  if (MODEL_ERROR_PATTERN.test(errorMessage)) {
+    return "switch-provider";
+  }
+  if (attempt === FIRST_ATTEMPT && CONTEXT_ERROR_PATTERN.test(errorMessage)) {
+    return "retry-slim";
+  }
+  return "none";
+}
+
+export function normalizeErrorMessage(message) {
+  return String(message ?? "").replace(/\s+/g, " ").slice(0, MAX_ERROR_MESSAGE_LENGTH);
+}
+
+export function handleOpenAiFallback({
+  provider,
+  httpCode,
+  attempt,
+  errorMessage,
+  buildAttemptRequest,
+  buildSlimRequest,
+  sendRequest,
+}) {
+  let effectiveProvider = provider;
+  let currentHttpCode = httpCode;
+  let usedSlimContext = false;
+
+  if (provider !== "openai") {
+    return { httpCode: currentHttpCode, providerUsed: effectiveProvider, usedSlimContext };
+  }
+
+  const fallbackAction = classifyOpenAiFallback(httpCode, errorMessage, attempt);
+  const safeMessage = normalizeErrorMessage(errorMessage);
+
+  if (fallbackAction === "switch-provider") {
+    console.log(`OpenAI model error detected ("${safeMessage}"). Retrying with GitHub Models provider...`);
+    buildAttemptRequest("copilot");
+    currentHttpCode = sendRequest("copilot");
+    effectiveProvider = "copilot";
+  } else if (fallbackAction === "retry-slim") {
+    console.log(`OpenAI context length error detected ("${safeMessage}"). Retrying with slim context...`);
+    buildSlimRequest(provider);
+    currentHttpCode = sendRequest(provider);
+    usedSlimContext = true;
+  }
+
+  return { httpCode: currentHttpCode, providerUsed: effectiveProvider, usedSlimContext };
+}
+
 function runValidationStep(command, outputPath) {
   const result = spawnSync(command, { shell: true, encoding: "utf-8" });
   const output = `${result.stdout || ""}${result.stderr || ""}`;
@@ -153,7 +232,7 @@ export function validateGeneratedPage() {
   return false;
 }
 
-function buildRequestForAttempt(attempt, provider) {
+export function buildRequestForAttempt(attempt, provider) {
   if (attempt === 1) {
     runNodeScript(".github/scripts/ai-feature-gen.mjs", "build-request", "full", provider);
     console.log(`Request payload size (full): ${requestPayloadSize()} bytes`);
@@ -174,12 +253,35 @@ function buildRequestForAttempt(attempt, provider) {
 export function generateOrRepair(attempt, provider) {
   buildRequestForAttempt(attempt, provider);
   let httpCode = runProviderRequest(provider);
+  const errorInfo = parseProviderError();
+  let effectiveProvider = provider;
 
-  if (httpCode === 413 && provider !== "opencode" && attempt === 1) {
+  const fallbackResult = handleOpenAiFallback({
+    provider,
+    httpCode,
+    attempt,
+    errorMessage: errorInfo.message,
+    buildAttemptRequest: (targetProvider) => buildRequestForAttempt(attempt, targetProvider),
+    buildSlimRequest: (targetProvider) => {
+      runNodeScript(".github/scripts/ai-feature-gen.mjs", "build-request", "slim", targetProvider);
+      console.log(`Request payload size (slim): ${requestPayloadSize()} bytes`);
+    },
+    sendRequest: (targetProvider) => runProviderRequest(targetProvider),
+  });
+
+  httpCode = fallbackResult.httpCode;
+  effectiveProvider = fallbackResult.providerUsed;
+  const usedSlimContext = fallbackResult.usedSlimContext;
+
+  // Payload-size handling is provider-agnostic and needs to run even after OpenAI-specific fallbacks.
+  const shouldRetrySlimContext =
+    httpCode === 413 && effectiveProvider !== "opencode" && attempt === FIRST_ATTEMPT && !usedSlimContext;
+
+  if (shouldRetrySlimContext) {
     console.log("Model API request returned 413 (payload too large), retrying initial request with slim context...");
-    runNodeScript(".github/scripts/ai-feature-gen.mjs", "build-request", "slim", provider);
+    runNodeScript(".github/scripts/ai-feature-gen.mjs", "build-request", "slim", effectiveProvider);
     console.log(`Request payload size (slim): ${requestPayloadSize()} bytes`);
-    httpCode = runProviderRequest(provider);
+    httpCode = runProviderRequest(effectiveProvider);
   }
 
   if (httpCode < 200 || httpCode >= 300) {
