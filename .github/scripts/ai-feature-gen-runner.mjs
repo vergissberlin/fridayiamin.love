@@ -150,8 +150,11 @@ export function parseProviderError() {
 }
 
 export function classifyOpenAiFallback(httpCode, errorMessage, attempt) {
-  if (httpCode !== 400 || !errorMessage) {
+  if (httpCode !== 400) {
     return "none";
+  }
+  if (!errorMessage) {
+    return "switch-provider";
   }
   if (MODEL_ERROR_PATTERN.test(errorMessage)) {
     return "switch-provider";
@@ -161,7 +164,8 @@ export function classifyOpenAiFallback(httpCode, errorMessage, attempt) {
   if (attempt === FIRST_ATTEMPT && isContextOrSizeError) {
     return "retry-slim";
   }
-  return "none";
+  // Any other unrecognized 400 from OpenAI — fall back to GitHub Models
+  return "switch-provider";
 }
 
 export function normalizeErrorMessage(message) {
@@ -258,6 +262,13 @@ export function generateOrRepair(attempt, provider) {
   let httpCode = runProviderRequest(provider);
   const errorInfo = parseProviderError();
   let effectiveProvider = provider;
+
+  if (httpCode < 200 || httpCode >= 300) {
+    const safeMsg = normalizeErrorMessage(errorInfo.message || errorInfo.type);
+    if (safeMsg) {
+      console.log(`Provider error (HTTP ${httpCode}): ${safeMsg}`);
+    }
+  }
 
   const fallbackResult = handleOpenAiFallback({
     provider,

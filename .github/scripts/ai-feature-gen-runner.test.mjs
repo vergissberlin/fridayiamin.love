@@ -65,7 +65,7 @@ test("classifyOpenAiFallback retries slim context for request-size errors on fir
   const action = classifyOpenAiFallback(400, "Request too large: max input length is 65536 bytes", 1);
   assert.equal(action, "retry-slim");
   const laterAttempt = classifyOpenAiFallback(400, "Request too large: max input length is 65536 bytes", 2);
-  assert.equal(laterAttempt, "none");
+  assert.equal(laterAttempt, "switch-provider");
 });
 
 test("parseProviderError falls back for invalid JSON or missing file", () => {
@@ -79,7 +79,7 @@ test("classifyOpenAiFallback detects first-attempt context errors", () => {
   const action = classifyOpenAiFallback(400, "context length exceeded", 1);
   assert.equal(action, "retry-slim");
   const laterAttempt = classifyOpenAiFallback(400, "context length exceeded", 2);
-  assert.equal(laterAttempt, "none");
+  assert.equal(laterAttempt, "switch-provider");
 });
 
 test("normalizeErrorMessage truncates long messages", () => {
@@ -90,6 +90,21 @@ test("normalizeErrorMessage truncates long messages", () => {
 test("normalizeErrorMessage collapses whitespace to single spaces", () => {
   const collapsed = normalizeErrorMessage("hello   world\twith  tabs");
   assert.equal(collapsed, "hello world with tabs");
+});
+
+test("classifyOpenAiFallback switches provider for empty error message", () => {
+  assert.equal(classifyOpenAiFallback(400, "", 1), "switch-provider");
+});
+
+test("classifyOpenAiFallback switches provider for unrecognized 400 error message", () => {
+  assert.equal(classifyOpenAiFallback(400, "gpt-5.4 is not available in your account", 1), "switch-provider");
+  assert.equal(classifyOpenAiFallback(400, "gpt-5.4 is not available in your account", 2), "switch-provider");
+});
+
+test("classifyOpenAiFallback returns none for non-400 errors", () => {
+  assert.equal(classifyOpenAiFallback(500, "internal server error", 1), "none");
+  assert.equal(classifyOpenAiFallback(429, "rate limit", 1), "none");
+  assert.equal(classifyOpenAiFallback(200, "", 1), "none");
 });
 
 test("handleOpenAiFallback switches provider on model errors", () => {
