@@ -264,10 +264,8 @@ export function generateOrRepair(attempt, provider) {
   let effectiveProvider = provider;
 
   if (httpCode < 200 || httpCode >= 300) {
-    const safeMsg = normalizeErrorMessage(errorInfo.message || errorInfo.type);
-    if (safeMsg) {
-      console.log(`Provider error (HTTP ${httpCode}): ${safeMsg}`);
-    }
+    const safeMsg = normalizeErrorMessage(errorInfo.message || errorInfo.type || "Unknown error");
+    console.log(`Provider error (HTTP ${httpCode}): ${safeMsg}`);
   }
 
   const fallbackResult = handleOpenAiFallback({
