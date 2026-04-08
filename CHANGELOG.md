@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.3](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.2...fridayiamin.love-v1.4.3) (2026-04-08)
+
+
+### Bug Fixes
+
+* always log meaningful provider error message including Unknown error fallback ([48013f5](https://github.com/vergissberlin/fridayiamin.love/commit/48013f5d45e5fb9d135d8ea133795ff08f5fcee0))
+* catch-all fallback for any unrecognized OpenAI 400 error → switch to GitHub Models ([68638aa](https://github.com/vergissberlin/fridayiamin.love/commit/68638aaceab752f79e115a9bf2bb688547d1c365))
+* catch-all fallback to GitHub Models for any unrecognized OpenAI 400 error ([671c3f1](https://github.com/vergissberlin/fridayiamin.love/commit/671c3f1fdf48fb4cd7ca975bf601d2dd6a4e89ea))
+
 ## [1.4.2](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.1...fridayiamin.love-v1.4.2) (2026-04-01)
 
 
