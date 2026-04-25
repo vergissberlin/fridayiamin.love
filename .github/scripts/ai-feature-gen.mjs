@@ -48,6 +48,14 @@ function resolveModel(provider) {
   return process.env.GITHUB_MODELS_MODEL ?? "openai/gpt-5.4";
 }
 
+function resolveTokenLimitPayload(provider) {
+  const maxOutputTokens = resolveMaxOutputTokens();
+  if (provider === "openai") {
+    return { max_completion_tokens: maxOutputTokens };
+  }
+  return { max_tokens: maxOutputTokens };
+}
+
 function collectContext(mode = "full") {
   const contextFiles =
     mode === "slim" ? ["src/app/page.tsx"] : ["src/app/page.tsx", "src/app/page.module.css", "README.md"];
@@ -97,7 +105,7 @@ function buildRequest(mode = "full", provider = "copilot") {
     model: resolveModel(provider),
     messages,
     temperature: 0.4,
-    max_tokens: resolveMaxOutputTokens(),
+    ...resolveTokenLimitPayload(provider),
   };
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
@@ -154,7 +162,7 @@ function buildRepairRequest(provider = "copilot", lintPath = "", typecheckPath =
     model: resolveModel(provider),
     messages,
     temperature: 0.2,
-    max_tokens: resolveMaxOutputTokens(),
+    ...resolveTokenLimitPayload(provider),
   };
 
   writeFileSync(REQUEST_PATH, JSON.stringify(payload), "utf-8");
