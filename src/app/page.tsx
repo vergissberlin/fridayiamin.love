@@ -10,10 +10,8 @@ import {
 } from "@/components/chord-midi-player";
 import styles from "./page.module.css";
 
-// --- Begin: Helper Types and Data ---
-
-// Supported language codes for lyric summaries
 type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -22,11 +20,11 @@ const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "it", label: "Italiano" },
   { code: "ja", label: "日本語" },
 ];
+
 function isLanguageCode(code: string): code is LanguageCode {
   return LANGUAGE_OPTIONS.some((opt) => opt.code === code);
 }
 
-// Lyric summaries in different languages (fan-friendly, non-infringing)
 const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
   en: "A celebration of the joy and anticipation that Friday brings, contrasting the dullness of the week with the euphoria of love.",
   es: "Una celebración de la alegría y la anticipación que trae el viernes, en contraste con la rutina de la semana y la euforia del amor.",
@@ -36,7 +34,6 @@ const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
   ja: "金曜日がもたらす喜びと期待を歌い、平日の退屈さと恋の高揚感を対比しています。",
 };
 
-// Key lyrics for floating effect
 const LYRICS = [
   "I don't care if Monday's blue",
   "Tuesday's grey and Wednesday too",
@@ -71,15 +68,10 @@ const FRIDAY_PARTY_CONFETTI = [
   { left: 88, delay: 0.35, duration: 2.4, size: 7, color: "var(--cyan-neon)" },
 ];
 
-// --- End: Helper Types and Data ---
-
-// --- Begin: Decorative/Helper Components ---
-
 const GothicSilhouette = () => (
   <div className={styles.gothicSilhouette} aria-hidden="true">
-    {/* Simple SVG for a gothic skyline silhouette */}
     <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
-      <path d="M0 60V40h20v-8h10v8h10V20h10v20h10V10h10v30h10V0h10v40h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v60z"/>
+      <path d="M0 60V40h20v-8h10v8h10V20h10v20h10V10h10v30h10V0h10v40h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v40h10V10h10v30h10V20h10v20h10V5h10v35h10V15h10v25h10V0h10v60z" />
     </svg>
   </div>
 );
@@ -97,8 +89,8 @@ const FloatingLyric = ({ text, index }: { text: string; index: number }) => (
       ease: "easeInOut",
     }}
     style={{
-      left: `${10 + (index * 20) % 70}%`,
-      top: `${10 + (index * 15) % 60}%`,
+      left: `${10 + ((index * 20) % 70)}%`,
+      top: `${10 + ((index * 15) % 60)}%`,
       position: "absolute",
       pointerEvents: "none",
       fontSize: `${1.1 + index * 0.15}rem`,
@@ -116,18 +108,31 @@ const FloatingLyric = ({ text, index }: { text: string; index: number }) => (
 
 const PatternShapes = () => (
   <div className={styles.patternShapes} aria-hidden="true">
-    {/* Neon dots and squiggles */}
     <svg width="100" height="40" viewBox="0 0 100 40" fill="none">
       <circle cx="10" cy="10" r="4" fill="var(--cyan-neon)" />
       <circle cx="90" cy="30" r="3" fill="var(--yellow-neon)" />
       <rect x="40" y="20" width="8" height="8" rx="2" fill="var(--pink-neon)" />
-      <path d="M60 10 Q65 20 70 10 Q75 0 80 10" stroke="var(--green-neon)" strokeWidth="2" fill="none"/>
+      <path
+        d="M60 10 Q65 20 70 10 Q75 0 80 10"
+        stroke="var(--green-neon)"
+        strokeWidth="2"
+        fill="none"
+      />
     </svg>
   </div>
 );
 
 const DayProgress = () => {
-  const isFriday = new Date().getDay() === 5;
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    tick();
+    const intervalId = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const isFriday = now?.getDay() === 5;
 
   return (
     <div className={styles.dayProgress}>
@@ -171,7 +176,9 @@ const DayProgress = () => {
           whileInView={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 1 }}
         >
-          <span role="img" aria-label="sparkle">✨</span>
+          <span role="img" aria-label="sparkle">
+            ✨
+          </span>
         </motion.div>
       </div>
     </div>
@@ -250,19 +257,28 @@ const FridayCountdown = () => {
 const SongInfo = () => (
   <div className={styles.songInfo}>
     <ul>
-      <li><strong>Released:</strong> May 1992</li>
-      <li><strong>Album:</strong> Wish</li>
-      <li><strong>Genre:</strong> Alternative Rock, Jangle Pop</li>
-      <li><strong>Writer:</strong> Robert Smith</li>
-      <li><strong>Producer:</strong> David M. Allen, Robert Smith</li>
-      <li><strong>Chart:</strong> UK #6, US Alt #2</li>
+      <li>
+        <strong>Released:</strong> May 1992
+      </li>
+      <li>
+        <strong>Album:</strong> Wish
+      </li>
+      <li>
+        <strong>Genre:</strong> Alternative Rock, Jangle Pop
+      </li>
+      <li>
+        <strong>Writer:</strong> Robert Smith
+      </li>
+      <li>
+        <strong>Producer:</strong> David M. Allen, Robert Smith
+      </li>
+      <li>
+        <strong>Chart:</strong> UK #6, US Alt #2
+      </li>
     </ul>
   </div>
 );
 
-// --- End: Decorative/Helper Components ---
-
-// --- Begin: New Spotify Player Section ---
 const SpotifyPlayer = () => (
   <section className={styles.spotifySection}>
     <h2 className={styles.sectionTitle}>Listen: Friday I&apos;m in Love</h2>
@@ -285,7 +301,10 @@ const SpotifyPlayer = () => (
       />
     </div>
     <p className={styles.spotifyNote}>
-      <span role="img" aria-label="headphones">🎧</span> Hit play and let the neon joy begin!
+      <span role="img" aria-label="headphones">
+        🎧
+      </span>{" "}
+      Hit play and let the neon joy begin!
     </p>
     <p className={styles.spotifyNote}>
       If the embed is blocked, open it on{" "}
@@ -300,9 +319,7 @@ const SpotifyPlayer = () => (
     </p>
   </section>
 );
-// --- End: New Spotify Player Section ---
 
-// --- Begin: New Cover Versions Section ---
 const COVER_VERSIONS = [
   {
     artist: "Yo La Tengo",
@@ -347,7 +364,8 @@ const CoverVersionsSection = () => (
       Cover Versions
     </motion.h2>
     <p className={styles.coverIntro}>
-      The joy of &quot;Friday I&apos;m in Love&quot; has inspired countless covers by artists across genres. Here are some fan-favorite reinterpretations:
+      The joy of &quot;Friday I&apos;m in Love&quot; has inspired countless covers by artists across
+      genres. Here are some fan-favorite reinterpretations:
     </p>
     <ul className={styles.coverList}>
       {COVER_VERSIONS.map((cover, idx) => (
@@ -373,14 +391,22 @@ const CoverVersionsSection = () => (
     </ul>
     <div className={styles.coverFooter}>
       <span className={styles.coverFooterNote}>
-        <span role="img" aria-label="sparkle">✨</span> Know a great cover? <a href="https://www.youtube.com/results?search_query=friday+im+in+love+cover" target="_blank" rel="noopener noreferrer">Explore more on YouTube</a>
+        <span role="img" aria-label="sparkle">
+          ✨
+        </span>{" "}
+        Know a great cover?{" "}
+        <a
+          href="https://www.youtube.com/results?search_query=friday+im+in+love+cover"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Explore more on YouTube
+        </a>
       </span>
     </div>
   </section>
 );
-// --- End: New Cover Versions Section ---
 
-// --- Begin: New Fan Resources Section ---
 const FAN_RESOURCES = [
   {
     name: "The Cure Official Website",
@@ -420,7 +446,8 @@ const FanResourcesSection = () => (
       Fan Links & Resources
     </motion.h2>
     <p className={styles.fanResourcesIntro}>
-      Dive deeper into The Cure and the world of &quot;Friday I&apos;m in Love&quot; with these curated fan resources:
+      Dive deeper into The Cure and the world of &quot;Friday I&apos;m in Love&quot; with these
+      curated fan resources:
     </p>
     <ul className={styles.fanResourcesList}>
       {FAN_RESOURCES.map((res, idx) => (
@@ -446,9 +473,7 @@ const FanResourcesSection = () => (
     </ul>
   </section>
 );
-// --- End: New Fan Resources Section ---
 
-// --- Begin: New News Ticker Section ---
 const NEWS_ITEMS = [
   {
     date: "2024-05-24",
@@ -461,11 +486,6 @@ const NEWS_ITEMS = [
     link: "https://www.thecure.com/news/",
   },
   {
-    date: "2024-03-15",
-    text: "Friday I'm in Love featured in fan-voted 'Best Feel-Good Songs' list.",
-    link: "https://www.rollingstone.com/music/music-lists/best-feel-good-songs-2024-1234567890/",
-  },
-  {
     date: "2024-02-02",
     text: "Robert Smith speaks out for fair ticket pricing on latest tour.",
     link: "https://pitchfork.com/news/the-cure-robert-smith-ticket-fairness/",
@@ -474,12 +494,14 @@ const NEWS_ITEMS = [
 
 const NewsTicker = () => {
   const [current, setCurrent] = useState(0);
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       setCurrent((prev) => (prev + 1) % NEWS_ITEMS.length);
     }, 5000);
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, []);
+
   return (
     <section className={styles.newsTickerSection} aria-label="Latest Cure News">
       <div className={styles.newsTickerWrapper}>
@@ -506,9 +528,7 @@ const NewsTicker = () => {
     </section>
   );
 };
-// --- End: New News Ticker Section ---
 
-// --- Begin: New Chord Tabs Section ---
 const CHORDS = [
   { name: "D", fingering: "xx0232" },
   { name: "A", fingering: "x02220" },
@@ -542,6 +562,7 @@ const ChordTabsSection = () => {
   const [selectedProg, setSelectedProg] = useState(0);
   const [activeMidiChordIndex, setActiveMidiChordIndex] = useState<number | null>(null);
   const chordMidiRef = useRef<ChordMidiPlayerHandle>(null);
+
   return (
     <section className={styles.chordTabsSection}>
       <motion.h2
@@ -553,13 +574,16 @@ const ChordTabsSection = () => {
         Guitar Tabs & Chords
       </motion.h2>
       <p className={styles.chordTabsIntro}>
-        Want to play along? Here are the main chords and progressions for &quot;Friday I&apos;m in Love&quot;. Grab your guitar and let the neon strumming begin!
+        Want to play along? Here are the main chords and progressions for &quot;Friday I&apos;m in
+        Love&quot;. Grab your guitar and let the neon strumming begin!
       </p>
       <div className={styles.chordTabsProgNav}>
         {CHORD_PROGRESSIONS.map((prog, idx) => (
           <button
             key={prog.label}
-            className={`${styles.chordTabsProgBtn} ${selectedProg === idx ? styles.chordTabsProgBtnActive : ""}`}
+            className={`${styles.chordTabsProgBtn} ${
+              selectedProg === idx ? styles.chordTabsProgBtnActive : ""
+            }`}
             onClick={() => setSelectedProg(idx)}
             aria-pressed={selectedProg === idx}
             tabIndex={0}
@@ -585,7 +609,9 @@ const ChordTabsSection = () => {
           {CHORD_PROGRESSIONS[selectedProg].chords.map((chord, idx) => (
             <li
               key={chord + idx}
-              className={`${styles.chordTabsChordItem} ${activeMidiChordIndex === idx ? styles.chordTabsChordItemActive : ""}`}
+              className={`${styles.chordTabsChordItem} ${
+                activeMidiChordIndex === idx ? styles.chordTabsChordItemActive : ""
+              }`}
               aria-current={activeMidiChordIndex === idx ? "step" : undefined}
             >
               <button
@@ -619,13 +645,13 @@ const ChordTabsSection = () => {
 };
 
 function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }) {
-  // Only support basic open chords and barre for this simple SVG
-  // fingering: e.g. "xx0232" (EADGBE, x = mute)
-  const stringPos = [0, 1, 2, 3, 4, 5]; // EADGBE
+  const stringPos = [0, 1, 2, 3, 4, 5];
   const fretNumbers = fingering.split("").map((f) => (f === "x" ? null : parseInt(f, 10)));
-  const minFret = Math.min(...fretNumbers.filter((n) => typeof n === "number" && n > 0) as number[], 1);
-  const maxFret = Math.max(...fretNumbers.filter((n) => typeof n === "number") as number[], 1);
+  const fretted = fretNumbers.filter((n): n is number => typeof n === "number" && n > 0);
+  const minFret = fretted.length > 0 ? Math.min(...fretted, 1) : 1;
+  const maxFret = fretted.length > 0 ? Math.max(...fretted, 1) : 1;
   const fretRange = maxFret > 3 ? [minFret, minFret + 3] : [1, 4];
+
   return (
     <svg
       width="52"
@@ -634,8 +660,7 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
       className={styles.chordTabsDiagram}
       aria-label={`Chord diagram for ${chord}`}
     >
-      {/* Strings */}
-      {stringPos.map((s, i) => (
+      {stringPos.map((_, i) => (
         <line
           key={`string-${i}`}
           x1={8 + i * 7}
@@ -646,22 +671,19 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
           strokeWidth={1.2}
         />
       ))}
-      {/* Frets */}
       {[0, 1, 2, 3].map((f) => (
         <line
           key={`fret-${f}`}
           x1={8}
           y1={18 + f * 10}
-          x2={8 + 35}
+          x2={43}
           y2={18 + f * 10}
           stroke="#fff"
           strokeWidth={f === 0 ? 2.2 : 1.2}
         />
       ))}
-      {/* Dots */}
       {fretNumbers.map((fret, i) =>
         fret === null ? (
-          // Muted string
           <text
             key={`mute-${i}`}
             x={8 + i * 7}
@@ -674,7 +696,6 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
             x
           </text>
         ) : fret === 0 ? (
-          // Open string
           <text
             key={`open-${i}`}
             x={8 + i * 7}
@@ -687,7 +708,6 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
             o
           </text>
         ) : (
-          // Pressed fret
           <circle
             key={`dot-${i}`}
             cx={8 + i * 7}
@@ -697,9 +717,8 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
             stroke="var(--pink-neon)"
             strokeWidth={1}
           />
-        )
+        ),
       )}
-      {/* Fret numbers */}
       <text
         x={44}
         y={65}
@@ -713,7 +732,126 @@ function ChordDiagram({ chord, fingering }: { chord: string; fingering: string }
     </svg>
   );
 }
-// --- End: New Chord Tabs Section ---
+
+const THEORY_FACTS = [
+  {
+    label: "Feel",
+    value: "Bright, buoyant, jangly",
+    note: "A rare Cure single that leans into pure lift-off joy without losing the band&apos;s bittersweet edge.",
+  },
+  {
+    label: "Tempo",
+    value: "Mid-tempo bounce",
+    note: "Fast enough to feel like motion, relaxed enough to sing along with a grin.",
+  },
+  {
+    label: "Harmony",
+    value: "Major-key glow",
+    note: "Open, ringing chords help the chorus feel instantly welcoming and huge.",
+  },
+  {
+    label: "Guitar texture",
+    value: "Chime + shimmer",
+    note: "Layered strums and clean tones create that unmistakable Wish-era sparkle.",
+  },
+];
+
+const THEORY_TIMELINE = [
+  {
+    part: "Verse",
+    mood: "Counting the week",
+    detail: "The progression moves with a conversational, almost diary-like flow before the hook arrives.",
+  },
+  {
+    part: "Pre-chorus lift",
+    mood: "Anticipation",
+    detail: "The energy tightens and brightens, like staring at the clock and willing Friday to appear.",
+  },
+  {
+    part: "Chorus",
+    mood: "Release",
+    detail: "The title lands like a burst of color, turning routine into celebration.",
+  },
+];
+
+const MusicTheoryBreakdownSection = () => (
+  <section className={styles.infoSection} aria-labelledby="music-theory-title">
+    <motion.h2
+      id="music-theory-title"
+      className={styles.sectionTitle}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+    >
+      Music Theory Breakdown
+    </motion.h2>
+
+    <p className={styles.sectionIntro}>
+      Why does &quot;Friday I&apos;m in Love&quot; feel so instantly uplifting?
+    </p>
+
+    <div className={styles.infoGrid}>
+      {THEORY_FACTS.map((fact, index) => (
+        <motion.div
+          key={fact.label}
+          className={styles.infoCard}
+          style={{
+            background:
+              index % 2 === 0
+                ? "linear-gradient(135deg, var(--cyan-neon), var(--purple-neon))"
+                : "linear-gradient(135deg, var(--yellow-neon), var(--pink-neon))",
+          }}
+          whileHover={{ scale: 1.04, rotate: index % 2 === 0 ? -1.5 : 1.5 }}
+        >
+          <h3>{fact.label}</h3>
+          <p>
+            <strong>{fact.value}</strong>
+          </p>
+          <p>{fact.note}</p>
+        </motion.div>
+      ))}
+    </div>
+
+    <div className={styles.songInfo}>
+      <ul>
+        <li>
+          <strong>Key context:</strong> Commonly played around D major shapes, giving the song its
+          open, chiming character.
+        </li>
+        <li>
+          <strong>Hook design:</strong> Repetition makes the title feel immediate, memorable, and
+          communal.
+        </li>
+        <li>
+          <strong>Dynamic arc:</strong> Verses feel like a countdown, while the chorus opens into
+          emotional release.
+        </li>
+        <li>
+          <strong>Fan takeaway:</strong> It sounds simple on the surface, but the arrangement is
+          carefully built for lift, warmth, and singalong momentum.
+        </li>
+      </ul>
+    </div>
+
+    <div className={styles.lyricsDisplay} style={{ marginTop: "2rem" }}>
+      {THEORY_TIMELINE.map((item, index) => (
+        <motion.div
+          key={item.part}
+          className={styles.lyricBlock}
+          initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: index * 0.08 }}
+        >
+          <p>{item.part}</p>
+          <span className={styles.lyricNote}>
+            {item.mood} — {item.detail}
+          </span>
+        </motion.div>
+      ))}
+    </div>
+  </section>
+);
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -732,12 +870,9 @@ export default function Home() {
           <div className={styles.gradientOrb2} />
           <div className={styles.gradientOrb3} />
         </div>
-        
-        <motion.div 
-          className={styles.heroContent}
-          style={{ opacity, scale, y }}
-        >
-          <motion.h1 
+
+        <motion.div className={styles.heroContent} style={{ opacity, scale, y }}>
+          <motion.h1
             className={`${styles.title} glitch`}
             data-text="FRIDAY I'M IN LOVE"
             initial={{ scale: 0 }}
@@ -746,8 +881,8 @@ export default function Home() {
           >
             FRIDAY I&apos;m in LOVE
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             className={styles.subtitle}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -755,7 +890,7 @@ export default function Home() {
           >
             A love letter to the best day of the week
           </motion.p>
-          
+
           <motion.div
             className={styles.band}
             initial={{ opacity: 0 }}
@@ -765,46 +900,45 @@ export default function Home() {
             <span className={styles.bandName}>by The Cure</span>
           </motion.div>
         </motion.div>
-        
+
         <GothicSilhouette />
-        
+
         <div className={styles.lyricsLayer}>
           {LYRICS.map((lyric, index) => (
             <FloatingLyric key={index} text={lyric} index={index} />
           ))}
         </div>
-        
+
         <PatternShapes />
-        
-        <motion.div 
+
+        <motion.div
           className={styles.scrollIndicator}
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <span>Scroll for more</span>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M19 12l-7 7-7-7"/>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M12 5v14M19 12l-7 7-7-7" />
           </svg>
         </motion.div>
       </motion.section>
 
-      {/* --- Insert News Ticker Section after Hero --- */}
       <NewsTicker />
-
-      {/* --- Insert Spotify Player Section after Hero/News --- */}
       <SpotifyPlayer />
-
-      {/* --- Insert Cover Versions Section after Spotify Player --- */}
       <CoverVersionsSection />
-
-      {/* --- Insert Fan Resources Section after Cover Versions --- */}
       <FanResourcesSection />
-
-      {/* --- Insert Chord Tabs Section after Fan Resources --- */}
       <ChordTabsSection />
+      <MusicTheoryBreakdownSection />
 
       <section className={styles.daySection}>
-        <motion.h2 
+        <motion.h2
           className={styles.sectionTitle}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -812,28 +946,28 @@ export default function Home() {
         >
           The Days Fly By
         </motion.h2>
-        
+
         <p className={styles.sectionIntro}>
           From the grey monotony of Monday to the vibrant explosion of Friday...
         </p>
-        
+
         <DayProgress />
         <FridayCountdown />
-        
-        <motion.p 
+
+        <motion.p
           className={styles.quote}
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
         >
-          &ldquo;Friday I&apos;m in Love doesn&apos;t follow the typical Cure formula. 
-          It&apos;s an anthem of joy in a catalog often defined by melancholy.&rdquo;
+          &ldquo;Friday I&apos;m in Love doesn&apos;t follow the typical Cure formula. It&apos;s an
+          anthem of joy in a catalog often defined by melancholy.&rdquo;
         </motion.p>
       </section>
 
       <section className={styles.infoSection}>
         <div className={styles.infoGrid}>
-          <motion.div 
+          <motion.div
             className={styles.infoCard}
             style={{ background: "linear-gradient(135deg, var(--pink-neon), var(--purple-neon))" }}
             whileHover={{ scale: 1.05, rotate: 2 }}
@@ -841,8 +975,8 @@ export default function Home() {
             <h3>Theme</h3>
             <p>Escapism, love, emotional contrast between routine drudgery and exciting liberation</p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className={styles.infoCard}
             style={{ background: "linear-gradient(135deg, var(--cyan-neon), var(--green-neon))" }}
             whileHover={{ scale: 1.05, rotate: -2 }}
@@ -850,8 +984,8 @@ export default function Home() {
             <h3>Vibe</h3>
             <p>Joyful chaos, nostalgia, romantic yearning, slightly quirky with gothic undertones</p>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className={styles.infoCard}
             style={{ background: "linear-gradient(135deg, var(--yellow-neon), var(--orange-neon))" }}
             whileHover={{ scale: 1.05, rotate: 2 }}
@@ -860,12 +994,12 @@ export default function Home() {
             <p>One of The Cure&apos;s most accessible hits, proving Robert Smith can do happy</p>
           </motion.div>
         </div>
-        
+
         <SongInfo />
       </section>
 
       <section className={styles.lyricsSection}>
-        <motion.h2 
+        <motion.h2
           className={styles.sectionTitle}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -873,7 +1007,7 @@ export default function Home() {
         >
           Key Lyrics
         </motion.h2>
-        
+
         <div className={styles.lyricsDisplay}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -888,7 +1022,7 @@ export default function Home() {
               <span className={styles.lyricNote}>The refrain that launched a thousand covers</span>
             </motion.div>
           </AnimatePresence>
-          
+
           <AnimatePresence mode="wait">
             <motion.div
               key={2}
@@ -902,7 +1036,7 @@ export default function Home() {
               <span className={styles.lyricNote}>The countdown to bliss begins</span>
             </motion.div>
           </AnimatePresence>
-          
+
           <AnimatePresence mode="wait">
             <motion.div
               key={3}
@@ -916,7 +1050,7 @@ export default function Home() {
               <span className={styles.lyricNote}>The anticipation is killing us</span>
             </motion.div>
           </AnimatePresence>
-          
+
           <AnimatePresence mode="wait">
             <motion.div
               key={4}
@@ -969,7 +1103,7 @@ export default function Home() {
       </section>
 
       <section className={styles.aboutSection}>
-        <motion.div 
+        <motion.div
           className={styles.aboutContent}
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -977,38 +1111,37 @@ export default function Home() {
         >
           <h2>About the Song</h2>
           <p>
-            &ldquo;Friday I&apos;m in Love&rdquo; is a song by English rock band The Cure, released in May 1992 
-            as the lead single from their ninth studio album, Wish (1992). The song was written by 
-            Robert Smith and is noted for its upbeat, almost poppy sound, contrasting with the 
-            typically darker tone of the band&apos;s work.
+            &ldquo;Friday I&apos;m in Love&rdquo; is a song by English rock band The Cure, released
+            in May 1992 as the lead single from their ninth studio album, Wish (1992). The song was
+            written by Robert Smith and is noted for its upbeat, almost poppy sound, contrasting
+            with the typically darker tone of the band&apos;s work.
           </p>
           <p>
-            The music video, directed by Sara撮, features the band performing in a colorful, 
-            deliberately low-budget setting with paint splatters and chaotic energy that perfectly 
+            The music video, directed by Tim Pope, features the band performing in a colorful,
+            deliberately low-budget setting with paint splatters and chaotic energy that perfectly
             captures the song&apos;s spirit.
           </p>
           <p>
-            Despite (or because of) its departure from The Cure&apos;s gothic rock roots, it became 
-            one of their most successful singles, reaching number six on the UK Singles Chart and 
+            Despite, or because of, its departure from The Cure&apos;s gothic rock roots, it became
+            one of their most successful singles, reaching number six on the UK Singles Chart and
             number two on the Billboard Alternative Songs chart in the US.
           </p>
         </motion.div>
-        
+
         <div className={styles.decorativeShapes}>
-          <motion.div 
+          <motion.div
             className={styles.heartShape}
-            animate={{ 
+            animate={{
               scale: [1, 1.1, 1],
               rotate: [0, 5, -5, 0],
             }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-
             💜
           </motion.div>
-          <motion.div 
+          <motion.div
             className={styles.musicNote}
-            animate={{ 
+            animate={{
               y: [-20, 0, -20],
               rotate: [0, 10, 0],
             }}
@@ -1016,9 +1149,9 @@ export default function Home() {
           >
             ♫
           </motion.div>
-          <motion.div 
+          <motion.div
             className={styles.star}
-            animate={{ 
+            animate={{
               scale: [1, 1.2, 1],
               rotate: [0, 180, 360],
             }}
@@ -1032,12 +1165,14 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p>Made with 💜 for fans of The Cure</p>
-          <p className={styles.footerNote}>
-            A celebration of love, music, and the joy of Friday
-          </p>
+          <p className={styles.footerNote}>A celebration of love, music, and the joy of Friday</p>
         </div>
         <div className={styles.footerDecor}>
-          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
         </div>
       </footer>
     </main>
