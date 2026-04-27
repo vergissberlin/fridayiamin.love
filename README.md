@@ -20,6 +20,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Site Highlights
 
 - `Build Your Friday Cure Queue`: an interactive mood selector that recommends adjacent The Cure songs to follow up `Friday I'm in Love`, with short fan-facing notes and source links.
+- `Cover Versions Explorer`: a filterable cover guide that lets fans jump between dreamy, stripped-down, punchy, and late-night reinterpretations with a spotlight card for each pick.
 
 ## Learn More
 
