@@ -507,7 +507,7 @@ const FridayCureQueueSection = () => {
   const activeMood = FRIDAY_CURE_QUEUE[selectedMoodIndex];
 
   return (
-    <section className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
+    <section id="friday-queue" className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
       <motion.h2
         id="friday-queue-title"
         className={styles.sectionTitle}
@@ -594,6 +594,357 @@ const FridayCureQueueSection = () => {
             </ol>
           </motion.article>
         </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
+type FridayPersonaQuestionId = "scene" | "texture" | "look" | "comedown";
+
+interface FridayPersonaOption {
+  label: string;
+  detail: string;
+  result: FridayQueueMoodId;
+}
+
+interface FridayPersonaQuestion {
+  id: FridayPersonaQuestionId;
+  prompt: string;
+  options: FridayPersonaOption[];
+}
+
+interface FridayPersonaResult {
+  kicker: string;
+  title: string;
+  description: string;
+  queueMatch: string;
+  coverMatch: string;
+}
+
+const FRIDAY_PERSONA_ORDER: FridayQueueMoodId[] = ["lift-off", "twilight", "glitter", "afterglow"];
+
+const FRIDAY_PERSONA_QUESTIONS: FridayPersonaQuestion[] = [
+  {
+    id: "scene",
+    prompt: "When the chorus hits, where are you in your own tiny music video?",
+    options: [
+      {
+        label: "Bursting through the door",
+        detail: "The weekend has officially started and you plan to make that everyone else's problem too.",
+        result: "lift-off",
+      },
+      {
+        label: "Leaning against a train window",
+        detail: "You want city lights, soft blur, and just enough romantic overthinking.",
+        result: "twilight",
+      },
+      {
+        label: "Owning the dance floor edge",
+        detail: "A little theatrical, a little shadowy, and absolutely ready for glitter fallout.",
+        result: "glitter",
+      },
+      {
+        label: "Walking home with the feeling still glowing",
+        detail: "The night is winding down, but you are not ready to let the song leave yet.",
+        result: "afterglow",
+      },
+    ],
+  },
+  {
+    id: "texture",
+    prompt: "Pick the texture you want wrapped around the song next.",
+    options: [
+      {
+        label: "Jangly guitar and open-road momentum",
+        detail: "You want lift, sparkle, and the sense that everything is suddenly moving faster.",
+        result: "lift-off",
+      },
+      {
+        label: "Dream-pop haze and dusk shimmer",
+        detail: "The melody should feel like neon reflecting on rain-slick pavement.",
+        result: "twilight",
+      },
+      {
+        label: "Big hook, bigger eyeliner",
+        detail: "Keep the fun, but sharpen it into something a little more dramatic.",
+        result: "glitter",
+      },
+      {
+        label: "Warm piano and a gentle comedown",
+        detail: "Let the brightness stay, but soften the edges for the late-night walk.",
+        result: "afterglow",
+      },
+    ],
+  },
+  {
+    id: "look",
+    prompt: "Which Friday look belongs in your collage corner?",
+    options: [
+      {
+        label: "Sneakers, grin, no patience",
+        detail: "You are dressed for motion and fully willing to chase the brightest possible version of the night.",
+        result: "lift-off",
+      },
+      {
+        label: "Soft layers and camera-flash nostalgia",
+        detail: "Every detail should feel slightly blurred, handwritten, and cinematic.",
+        result: "twilight",
+      },
+      {
+        label: "Statement jacket with a little menace",
+        detail: "You want joy, but with a sharper silhouette and a knowing side-eye.",
+        result: "glitter",
+      },
+      {
+        label: "The outfit from after the great night",
+        detail: "A little rumpled, still sparkling, and somehow more sentimental than when you left home.",
+        result: "afterglow",
+      },
+    ],
+  },
+  {
+    id: "comedown",
+    prompt: "After the big singalong, what feeling do you want to keep?",
+    options: [
+      {
+        label: "Pure momentum",
+        detail: "The best answer is another chorus, another sidewalk, and another reason to stay out.",
+        result: "lift-off",
+      },
+      {
+        label: "A little ache inside the glow",
+        detail: "You like the song most when the sweetness leaves a trace of longing behind.",
+        result: "twilight",
+      },
+      {
+        label: "A dramatic wink",
+        detail: "You want the joy to stay playful, stylish, and just a touch unruly.",
+        result: "glitter",
+      },
+      {
+        label: "The soft landing",
+        detail: "You want the night to exhale slowly instead of ending all at once.",
+        result: "afterglow",
+      },
+    ],
+  },
+];
+
+const FRIDAY_PERSONA_RESULTS: Record<FridayQueueMoodId, FridayPersonaResult> = {
+  "lift-off": {
+    kicker: "Friday Persona",
+    title: "Lift-Off Heart",
+    description:
+      "You treat \"Friday I'm in Love\" like a starter pistol. The chime, the bounce, and the sudden rush matter as much as the romance, so your ideal follow-up keeps the tempo buoyant and the grin obvious.",
+    queueMatch: "Lift-Off",
+    coverMatch: "Basement Jump",
+  },
+  twilight: {
+    kicker: "Friday Persona",
+    title: "Twilight Sway Romantic",
+    description:
+      "You hear the softness under the shine. The song works best for you when it opens into wistful color, reflective movement, and the kind of warmth that gets a little more powerful after sunset.",
+    queueMatch: "Twilight Sway",
+    coverMatch: "Dreamy Glow",
+  },
+  glitter: {
+    kicker: "Friday Persona",
+    title: "Goth Glitter Instigator",
+    description:
+      "You want the pop hit with its weird edges intact. Playful chaos, style, and a little dramatic swagger matter just as much as the hook, so your Friday soundtrack should sparkle and smirk at the same time.",
+    queueMatch: "Goth Glitter",
+    coverMatch: "Basement Jump",
+  },
+  afterglow: {
+    kicker: "Friday Persona",
+    title: "Afterglow Wanderer",
+    description:
+      "You love the song most in the moments after the rush. For you, the magic is in the lingering warmth, the slow walk home, and the bittersweet tenderness that makes the night feel bigger once it starts to fade.",
+    queueMatch: "Afterglow",
+    coverMatch: "Afterglow",
+  },
+};
+
+function getFridayPersonaResult(answers: FridayQueueMoodId[]) {
+  const scores: Record<FridayQueueMoodId, number> = {
+    "lift-off": 0,
+    twilight: 0,
+    glitter: 0,
+    afterglow: 0,
+  };
+
+  for (const answer of answers) {
+    scores[answer] += 1;
+  }
+
+  let winningResult = FRIDAY_PERSONA_ORDER[0];
+
+  for (const resultId of FRIDAY_PERSONA_ORDER) {
+    if (scores[resultId] > scores[winningResult]) {
+      winningResult = resultId;
+    }
+  }
+
+  return winningResult;
+}
+
+const FridayPersonaQuizSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [answers, setAnswers] = useState<Record<FridayPersonaQuestionId, FridayQueueMoodId | null>>({
+    scene: null,
+    texture: null,
+    look: null,
+    comedown: null,
+  });
+
+  const selectedAnswers = Object.values(answers).filter(
+    (answer): answer is FridayQueueMoodId => answer !== null,
+  );
+  const completedCount = selectedAnswers.length;
+  const isComplete = completedCount === FRIDAY_PERSONA_QUESTIONS.length;
+  const resultId = isComplete ? getFridayPersonaResult(selectedAnswers) : null;
+  const result = resultId ? FRIDAY_PERSONA_RESULTS[resultId] : null;
+
+  return (
+    <section className={styles.fridayQuizSection} aria-labelledby="friday-quiz-title">
+      <motion.h2
+        id="friday-quiz-title"
+        className={styles.sectionTitle}
+        initial={prefersReducedMotion ? undefined : { opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        What Kind of Friday Fan Are You?
+      </motion.h2>
+      <p className={styles.quizIntro}>
+        Take a four-question vibe check and find the Friday lane that fits your Cure-loving heart.
+      </p>
+
+      <div className={styles.quizBoard}>
+        <form className={styles.quizQuestions}>
+          <p className={styles.quizProgress} aria-live="polite">
+            {completedCount}/{FRIDAY_PERSONA_QUESTIONS.length} scenes chosen
+          </p>
+
+          {FRIDAY_PERSONA_QUESTIONS.map((question, index) => (
+            <motion.fieldset
+              key={question.id}
+              className={styles.quizQuestionCard}
+              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { delay: index * 0.06, duration: 0.28 }}
+            >
+              <legend className={styles.quizLegend}>{question.prompt}</legend>
+
+              <div className={styles.quizOptionList}>
+                {question.options.map((option) => {
+                  const inputId = `${question.id}-${option.result}`;
+                  const isSelected = answers[question.id] === option.result;
+
+                  return (
+                    <label
+                      key={inputId}
+                      htmlFor={inputId}
+                      className={styles.quizOptionLabel}
+                      data-selected={isSelected ? "true" : "false"}
+                      data-result={option.result}
+                    >
+                      <input
+                        id={inputId}
+                        type="radio"
+                        name={question.id}
+                        className={styles.quizOptionInput}
+                        checked={isSelected}
+                        onChange={() => {
+                          setAnswers((current) => ({
+                            ...current,
+                            [question.id]: option.result,
+                          }));
+                        }}
+                      />
+                      <span className={styles.quizOptionCard}>
+                        <span className={styles.quizOptionTitle}>{option.label}</span>
+                        <span className={styles.quizOptionDetail}>{option.detail}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </motion.fieldset>
+          ))}
+        </form>
+
+        <div className={styles.quizResultColumn}>
+          <AnimatePresence mode="wait">
+            {result && resultId ? (
+              <motion.aside
+                key={resultId}
+                className={styles.quizResultCard}
+                data-result={resultId}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16, rotate: -0.4 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -10, rotate: 0.4 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              >
+                <p className={styles.quizResultKicker}>{result.kicker}</p>
+                <h3 className={styles.quizResultTitle}>{result.title}</h3>
+                <p className={styles.quizResultBody}>{result.description}</p>
+
+                <dl className={styles.quizResultStats}>
+                  <div>
+                    <dt>Queue Match</dt>
+                    <dd>{result.queueMatch}</dd>
+                  </div>
+                  <div>
+                    <dt>Cover Lane</dt>
+                    <dd>{result.coverMatch}</dd>
+                  </div>
+                </dl>
+
+                <div className={styles.quizResultLinks}>
+                  <a href="#friday-queue" className={styles.quizResultLink}>
+                    Build that queue
+                  </a>
+                  <a href="#cover-versions" className={styles.quizResultLink}>
+                    Jump to covers
+                  </a>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.quizResetButton}
+                  onClick={() => {
+                    setAnswers({
+                      scene: null,
+                      texture: null,
+                      look: null,
+                      comedown: null,
+                    });
+                  }}
+                >
+                  Retake the vibe check
+                </button>
+              </motion.aside>
+            ) : (
+              <motion.aside
+                key="quiz-empty"
+                className={styles.quizResultEmpty}
+                initial={prefersReducedMotion ? undefined : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
+              >
+                <p className={styles.quizResultEmptyKicker}>Friday Persona</p>
+                <h3 className={styles.quizResultEmptyTitle}>Your result appears after the fourth pick.</h3>
+                <p className={styles.quizResultEmptyBody}>
+                  Choose the scenes that feel most like your version of the song. The result card will
+                  point you back to the queue and cover sections that match your mood.
+                </p>
+              </motion.aside>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );
@@ -722,7 +1073,7 @@ const CoverVersionsSection = () => {
     filteredCovers.find((cover) => cover.artist === selectedCoverArtist) ?? filteredCovers[0];
 
   return (
-    <section className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
+    <section id="cover-versions" className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
       <motion.h2
         id="cover-versions-title"
         className={styles.sectionTitle}
@@ -1410,6 +1761,7 @@ export default function Home() {
       <NewsTicker />
       <SpotifyPlayer />
       <FridayCureQueueSection />
+      <FridayPersonaQuizSection />
       <CoverVersionsSection />
       <FanResourcesSection />
       <ChordTabsSection />
