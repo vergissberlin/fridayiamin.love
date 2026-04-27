@@ -68,6 +68,41 @@ const FRIDAY_PARTY_CONFETTI = [
   { left: 88, delay: 0.35, duration: 2.4, size: 7, color: "var(--cyan-neon)" },
 ];
 
+const TOUR_LIVE_MOMENTS = [
+  {
+    year: "1992",
+    title: "Wish era takes the song worldwide",
+    detail:
+      "After its release as the lead single from Wish, the song quickly became a live high point and a bright counterweight to the band's darker classics.",
+    link: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love",
+    source: "Wikipedia song overview",
+  },
+  {
+    year: "1992",
+    title: "Tim Pope video turns chaos into pop-goth iconography",
+    detail:
+      "The colorful, playful video helped define the song's public image and made its joy feel inseparable from The Cure's eccentric visual world.",
+    link: "https://www.thecure.com/release/friday-im-in-love/",
+    source: "Official release page",
+  },
+  {
+    year: "2016",
+    title: "A staple of later-era setlists",
+    detail:
+      "Even deep into marathon live shows, the song remained one of the moments where arenas shifted from dreamy sway to full communal singalong.",
+    link: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
+    source: "Setlist.fm song stats",
+  },
+  {
+    year: "2023",
+    title: "Songs of a Lost World tour keeps the Friday glow alive",
+    detail:
+      "On recent tours, the track still lands as a burst of warmth inside expansive, emotional sets, proving how durable its optimism is for longtime fans.",
+    link: "https://www.thecure.com/tour/",
+    source: "Official tour archive",
+  },
+];
+
 const GothicSilhouette = () => (
   <div className={styles.gothicSilhouette} aria-hidden="true">
     <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
@@ -853,6 +888,48 @@ const MusicTheoryBreakdownSection = () => (
   </section>
 );
 
+const TourLiveMomentsSection = () => (
+  <section className={styles.infoSection} aria-labelledby="tour-live-title">
+    <motion.h2
+      id="tour-live-title"
+      className={styles.sectionTitle}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+    >
+      Tour &amp; Live Moments
+    </motion.h2>
+
+    <p className={styles.sectionIntro}>
+      A tiny timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
+      beloved live singalong moments.
+    </p>
+
+    <div className={styles.lyricsDisplay}>
+      {TOUR_LIVE_MOMENTS.map((item, index) => (
+        <motion.article
+          key={`${item.year}-${item.title}`}
+          className={styles.lyricBlock}
+          initial={{ opacity: 0, x: index % 2 === 0 ? -36 : 36, rotate: index % 2 === 0 ? -1 : 1 }}
+          whileInView={{ opacity: 1, x: 0, rotate: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: index * 0.08 }}
+        >
+          <p>
+            {item.year} — {item.title}
+          </p>
+          <span className={styles.lyricNote}>{item.detail}</span>
+          <div style={{ marginTop: "0.9rem" }}>
+            <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.chordTabsExternalLink}>
+              Source: {item.source}
+            </a>
+          </div>
+        </motion.article>
+      ))}
+    </div>
+  </section>
+);
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -936,6 +1013,7 @@ export default function Home() {
       <FanResourcesSection />
       <ChordTabsSection />
       <MusicTheoryBreakdownSection />
+      <TourLiveMomentsSection />
 
       <section className={styles.daySection}>
         <motion.h2
