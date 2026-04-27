@@ -297,7 +297,12 @@ export function generateOrRepair(attempt, provider) {
   }
 
   if (httpCode < 200 || httpCode >= 300) {
-    throw new Error(`Model API request failed with status ${httpCode} (provider=${provider})`);
+    const fallbackErrorInfo = parseProviderError();
+    const fallbackErrorMessage = normalizeErrorMessage(
+      fallbackErrorInfo.message || fallbackErrorInfo.type || "Unknown error",
+    );
+    console.log(`Provider error (HTTP ${httpCode}): ${fallbackErrorMessage}`);
+    throw new Error(`Model API request failed with status ${httpCode} (provider=${effectiveProvider})`);
   }
 
   debugLog(`Model API request succeeded with status ${httpCode}`);
