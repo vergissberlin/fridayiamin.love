@@ -70,12 +70,12 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
 
     progressionRef.current = progressionId;
 
-    const clearStopTimer = () => {
+    const clearStopTimer = useCallback(() => {
       if (stopTimerRef.current != null) {
         clearTimeout(stopTimerRef.current);
         stopTimerRef.current = null;
       }
-    };
+    }, []);
 
     const clearChordHighlight = useCallback(() => {
       lastHighlightChordRef.current = null;
@@ -110,7 +110,7 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
       synthRef.current?.dispose();
       synthRef.current = null;
       setPlaying(false);
-    }, [clearChordHighlight, resetPlaybackData]);
+    }, [clearChordHighlight, clearStopTimer, resetPlaybackData]);
 
     useEffect(() => {
       teardown();

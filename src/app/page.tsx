@@ -12,6 +12,8 @@ import styles from "./page.module.css";
 
 type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
+type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -187,6 +189,138 @@ const THEORY_TIMELINE = [
     part: "Chorus",
     mood: "Release",
     detail: "The title lands like a burst of color, turning routine into celebration.",
+  },
+];
+
+const FRIDAY_CURE_QUEUES: {
+  mood: FridayQueueMood;
+  label: string;
+  time: string;
+  kicker: string;
+  headline: string;
+  description: string;
+  tracks: {
+    title: string;
+    era: string;
+    note: string;
+    link: string;
+  }[];
+}[] = [
+  {
+    mood: "lift-off",
+    label: "Lift-Off",
+    time: "Golden-hour glow",
+    kicker: "For the instant grin",
+    headline: "Keep the chorus high and the sky even brighter.",
+    description:
+      "Start with songs that share Friday's open-armed rush: ringing guitars, huge hooks, and the feeling that the whole week just fell away.",
+    tracks: [
+      {
+        title: "Just Like Heaven",
+        era: "1987",
+        note: "The purest next-step sugar rush: euphoric, romantic, and impossible not to sing with.",
+        link: "https://open.spotify.com/search/The%20Cure%20Just%20Like%20Heaven",
+      },
+      {
+        title: "High",
+        era: "1992",
+        note: "Another Wish-era uplift, all buoyant guitar shimmer and weightless momentum.",
+        link: "https://open.spotify.com/search/The%20Cure%20High",
+      },
+      {
+        title: "In Between Days",
+        era: "1985",
+        note: "A faster jangle-pop sprint when you want the Friday bounce to keep moving.",
+        link: "https://open.spotify.com/search/The%20Cure%20In%20Between%20Days",
+      },
+    ],
+  },
+  {
+    mood: "twilight",
+    label: "Twilight",
+    time: "Neon after sunset",
+    kicker: "For the dreamy comedown",
+    headline: "Trade the rush for a softer glow without losing the feeling.",
+    description:
+      "This path leans into the band's widescreen romance: slower, deeper, and perfect once the party starts turning reflective.",
+    tracks: [
+      {
+        title: "Plainsong",
+        era: "1989",
+        note: "A cathedral-sized opener that makes the room feel bigger and the night feel cinematic.",
+        link: "https://open.spotify.com/search/The%20Cure%20Plainsong",
+      },
+      {
+        title: "Pictures of You",
+        era: "1989",
+        note: "Tender and expansive, with the same emotional sincerity stretched into wistful grandeur.",
+        link: "https://open.spotify.com/search/The%20Cure%20Pictures%20of%20You",
+      },
+      {
+        title: "A Letter to Elise",
+        era: "1992",
+        note: "A graceful late-evening turn when Friday starts sounding a little more bittersweet.",
+        link: "https://open.spotify.com/search/The%20Cure%20A%20Letter%20to%20Elise",
+      },
+    ],
+  },
+  {
+    mood: "glitter",
+    label: "Glitter",
+    time: "Confetti and eyeliner",
+    kicker: "For the playful weirdness",
+    headline: "Lean into the camp, charm, and off-kilter pop genius.",
+    description:
+      "If Friday makes you want color, movement, and a little mischief, this is the route with the biggest wink in it.",
+    tracks: [
+      {
+        title: "Close to Me",
+        era: "1985",
+        note: "All wobble, pulse, and claustrophobic fun, like dancing in a room painted hot pink.",
+        link: "https://open.spotify.com/search/The%20Cure%20Close%20to%20Me",
+      },
+      {
+        title: "The Lovecats",
+        era: "1983",
+        note: "Playful swagger, cartoon romance, and a reminder that The Cure can be gloriously unserious.",
+        link: "https://open.spotify.com/search/The%20Cure%20The%20Lovecats",
+      },
+      {
+        title: "Why Can't I Be You?",
+        era: "1987",
+        note: "A bright, extroverted burst of flirtation for when the mirrorball energy takes over.",
+        link: "https://open.spotify.com/search/The%20Cure%20Why%20Can%27t%20I%20Be%20You%3F",
+      },
+    ],
+  },
+  {
+    mood: "afterglow",
+    label: "Afterglow",
+    time: "Last train home",
+    kicker: "For the soft landing",
+    headline: "Hold onto the warmth after the neon starts fading.",
+    description:
+      "These songs keep Friday's heart intact while easing into something more intimate, affectionate, and quietly radiant.",
+    tracks: [
+      {
+        title: "Lovesong",
+        era: "1989",
+        note: "Direct, devoted, and timeless: the emotional center of a late-night Cure run.",
+        link: "https://open.spotify.com/search/The%20Cure%20Lovesong",
+      },
+      {
+        title: "Catch",
+        era: "1987",
+        note: "A delicate, wistful pause that still feels lit by the same romantic spark.",
+        link: "https://open.spotify.com/search/The%20Cure%20Catch",
+      },
+      {
+        title: "Mint Car",
+        era: "1996",
+        note: "A later-era shot of optimism if you want Friday's sunshine to linger just a little longer.",
+        link: "https://open.spotify.com/search/The%20Cure%20Mint%20Car",
+      },
+    ],
   },
 ];
 
@@ -387,6 +521,98 @@ const SpotifyPlayer = () => (
     </div>
   </section>
 );
+
+const FridayQueueSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedMood, setSelectedMood] = useState<FridayQueueMood>("lift-off");
+  const selectedQueue = FRIDAY_CURE_QUEUES.find((queue) => queue.mood === selectedMood) ?? FRIDAY_CURE_QUEUES[0];
+
+  return (
+    <section className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
+      <motion.h2
+        id="friday-queue-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Build Your Friday Cure Queue
+      </motion.h2>
+
+      <p className={styles.queueIntro}>
+        Pick the flavor of Friday you want after the title track and get a quick three-song route deeper
+        into The Cure.
+      </p>
+
+      <div className={styles.queueShell}>
+        <div className={styles.queueTabs} role="tablist" aria-label="Friday Cure queue moods">
+          {FRIDAY_CURE_QUEUES.map((queue) => (
+            <button
+              key={queue.mood}
+              type="button"
+              role="tab"
+              id={`queue-tab-${queue.mood}`}
+              aria-selected={selectedMood === queue.mood}
+              aria-controls={`queue-panel-${queue.mood}`}
+              data-mood={queue.mood}
+              className={`${styles.queueTabButton} ${
+                selectedMood === queue.mood ? styles.queueTabButtonActive : ""
+              }`}
+              onClick={() => setSelectedMood(queue.mood)}
+            >
+              <span className={styles.queueTabLabel}>{queue.label}</span>
+              <span className={styles.queueTabTime}>{queue.time}</span>
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.section
+            key={selectedQueue.mood}
+            id={`queue-panel-${selectedQueue.mood}`}
+            role="tabpanel"
+            aria-labelledby={`queue-tab-${selectedQueue.mood}`}
+            className={styles.queuePanel}
+            data-mood={selectedQueue.mood}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
+          >
+            <div className={styles.queuePanelHeader}>
+              <p className={styles.queuePanelKicker}>{selectedQueue.kicker}</p>
+              <h3 className={styles.queuePanelHeadline}>{selectedQueue.headline}</h3>
+              <p className={styles.queuePanelDescription}>{selectedQueue.description}</p>
+            </div>
+
+            <ol className={styles.queueTrackList}>
+              {selectedQueue.tracks.map((track, index) => (
+                <li key={track.title} className={styles.queueTrackItem}>
+                  <span className={styles.queueTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
+                  <div className={styles.queueTrackCopy}>
+                    <p className={styles.queueTrackHeading}>
+                      {track.title}
+                      <span>{track.era}</span>
+                    </p>
+                    <p className={styles.queueTrackNote}>{track.note}</p>
+                  </div>
+                  <a
+                    href={track.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.queueTrackLink}
+                  >
+                    Search on Spotify
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </motion.section>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
 
 const NewsTicker = () => {
   const [current, setCurrent] = useState(0);
@@ -826,6 +1052,7 @@ export default function Home() {
       </section>
 
       <SpotifyPlayer />
+      <FridayQueueSection />
 
       <section className={styles.infoSection} aria-labelledby="lyrics-meaning-title">
         <motion.h2
