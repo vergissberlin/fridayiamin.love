@@ -599,92 +599,248 @@ const FridayCureQueueSection = () => {
   );
 };
 
-const COVER_VERSIONS = [
+type CoverMoodFilterId = "all" | "dreamy" | "stripped" | "punchy" | "late-night";
+
+interface CoverMoodFilter {
+  id: CoverMoodFilterId;
+  label: string;
+  description: string;
+}
+
+interface CoverVersion {
+  artist: string;
+  year: string;
+  link: string;
+  note: string;
+  arrangement: string;
+  spotlight: string;
+  mood: Exclude<CoverMoodFilterId, "all">;
+}
+
+const COVER_MOOD_FILTERS: CoverMoodFilter[] = [
   {
-    artist: "Yo La Tengo",
-    link: "https://www.youtube.com/watch?v=7rT4lR1g7hE",
-    note: "Dreamy indie take, live at WFMU",
+    id: "all",
+    label: "Full Collage",
+    description: "See every fan-favorite reinterpretation in one place.",
   },
   {
-    artist: "Janet Devlin",
-    link: "https://www.youtube.com/watch?v=QvQh2Wl9-0U",
-    note: "Acoustic and heartfelt, viral on YouTube",
+    id: "dreamy",
+    label: "Dreamy Glow",
+    description: "Soft-focus takes that keep the romance floating.",
   },
   {
-    artist: "The Bates",
-    link: "https://www.youtube.com/watch?v=8w6l0qQw9nE",
-    note: "90s punk-pop energy",
+    id: "stripped",
+    label: "Bedroom Tape",
+    description: "Acoustic and intimate versions for quiet Friday hearts.",
   },
   {
-    artist: "Phoebe Bridgers",
-    link: "https://www.youtube.com/watch?v=0h6rX2uK7lA",
-    note: "Haunting, stripped-down live version",
+    id: "punchy",
+    label: "Basement Jump",
+    description: "Quicker, louder covers that treat the chorus like confetti.",
   },
   {
-    artist: "Ben Gibbard (Death Cab for Cutie)",
-    link: "https://www.youtube.com/watch?v=6k4v3pW9FjA",
-    note: "Gentle indie-folk, for SiriusXM",
-  },
-  {
-    artist: "Yoann Casals (Piano Cover)",
-    link: "https://www.youtube.com/watch?v=8fXhQv7J4yM",
-    note: "Instrumental, melancholic piano",
+    id: "late-night",
+    label: "Afterglow",
+    description: "Slower, moodier readings for the walk home.",
   },
 ];
 
-const CoverVersionsSection = () => (
-  <section className={styles.coverVersionsSection}>
-    <motion.h2
-      className={styles.sectionTitle}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      Cover Versions
-    </motion.h2>
-    <p className={styles.coverIntro}>
-      The joy of &quot;Friday I&apos;m in Love&quot; has inspired countless covers by artists across
-      genres. Here are some fan-favorite reinterpretations:
-    </p>
-    <ul className={styles.coverList}>
-      {COVER_VERSIONS.map((cover, idx) => (
-        <motion.li
-          key={cover.artist}
-          className={styles.coverItem}
-          initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 * idx, duration: 0.5, type: "spring" }}
-          viewport={{ once: true }}
-        >
+const COVER_VERSIONS: CoverVersion[] = [
+  {
+    artist: "Yo La Tengo",
+    year: "1992",
+    link: "https://www.youtube.com/watch?v=7rT4lR1g7hE",
+    note: "Dreamy indie take, live at WFMU",
+    arrangement: "Loose live shimmer",
+    spotlight:
+      "The band lets the song breathe, turning its bounce into something hazier and more conversational without losing the grin behind it.",
+    mood: "dreamy",
+  },
+  {
+    artist: "Janet Devlin",
+    year: "2012",
+    link: "https://www.youtube.com/watch?v=QvQh2Wl9-0U",
+    note: "Acoustic and heartfelt, viral on YouTube",
+    arrangement: "Acoustic confessional",
+    spotlight:
+      "This version pulls the song into a smaller room, making the optimism feel tender rather than explosive.",
+    mood: "stripped",
+  },
+  {
+    artist: "The Bates",
+    year: "1996",
+    link: "https://www.youtube.com/watch?v=8w6l0qQw9nE",
+    note: "90s punk-pop energy",
+    arrangement: "Punk-pop sprint",
+    spotlight:
+      "If you want the hook to hit like a weekend kickoff instead of a daydream, this version gives it extra speed and bite.",
+    mood: "punchy",
+  },
+  {
+    artist: "Phoebe Bridgers",
+    year: "2021",
+    link: "https://www.youtube.com/watch?v=0h6rX2uK7lA",
+    note: "Haunting, stripped-down live version",
+    arrangement: "Dusky live hush",
+    spotlight:
+      "Phoebe Bridgers leans into the ache under the sweetness, revealing how close the song always was to melancholy.",
+    mood: "late-night",
+  },
+  {
+    artist: "Ben Gibbard (Death Cab for Cutie)",
+    year: "2023",
+    link: "https://www.youtube.com/watch?v=6k4v3pW9FjA",
+    note: "Gentle indie-folk, for SiriusXM",
+    arrangement: "Indie-folk sketch",
+    spotlight:
+      "A warm, unfussy read that keeps the melody front and center, perfect for fans who want the song to feel handwritten.",
+    mood: "stripped",
+  },
+  {
+    artist: "Yoann Casals (Piano Cover)",
+    year: "2024",
+    link: "https://www.youtube.com/watch?v=8fXhQv7J4yM",
+    note: "Instrumental, melancholic piano",
+    arrangement: "Piano after-hours",
+    spotlight:
+      "By removing the lyric entirely, the piano arrangement makes the chord glow and bittersweet undercurrent feel newly obvious.",
+    mood: "late-night",
+  },
+];
+
+const CoverVersionsSection = () => {
+  const [selectedMood, setSelectedMood] = useState<CoverMoodFilterId>("all");
+  const [selectedCoverArtist, setSelectedCoverArtist] = useState(COVER_VERSIONS[0].artist);
+  const prefersReducedMotion = useReducedMotion();
+
+  const filteredCovers =
+    selectedMood === "all"
+      ? COVER_VERSIONS
+      : COVER_VERSIONS.filter((cover) => cover.mood === selectedMood);
+
+  const activeCover =
+    filteredCovers.find((cover) => cover.artist === selectedCoverArtist) ?? filteredCovers[0];
+
+  return (
+    <section className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
+      <motion.h2
+        id="cover-versions-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Cover Versions
+      </motion.h2>
+      <p className={styles.coverIntro}>
+        The song has been reimagined as indie haze, punk rush, and quiet after-hours confession.
+        Pick a Friday mood and jump into the version that fits.
+      </p>
+
+      <div className={styles.coverMoodBar} role="group" aria-label="Filter cover versions by vibe">
+        {COVER_MOOD_FILTERS.map((filter) => {
+          const isSelected = filter.id === selectedMood;
+
+          return (
+            <button
+              key={filter.id}
+              type="button"
+              className={`${styles.coverMoodButton} ${
+                isSelected ? styles.coverMoodButtonActive : ""
+              }`}
+              aria-pressed={isSelected}
+              onClick={() => setSelectedMood(filter.id)}
+            >
+              <span className={styles.coverMoodLabel}>{filter.label}</span>
+              <span className={styles.coverMoodDescription}>{filter.description}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className={styles.coverExplorer}>
+        <div className={styles.coverListColumn}>
+          <p className={styles.coverSelectionHint}>
+            {filteredCovers.length} cover{filteredCovers.length === 1 ? "" : "s"} in this lane
+          </p>
+          <ul className={styles.coverList}>
+            {filteredCovers.map((cover, idx) => {
+              const isActive = cover.artist === activeCover.artist;
+
+              return (
+                <motion.li
+                  key={cover.artist}
+                  className={styles.coverItem}
+                  initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { delay: 0.08 * idx, duration: 0.35 }}
+                  viewport={{ once: true }}
+                >
+                  <button
+                    type="button"
+                    className={`${styles.coverPickerButton} ${
+                      isActive ? styles.coverPickerButtonActive : ""
+                    }`}
+                    onClick={() => setSelectedCoverArtist(cover.artist)}
+                    aria-pressed={isActive}
+                  >
+                    <span className={styles.coverArtist}>{cover.artist}</span>
+                    <span className={styles.coverMeta}>
+                      {cover.year} · {cover.arrangement}
+                    </span>
+                    <span className={styles.coverNote}>{cover.note}</span>
+                  </button>
+                </motion.li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.article
+            key={activeCover.artist}
+            className={styles.coverSpotlight}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18, rotate: -0.4 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12, rotate: 0.4 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          >
+            <p className={styles.coverSpotlightKicker}>Fan spotlight</p>
+            <h3 className={styles.coverSpotlightTitle}>{activeCover.artist}</h3>
+            <p className={styles.coverSpotlightMeta}>
+              {activeCover.year} · {activeCover.arrangement}
+            </p>
+            <p className={styles.coverSpotlightBody}>{activeCover.spotlight}</p>
+            <a
+              href={activeCover.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.coverSpotlightLink}
+            >
+              Watch or listen on YouTube
+            </a>
+          </motion.article>
+        </AnimatePresence>
+      </div>
+
+      <div className={styles.coverFooter}>
+        <span className={styles.coverFooterNote}>
+          <span role="img" aria-label="sparkle">
+            ✨
+          </span>{" "}
+          Know a great cover?{" "}
           <a
-            href={cover.link}
+            href="https://www.youtube.com/results?search_query=friday+im+in+love+cover"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.coverArtistLink}
           >
-            <span className={styles.coverArtist}>{cover.artist}</span>
+            Explore more on YouTube
           </a>
-          <span className={styles.coverNote}>{cover.note}</span>
-        </motion.li>
-      ))}
-    </ul>
-    <div className={styles.coverFooter}>
-      <span className={styles.coverFooterNote}>
-        <span role="img" aria-label="sparkle">
-          ✨
-        </span>{" "}
-        Know a great cover?{" "}
-        <a
-          href="https://www.youtube.com/results?search_query=friday+im+in+love+cover"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Explore more on YouTube
-        </a>
-      </span>
-    </div>
-  </section>
-);
+        </span>
+      </div>
+    </section>
+  );
+};
 
 const FAN_RESOURCES = [
   {
