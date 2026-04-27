@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.6.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.5.0...fridayiamin.love-v1.6.0) (2026-04-27)
+
+
+### Features
+
+* enhance Friday Im in Love landing page ([00b5524](https://github.com/vergissberlin/fridayiamin.love/commit/00b552472c0925618d2eab81adbc56170f58d963))
+
+
+### Documentation
+
+* add OpenCode feature development guidelines and workflow ([48fb424](https://github.com/vergissberlin/fridayiamin.love/commit/48fb4241dc8bcccc7c842d285a409482387e8e56))
+* **opencode:** update feature development guide for direct main push workflow ([778de6f](https://github.com/vergissberlin/fridayiamin.love/commit/778de6f10a9708c9df1a36be627b2a9f42881b30))
+
+
+### Continuous Integration
+
+* **opencode-feature.yml:** modify checkout action for main branch ([778de6f](https://github.com/vergissberlin/fridayiamin.love/commit/778de6f10a9708c9df1a36be627b2a9f42881b30))
+
+## [1.5.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.4...fridayiamin.love-v1.5.0) (2026-04-27)
+
+
+### Features
+
+* improve Spotify section on landing page ([1e427db](https://github.com/vergissberlin/fridayiamin.love/commit/1e427db3ca05f18a375187fa8137cf203c3a0404))
+
+
+### Bug Fixes
+
+* **deps:** update nextjs monorepo to v16.2.4 ([0544981](https://github.com/vergissberlin/fridayiamin.love/commit/054498195234450453f85927c797589dfcad506b))
+* **deps:** update nextjs monorepo to v16.2.4 ([b7b6afe](https://github.com/vergissberlin/fridayiamin.love/commit/b7b6afe15fa6c7102fe7c6f5fc8a18b750a3e56d))
+
 ## [1.4.4](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.3...fridayiamin.love-v1.4.4) (2026-04-27)
 
 

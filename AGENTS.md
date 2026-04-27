@@ -108,6 +108,26 @@ pnpm lint
 - Create feature branches from main
 - Keep commits atomic and focused
 
+## AI Workflows
+
+Two separate automations can propose site changes. They are independent (different schedules, triggers, and concurrency groups).
+
+### AI Feature Generator ([`.github/workflows/ai-feature-gen.yml`](.github/workflows/ai-feature-gen.yml))
+
+- **Schedule:** daily at 20:00 UTC (`cron: 0 20 * * *`)
+- **Manual:** `workflow_dispatch` with provider choice (`openai`, `copilot`, or `opencode` via `OPENCODE_CLI_CMD`)
+- **Behavior:** runs the Node runner in [.github/scripts/ai-feature-gen-runner.mjs](.github/scripts/ai-feature-gen-runner.mjs), validates with `pnpm lint`, `pnpm typecheck`, and `pnpm build`, then commits to the current branch (often `main` when triggered from default branch)
+- **Prompt:** [.github/copilot/nightly-feature-prompt.md](.github/copilot/nightly-feature-prompt.md) (full `src/app/page.tsx` output contract for that pipeline)
+
+### OpenCode feature development ([`.github/workflows/opencode-feature.yml`](.github/workflows/opencode-feature.yml))
+
+Uses the official [OpenCode GitHub integration](https://opencode.ai/docs/de/github/) (`anomalyco/opencode/github@latest`) with **OpenAI** (`OPENAI_API_KEY`, model from repo variable `OPENCODE_MODEL`, default `gpt-5.4` → `openai/<model>`).
+
+- **Schedule:** Mondays 09:00 UTC (`cron: 0 9 * * 1`)
+- **Manual:** `workflow_dispatch` with optional **Custom prompt** (non-empty input overrides [.github/opencode/feature-dev-prompt.md](.github/opencode/feature-dev-prompt.md))
+- **On-demand in GitHub:** comment on an issue or PR (or a PR line review) with **`/oc`** or **`/opencode`** in the body; OpenCode uses the comment as instruction (no file prompt in that case)
+- **Behavior:** opens a **feature branch and pull request** (does not push straight to `main`); uses `use_github_token: true` so the default `GITHUB_TOKEN` is used (no OpenCode GitHub App required unless you prefer app-attributed commits later)
+
 ## Release Process
 
 Releases are automated using [Release Please](https://github.com/googleapis/release-please-action).
