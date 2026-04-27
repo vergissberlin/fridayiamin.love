@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.3...fridayiamin.love-v1.4.4) (2026-04-27)
+
+
+### Bug Fixes
+
+* support OpenAI completion token parameter in AI feature generator ([74c427b](https://github.com/vergissberlin/fridayiamin.love/commit/74c427bf53fef02f57cc6084cf76de2f907e5af4))
+
 ## [1.4.3](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.2...fridayiamin.love-v1.4.3) (2026-04-08)
 
 
