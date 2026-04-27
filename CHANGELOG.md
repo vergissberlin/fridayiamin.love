@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.6.0...fridayiamin.love-v1.7.0) (2026-04-27)
+
+
+### Features
+
+* add a mood-based Friday Cure queue ([d982f1c](https://github.com/vergissberlin/fridayiamin.love/commit/d982f1cb6c9c5b9f030dd4282a480fb967bc9422))
+* add cover versions explorer ([98dfdd7](https://github.com/vergissberlin/fridayiamin.love/commit/98dfdd7657b5954af7eeea2ceb0dc22b7f1bd07d))
+
+
+### Bug Fixes
+
+* **deps:** update react monorepo to v19.2.5 ([7e0a805](https://github.com/vergissberlin/fridayiamin.love/commit/7e0a805aab3deaeeae666f77249024d6344e6202))
+
 ## [1.6.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.5.0...fridayiamin.love-v1.6.0) (2026-04-27)
 
 
