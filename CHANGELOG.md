@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.6.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.5.0...fridayiamin.love-v1.6.0) (2026-04-27)
+
+
+### Features
+
+* enhance Friday Im in Love landing page ([00b5524](https://github.com/vergissberlin/fridayiamin.love/commit/00b552472c0925618d2eab81adbc56170f58d963))
+
+
+### Documentation
+
+* add OpenCode feature development guidelines and workflow ([48fb424](https://github.com/vergissberlin/fridayiamin.love/commit/48fb4241dc8bcccc7c842d285a409482387e8e56))
+* **opencode:** update feature development guide for direct main push workflow ([778de6f](https://github.com/vergissberlin/fridayiamin.love/commit/778de6f10a9708c9df1a36be627b2a9f42881b30))
+
+
+### Continuous Integration
+
+* **opencode-feature.yml:** modify checkout action for main branch ([778de6f](https://github.com/vergissberlin/fridayiamin.love/commit/778de6f10a9708c9df1a36be627b2a9f42881b30))
+
 ## [1.5.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.4.4...fridayiamin.love-v1.5.0) (2026-04-27)
 
 
