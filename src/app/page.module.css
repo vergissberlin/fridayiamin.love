@@ -951,6 +951,299 @@
   color: var(--yellow-neon);
 }
 
+/* --- Friday queue: mood selector / listening guide --- */
+.fridayQueueSection {
+  position: relative;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 4.5rem clamp(1rem, 4vw, 2.5rem);
+}
+
+.queueIntro {
+  max-width: 56ch;
+  margin: 0 auto 2rem;
+  text-align: center;
+  color: #fff;
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.15rem, 2.8vw, 1.5rem);
+  line-height: 1.55;
+  opacity: 0.94;
+}
+
+.queueShell {
+  display: grid;
+  gap: 1rem;
+}
+
+.queueTabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.queueTabButton {
+  appearance: none;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.55)),
+    rgba(8, 10, 22, 0.84);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.queueTabButton:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.queueTabButton:focus-visible {
+  outline: 3px solid var(--yellow-neon);
+  outline-offset: 3px;
+}
+
+.queueTabButtonActive {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.queueTabButton[data-mood='lift-off'].queueTabButtonActive {
+  background:
+    linear-gradient(145deg, rgba(255, 45, 149, 0.35), rgba(191, 0, 255, 0.14)),
+    rgba(8, 10, 22, 0.92);
+  border-color: rgba(255, 45, 149, 0.8);
+}
+
+.queueTabButton[data-mood='twilight'].queueTabButtonActive {
+  background:
+    linear-gradient(145deg, rgba(0, 240, 255, 0.28), rgba(191, 0, 255, 0.18)),
+    rgba(8, 10, 22, 0.92);
+  border-color: rgba(0, 240, 255, 0.72);
+}
+
+.queueTabButton[data-mood='glitter'].queueTabButtonActive {
+  background:
+    linear-gradient(145deg, rgba(255, 238, 0, 0.3), rgba(255, 45, 149, 0.18)),
+    rgba(8, 10, 22, 0.92);
+  border-color: rgba(255, 238, 0, 0.7);
+}
+
+.queueTabButton[data-mood='afterglow'].queueTabButtonActive {
+  background:
+    linear-gradient(145deg, rgba(57, 255, 20, 0.2), rgba(0, 240, 255, 0.14)),
+    rgba(8, 10, 22, 0.92);
+  border-color: rgba(57, 255, 20, 0.6);
+}
+
+.queueTabLabel {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.queueTabTime {
+  display: block;
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  opacity: 0.82;
+}
+
+.queuePanel {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 10, 22, 0.88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 48px rgba(0, 0, 0, 0.32);
+}
+
+.queuePanel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.queuePanel[data-mood='lift-off']::before {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 45, 149, 0.26), transparent 34%),
+    radial-gradient(circle at 82% 28%, rgba(255, 238, 0, 0.18), transparent 30%),
+    linear-gradient(135deg, rgba(191, 0, 255, 0.16), rgba(0, 0, 0, 0));
+}
+
+.queuePanel[data-mood='twilight']::before {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(0, 240, 255, 0.22), transparent 34%),
+    radial-gradient(circle at 88% 26%, rgba(191, 0, 255, 0.2), transparent 26%),
+    linear-gradient(135deg, rgba(28, 42, 78, 0.3), rgba(0, 0, 0, 0));
+}
+
+.queuePanel[data-mood='glitter']::before {
+  background:
+    radial-gradient(circle at 14% 16%, rgba(255, 238, 0, 0.22), transparent 26%),
+    radial-gradient(circle at 84% 24%, rgba(255, 45, 149, 0.24), transparent 28%),
+    linear-gradient(135deg, rgba(255, 107, 0, 0.18), rgba(0, 0, 0, 0));
+}
+
+.queuePanel[data-mood='afterglow']::before {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(57, 255, 20, 0.18), transparent 28%),
+    radial-gradient(circle at 88% 22%, rgba(0, 240, 255, 0.16), transparent 30%),
+    linear-gradient(135deg, rgba(13, 52, 46, 0.28), rgba(0, 0, 0, 0));
+}
+
+.queuePanelHeader,
+.queueTrackList {
+  position: relative;
+  z-index: 1;
+}
+
+.queuePanelHeader {
+  margin-bottom: 1.35rem;
+}
+
+.queuePanelKicker {
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+  margin-bottom: 0.65rem;
+}
+
+.queuePanelHeadline {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+  margin-bottom: 0.65rem;
+}
+
+.queuePanelDescription {
+  max-width: 62ch;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+  line-height: 1.55;
+}
+
+.queueTrackList {
+  list-style: none;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.queueTrackItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.queueTrackNumber {
+  min-width: 2.5rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.88rem;
+  color: var(--yellow-neon);
+  letter-spacing: 0.16em;
+  padding-top: 0.15rem;
+}
+
+.queueTrackCopy {
+  min-width: 0;
+}
+
+.queueTrackHeading {
+  font-family: var(--font-marker);
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.queueTrackHeading span {
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  color: var(--cyan-neon);
+  margin-left: 0.5rem;
+}
+
+.queueTrackNote {
+  color: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-handwritten);
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.45;
+}
+
+.queueTrackLink {
+  align-self: center;
+  color: var(--yellow-neon);
+  font-family: var(--font-typewriter);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.queueTrackLink:hover,
+.queueTrackLink:focus-visible {
+  color: var(--cyan-neon);
+}
+
+@media (max-width: 840px) {
+  .queueTabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .queueTrackItem {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .queueTrackLink {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .fridayQueueSection {
+    padding-top: 3.75rem;
+  }
+
+  .queueTabs {
+    grid-template-columns: 1fr;
+  }
+
+  .queueTrackItem {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .queueTrackNumber,
+  .queueTrackLink {
+    justify-self: start;
+  }
+}
+
 /* --- Cover versions: mixtape / collage strip --- */
 .coverVersionsSection {
   position: relative;

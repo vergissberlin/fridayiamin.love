@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getNextFridayCountdown } from "@/lib/friday-countdown";
 import {
   ChordMidiPlayer,
@@ -354,6 +354,250 @@ const SpotifyPlayer = () => (
     </p>
   </section>
 );
+
+type FridayQueueMoodId = "lift-off" | "twilight" | "glitter" | "afterglow";
+
+interface FridayQueueTrack {
+  title: string;
+  year: string;
+  note: string;
+  link: string;
+  source: string;
+}
+
+interface FridayQueueMood {
+  id: FridayQueueMoodId;
+  label: string;
+  headline: string;
+  time: string;
+  description: string;
+  tracks: FridayQueueTrack[];
+}
+
+const FRIDAY_CURE_QUEUE: FridayQueueMood[] = [
+  {
+    id: "lift-off",
+    label: "Lift-Off",
+    headline: "Start bright, jangly, and impossible to resist",
+    time: "Best for the first burst of Friday freedom",
+    description:
+      "If \"Friday I&apos;m in Love\" makes you want to walk faster and grin at strangers, this path keeps that sugar-rush sparkle going without losing The Cure&apos;s emotional bite.",
+    tracks: [
+      {
+        title: "Just Like Heaven",
+        year: "1987",
+        note: "A rush of chiming guitars and romantic momentum that feels like the song's older neon sibling.",
+        link: "https://en.wikipedia.org/wiki/Just_Like_Heaven_(The_Cure_song)",
+        source: "Song background",
+      },
+      {
+        title: "In Between Days",
+        year: "1985",
+        note: "Restless and buoyant, with the same emotional contrast between panic and pure pop release.",
+        link: "https://en.wikipedia.org/wiki/In_Between_Days",
+        source: "Song background",
+      },
+      {
+        title: "Close to Me",
+        year: "1985",
+        note: "A little more claustrophobic, a little more quirky, and still perfect for an ecstatic singalong.",
+        link: "https://en.wikipedia.org/wiki/Close_to_Me_(The_Cure_song)",
+        source: "Song background",
+      },
+    ],
+  },
+  {
+    id: "twilight",
+    label: "Twilight Sway",
+    headline: "Keep the romance, add a little dusk and shimmer",
+    time: "Best for golden hour, train rides, and staring out windows",
+    description:
+      "This route leans into the dreamy side of The Cure: soft-focus guitars, big-hearted melodies, and the kind of wistfulness that makes Friday feel cinematic.",
+    tracks: [
+      {
+        title: "Lovesong",
+        year: "1989",
+        note: "Direct, devoted, and emotionally generous in a way that pairs naturally with Friday's tenderness.",
+        link: "https://en.wikipedia.org/wiki/Lovesong_(The_Cure_song)",
+        source: "Song background",
+      },
+      {
+        title: "Pictures of You",
+        year: "1990",
+        note: "A widescreen memory-piece that stretches the glow into something more yearning and immersive.",
+        link: "https://en.wikipedia.org/wiki/Pictures_of_You_(The_Cure_song)",
+        source: "Song background",
+      },
+      {
+        title: "Catch",
+        year: "1987",
+        note: "Feather-light and melodic, with a playful tenderness that keeps the mood floating.",
+        link: "https://en.wikipedia.org/wiki/Catch_(The_Cure_song)",
+        source: "Song background",
+      },
+    ],
+  },
+  {
+    id: "glitter",
+    label: "Goth Glitter",
+    headline: "Let the black eyeliner smudge into the dance floor lights",
+    time: "Best for parties, mirror checks, and dramatic outfit reveals",
+    description:
+      "For fans who want Friday joy with a darker edge, this mix keeps the pulse moving while making room for theatrical shadows, odd angles, and Cure-style swagger.",
+    tracks: [
+      {
+        title: "Why Can't I Be You?",
+        year: "1987",
+        note: "Hyperactive, funny, and gloriously extra, like fluorescent confetti with a bassline.",
+        link: "https://en.wikipedia.org/wiki/Why_Can%27t_I_Be_You%3F",
+        source: "Song background",
+      },
+      {
+        title: "The Lovecats",
+        year: "1983",
+        note: "Slinky, cartoonish, and stylish in a way that turns eccentricity into celebration.",
+        link: "https://en.wikipedia.org/wiki/The_Lovecats",
+        source: "Song background",
+      },
+      {
+        title: "Hot Hot Hot!!!",
+        year: "1987",
+        note: "Pure rhythmic release for the moment when Friday stops being an idea and becomes a dance move.",
+        link: "https://en.wikipedia.org/wiki/Hot_Hot_Hot!!!_(The_Cure_song)",
+        source: "Song background",
+      },
+    ],
+  },
+  {
+    id: "afterglow",
+    label: "Afterglow",
+    headline: "Wind down without losing the warmth",
+    time: "Best for the late-night walk home or the soft crash after the joy",
+    description:
+      "When the celebration settles, The Cure are still there with comfort, atmosphere, and that bittersweet comedown they do better than almost anyone.",
+    tracks: [
+      {
+        title: "Plainsong",
+        year: "1989",
+        note: "Cathedral-sized and luminous, a slow exhale after the bright pop pulse of the single.",
+        link: "https://en.wikipedia.org/wiki/Plainsong",
+        source: "Song background",
+      },
+      {
+        title: "A Night Like This",
+        year: "1985",
+        note: "Romantic and nocturnal, with just enough ache to make the Friday feeling linger.",
+        link: "https://en.wikipedia.org/wiki/A_Night_Like_This_(The_Cure_song)",
+        source: "Song background",
+      },
+      {
+        title: "To Wish Impossible Things",
+        year: "1992",
+        note: "A gentle, reflective Wish-era closer for when the neon finally starts to fade.",
+        link: "https://en.wikipedia.org/wiki/Wish_(The_Cure_album)",
+        source: "Album background",
+      },
+    ],
+  },
+];
+
+const FridayCureQueueSection = () => {
+  const [selectedMoodIndex, setSelectedMoodIndex] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const activeMood = FRIDAY_CURE_QUEUE[selectedMoodIndex];
+
+  return (
+    <section className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
+      <motion.h2
+        id="friday-queue-title"
+        className={styles.sectionTitle}
+        initial={prefersReducedMotion ? false : { opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Build Your Friday Cure Queue
+      </motion.h2>
+      <p className={styles.queueIntro}>
+        Start with the song, then choose the mood you want to chase next. Each path stays inside The
+        Cure&apos;s world while nudging Friday in a slightly different direction.
+      </p>
+
+      <div className={styles.queueShell}>
+        <div className={styles.queueTabs} role="tablist" aria-label="Choose a Friday listening mood">
+          {FRIDAY_CURE_QUEUE.map((mood, index) => {
+            const isSelected = index === selectedMoodIndex;
+
+            return (
+              <button
+                key={mood.id}
+                id={`queue-tab-${mood.id}`}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                aria-controls={`queue-panel-${mood.id}`}
+                className={`${styles.queueTabButton} ${
+                  isSelected ? styles.queueTabButtonActive : ""
+                }`}
+                data-mood={mood.id}
+                onClick={() => setSelectedMoodIndex(index)}
+              >
+                <span className={styles.queueTabLabel}>{mood.label}</span>
+                <span className={styles.queueTabTime}>{mood.time}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.article
+            key={activeMood.id}
+            id={`queue-panel-${activeMood.id}`}
+            role="tabpanel"
+            aria-labelledby={`queue-tab-${activeMood.id}`}
+            className={styles.queuePanel}
+            data-mood={activeMood.id}
+            initial={
+              prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 24, rotate: -0.5 }
+            }
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18, rotate: 0.5 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
+          >
+            <div className={styles.queuePanelHeader}>
+              <p className={styles.queuePanelKicker}>{activeMood.label}</p>
+              <h3 className={styles.queuePanelHeadline}>{activeMood.headline}</h3>
+              <p className={styles.queuePanelDescription}>{activeMood.description}</p>
+            </div>
+
+            <ol className={styles.queueTrackList}>
+              {activeMood.tracks.map((track, index) => (
+                <li key={track.title} className={styles.queueTrackItem}>
+                  <div className={styles.queueTrackNumber} aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+                  <div className={styles.queueTrackCopy}>
+                    <p className={styles.queueTrackHeading}>
+                      {track.title} <span>{track.year}</span>
+                    </p>
+                    <p className={styles.queueTrackNote}>{track.note}</p>
+                  </div>
+                  <a
+                    href={track.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.queueTrackLink}
+                  >
+                    {track.source}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </motion.article>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
 
 const COVER_VERSIONS = [
   {
@@ -1009,6 +1253,7 @@ export default function Home() {
 
       <NewsTicker />
       <SpotifyPlayer />
+      <FridayCureQueueSection />
       <CoverVersionsSection />
       <FanResourcesSection />
       <ChordTabsSection />
