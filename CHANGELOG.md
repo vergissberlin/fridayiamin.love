@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.8.1...fridayiamin.love-v1.9.0) (2026-04-28)
+
+
+### Features
+
+* add controls to the Cure news reel ([0fef697](https://github.com/vergissberlin/fridayiamin.love/commit/0fef697810ce7e4ee82541763c6e770652e618e1))
+
 ## [1.8.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.8.0...fridayiamin.love-v1.8.1) (2026-04-28)
 
 
