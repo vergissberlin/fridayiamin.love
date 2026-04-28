@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "generate:midi": "node scripts/generate-friday-chord-midis.mjs",
     "test": "vitest run",
@@ -24,10 +24,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "10.2.1",
+    "eslint": "9.39.1",
     "eslint-config-next": "16.2.4",
     "midi-writer-js": "^3.2.1",
-    "typescript": "^5",
+    "typescript": "^6.0.0",
     "vitest": "^4.0.0"
   }
 }
