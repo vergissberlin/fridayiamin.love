@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.7.0...fridayiamin.love-v1.8.0) (2026-04-27)
+
+
+### Features
+
+* add a curated Friday Cure queue ([f6dc760](https://github.com/vergissberlin/fridayiamin.love/commit/f6dc7602065cde09fe9ba05fa1b2d7289655f8f0))
+* add a friday fan persona quiz ([9b68070](https://github.com/vergissberlin/fridayiamin.love/commit/9b680704509356a18eb6a5d5b0e2d2f12868b957))
+* improve Spotify section on landing page ([e4c7c3d](https://github.com/vergissberlin/fridayiamin.love/commit/e4c7c3d8c7f3b6d78afb211c033d460fbea5eb8e))
+
 ## [1.7.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.6.0...fridayiamin.love-v1.7.0) (2026-04-27)
 
 
