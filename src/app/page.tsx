@@ -122,16 +122,19 @@ const BEHIND_THE_SCENES_FACTS = [
 const NEWS_ITEMS = [
   {
     date: "2024-05-24",
+    source: "NME",
     text: "Robert Smith hints at new The Cure album in 2024 interviews.",
     link: "https://www.nme.com/news/music/the-cure-robert-smith-new-album-update-2024-3650493",
   },
   {
     date: "2024-04-10",
+    source: "The Cure",
     text: "The Cure announce additional summer festival dates across Europe.",
     link: "https://www.thecure.com/news/",
   },
   {
     date: "2024-02-02",
+    source: "Pitchfork",
     text: "Robert Smith speaks out for fair ticket pricing on latest tour.",
     link: "https://pitchfork.com/news/the-cure-robert-smith-ticket-fairness/",
   },
@@ -875,36 +878,119 @@ const FridayQueueQuizSection = () => {
 };
 
 const NewsTicker = () => {
+  const prefersReducedMotion = useReducedMotion();
   const [current, setCurrent] = useState(0);
+  const [isManuallyPaused, setIsManuallyPaused] = useState(false);
+
+  const activeItem = NEWS_ITEMS[current];
+  const reducedMotionEnabled = prefersReducedMotion === true;
+  const isPaused = reducedMotionEnabled || isManuallyPaused;
+  const isAutoplayActive = !reducedMotionEnabled && !isPaused;
 
   useEffect(() => {
+    if (!isAutoplayActive) {
+      return;
+    }
+
     const interval = window.setInterval(() => {
       setCurrent((prev) => (prev + 1) % NEWS_ITEMS.length);
     }, 5000);
+
     return () => window.clearInterval(interval);
-  }, []);
+  }, [isAutoplayActive]);
+
+  const handlePrevious = () => {
+    setCurrent((prev) => (prev - 1 + NEWS_ITEMS.length) % NEWS_ITEMS.length);
+  };
+
+  const handleNext = () => {
+    setCurrent((prev) => (prev + 1) % NEWS_ITEMS.length);
+  };
 
   return (
-    <section className={styles.newsTickerSection} aria-label="Latest Cure News">
+    <section className={styles.newsTickerSection} aria-labelledby="news-reel-title">
       <div className={styles.newsTickerWrapper}>
-        <span className={styles.newsTickerLabel}>Cure News</span>
-        <AnimatePresence mode="wait">
-          <motion.a
-            key={NEWS_ITEMS[current].date}
-            href={NEWS_ITEMS[current].link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.newsTickerItem}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4 }}
-          >
-            <span className={styles.newsTickerDate}>{NEWS_ITEMS[current].date}</span>
-            <span className={styles.newsTickerText}>{NEWS_ITEMS[current].text}</span>
-            <span className={styles.newsTickerArrow}>→</span>
-          </motion.a>
-        </AnimatePresence>
+        <div className={styles.newsTickerHeader}>
+          <div>
+            <p className={styles.newsTickerLabel}>Cure News Reel</p>
+            <h2 id="news-reel-title" className={styles.newsTickerTitle}>
+              Fresh headlines, with your own tempo.
+            </h2>
+          </div>
+
+          <p className={styles.newsTickerStatus}>
+            {prefersReducedMotion
+              ? "Reduced motion keeps autoplay off."
+              : isPaused
+                ? "Paused for manual browsing."
+                : "Auto-rotating every five seconds."}
+          </p>
+        </div>
+
+        <div className={styles.newsTickerStage}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.article
+              key={activeItem.date}
+              className={styles.newsTickerCard}
+              aria-live={isAutoplayActive ? "off" : "polite"}
+              initial={reducedMotionEnabled ? { opacity: 1 } : { opacity: 0, x: 28 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={reducedMotionEnabled ? { opacity: 1 } : { opacity: 0, x: -28 }}
+              transition={reducedMotionEnabled ? { duration: 0 } : { duration: 0.32, ease: "easeOut" }}
+            >
+              <div className={styles.newsTickerMeta}>
+                <span className={styles.newsTickerDate}>{activeItem.date}</span>
+                <span className={styles.newsTickerSource}>{activeItem.source}</span>
+              </div>
+
+              <p className={styles.newsTickerText}>{activeItem.text}</p>
+
+              <a
+                href={activeItem.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.newsTickerItem}
+              >
+                Read source
+                <span className={styles.newsTickerArrow}>→</span>
+              </a>
+            </motion.article>
+          </AnimatePresence>
+
+          <div className={styles.newsTickerControls} aria-label="News reel controls">
+            <button type="button" className={styles.newsTickerControlButton} onClick={handlePrevious}>
+              Previous
+            </button>
+            <button
+              type="button"
+              className={styles.newsTickerControlButton}
+              onClick={() => setIsManuallyPaused((paused) => !paused)}
+              disabled={reducedMotionEnabled}
+              aria-pressed={isManuallyPaused}
+            >
+              {reducedMotionEnabled ? "Motion Off" : isManuallyPaused ? "Resume" : "Pause"}
+            </button>
+            <button type="button" className={styles.newsTickerControlButton} onClick={handleNext}>
+              Next
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.newsTickerMarkers} aria-label="Choose a headline">
+          {NEWS_ITEMS.map((item, index) => (
+            <button
+              key={item.date}
+              type="button"
+              className={`${styles.newsTickerMarker} ${index === current ? styles.newsTickerMarkerActive : ""}`}
+              onClick={() => setCurrent(index)}
+              aria-label={`Show headline ${index + 1}: ${item.text}`}
+              aria-pressed={index === current}
+            >
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <span>{item.source}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
