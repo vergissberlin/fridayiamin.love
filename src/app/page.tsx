@@ -14,6 +14,16 @@ type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
+type FridayQuizQuestion = {
+  id: string;
+  prompt: string;
+  options: {
+    result: FridayQueueMood;
+    title: string;
+    detail: string;
+  }[];
+};
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -324,6 +334,134 @@ const FRIDAY_CURE_QUEUES: {
   },
 ];
 
+const FRIDAY_QUIZ_RESULT_ORDER: FridayQueueMood[] = ["lift-off", "twilight", "glitter", "afterglow"];
+
+const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
+  {
+    id: "start",
+    prompt: "Friday starts feeling real when...",
+    options: [
+      {
+        result: "lift-off",
+        title: "The group chat finally wakes up.",
+        detail: "You want immediate sparkle, open windows, and the fastest route to a grin.",
+      },
+      {
+        result: "twilight",
+        title: "The sky turns blue-violet after work.",
+        detail: "You like your Friday softened at the edges and lit from within.",
+      },
+      {
+        result: "glitter",
+        title: "The outfit gets louder than the room.",
+        detail: "A little camp, a little mischief, and a lot of movement feels exactly right.",
+      },
+      {
+        result: "afterglow",
+        title: "You are already thinking about the walk home.",
+        detail: "Warmth matters more than chaos, and you want the feeling to linger.",
+      },
+    ],
+  },
+  {
+    id: "scene",
+    prompt: "Pick the Friday scene that sounds most like you.",
+    options: [
+      {
+        result: "lift-off",
+        title: "Sunlight on a train ride to somewhere fun.",
+        detail: "Momentum, jangly guitars, and that sense that the weekend just cracked open.",
+      },
+      {
+        result: "twilight",
+        title: "Streetlights, reflections, and a slow first drink.",
+        detail: "You want a widescreen mood that stays romantic instead of restless.",
+      },
+      {
+        result: "glitter",
+        title: "Confetti floor, eyeliner mirror, impossible shoes.",
+        detail: "Friday should feel theatrical, playful, and knowingly a little over the top.",
+      },
+      {
+        result: "afterglow",
+        title: "Late-night diner or a quiet cab ride.",
+        detail: "You are here for affection, decompression, and the soft landing afterward.",
+      },
+    ],
+  },
+  {
+    id: "favorite-detail",
+    prompt: "What do you love most about The Cure in this mode?",
+    options: [
+      {
+        result: "lift-off",
+        title: "The bright upward rush.",
+        detail: "Hooks, shimmer, and enough buoyancy to make the whole room feel lighter.",
+      },
+      {
+        result: "twilight",
+        title: "The emotional weather.",
+        detail: "A dreamy, floating sadness that still leaves room for tenderness.",
+      },
+      {
+        result: "glitter",
+        title: "The wink in the weirdness.",
+        detail: "You want cartoon romance, dance-floor side-eyes, and ecstatic oddball charm.",
+      },
+      {
+        result: "afterglow",
+        title: "The sincerity underneath it all.",
+        detail: "Direct feeling, quiet devotion, and songs that stay close after they end.",
+      },
+    ],
+  },
+  {
+    id: "takeaway",
+    prompt: "By the end of the night, you want Friday to leave you...",
+    options: [
+      {
+        result: "lift-off",
+        title: "Still buzzing.",
+        detail: "The chorus should keep echoing like the night is only getting started.",
+      },
+      {
+        result: "twilight",
+        title: "Dreamy and a little dazed.",
+        detail: "You want glow, atmosphere, and a hint of longing around the edges.",
+      },
+      {
+        result: "glitter",
+        title: "Laughing at the perfect chaos.",
+        detail: "Friday should leave a lipstick mark on the mirror and a story in your pocket.",
+      },
+      {
+        result: "afterglow",
+        title: "Held together by something gentle.",
+        detail: "The best nights do not crash; they fade out warmly.",
+      },
+    ],
+  },
+];
+
+function getFridayQuizResult(answers: Partial<Record<string, FridayQueueMood>>) {
+  const scorecard: Record<FridayQueueMood, number> = {
+    "lift-off": 0,
+    twilight: 0,
+    glitter: 0,
+    afterglow: 0,
+  };
+
+  Object.values(answers).forEach((answer) => {
+    if (answer) {
+      scorecard[answer] += 1;
+    }
+  });
+
+  return FRIDAY_QUIZ_RESULT_ORDER.reduce((bestMood, mood) =>
+    scorecard[mood] > scorecard[bestMood] ? mood : bestMood,
+  );
+}
+
 const GothicSilhouette = () => (
   <div className={styles.gothicSilhouette} aria-hidden="true">
     <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
@@ -528,7 +666,7 @@ const FridayQueueSection = () => {
   const selectedQueue = FRIDAY_CURE_QUEUES.find((queue) => queue.mood === selectedMood) ?? FRIDAY_CURE_QUEUES[0];
 
   return (
-    <section className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
+    <section id="friday-cure-queue" className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
       <motion.h2
         id="friday-queue-title"
         className={styles.sectionTitle}
@@ -609,6 +747,128 @@ const FridayQueueSection = () => {
             </ol>
           </motion.section>
         </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
+const FridayQueueQuizSection = () => {
+  const [answers, setAnswers] = useState<Partial<Record<string, FridayQueueMood>>>({});
+  const answeredCount = Object.keys(answers).length;
+  const isComplete = answeredCount === FRIDAY_QUIZ_QUESTIONS.length;
+  const resultMood = isComplete ? getFridayQuizResult(answers) : null;
+  const resultQueue = resultMood
+    ? FRIDAY_CURE_QUEUES.find((queue) => queue.mood === resultMood) ?? FRIDAY_CURE_QUEUES[0]
+    : null;
+
+  return (
+    <section className={styles.fridayQuizSection} aria-labelledby="friday-quiz-title">
+      <motion.h2
+        id="friday-quiz-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Which Friday Cure Queue Are You?
+      </motion.h2>
+
+      <p className={styles.quizIntro}>
+        Answer four quick mood-board questions and get the Cure listening route that best matches your
+        version of Friday night.
+      </p>
+
+      <div className={styles.quizBoard}>
+        <div className={styles.quizQuestions}>
+          <p className={styles.quizProgress}>
+            {answeredCount === 0
+              ? "Start anywhere. Your Friday queue appears after the fourth answer."
+              : `Answered ${answeredCount} of ${FRIDAY_QUIZ_QUESTIONS.length} questions.`}
+          </p>
+
+          {FRIDAY_QUIZ_QUESTIONS.map((question) => (
+            <fieldset key={question.id} className={styles.quizQuestionCard}>
+              <legend className={styles.quizLegend}>{question.prompt}</legend>
+
+              <div className={styles.quizOptionList}>
+                {question.options.map((option) => {
+                  const isSelected = answers[question.id] === option.result;
+
+                  return (
+                    <label
+                      key={`${question.id}-${option.result}`}
+                      className={styles.quizOptionLabel}
+                      data-selected={isSelected}
+                      data-result={option.result}
+                    >
+                      <input
+                        type="radio"
+                        name={question.id}
+                        className={styles.quizOptionInput}
+                        checked={isSelected}
+                        onChange={() => setAnswers((current) => ({ ...current, [question.id]: option.result }))}
+                      />
+                      <span className={styles.quizOptionCard}>
+                        <span className={styles.quizOptionTitle}>{option.title}</span>
+                        <span className={styles.quizOptionDetail}>{option.detail}</span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+
+        <div className={styles.quizResultColumn}>
+          {resultQueue ? (
+            <aside className={styles.quizResultCard} data-result={resultQueue.mood} aria-live="polite">
+              <p className={styles.quizResultKicker}>Collage Result</p>
+              <h3 className={styles.quizResultTitle}>{resultQueue.label} Friday</h3>
+              <p className={styles.quizResultBody}>
+                {resultQueue.headline} {resultQueue.description}
+              </p>
+
+              <dl className={styles.quizResultStats}>
+                <div>
+                  <dt>Best First Spin</dt>
+                  <dd>{resultQueue.tracks[0].title}</dd>
+                </div>
+                <div>
+                  <dt>Best Time</dt>
+                  <dd>{resultQueue.time}</dd>
+                </div>
+              </dl>
+
+              <div className={styles.quizResultLinks}>
+                <a href="#friday-cure-queue" className={styles.quizResultLink}>
+                  Jump to Queue
+                </a>
+                <a
+                  href={resultQueue.tracks[0].link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.quizResultLink}
+                >
+                  Search {resultQueue.tracks[0].title}
+                </a>
+              </div>
+
+              <button type="button" className={styles.quizResetButton} onClick={() => setAnswers({})}>
+                Reset Quiz
+              </button>
+            </aside>
+          ) : (
+            <aside className={styles.quizResultEmpty} aria-live="polite">
+              <p className={styles.quizResultEmptyKicker}>Collage Result</p>
+              <h3 className={styles.quizResultEmptyTitle}>Your Friday route is waiting.</h3>
+              <p className={styles.quizResultEmptyBody}>
+                Finish all four questions and this board will match you with the Cure queue that fits your
+                Friday energy right now.
+              </p>
+            </aside>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -1052,6 +1312,7 @@ export default function Home() {
       </section>
 
       <SpotifyPlayer />
+      <FridayQueueQuizSection />
       <FridayQueueSection />
 
       <section className={styles.infoSection} aria-labelledby="lyrics-meaning-title">

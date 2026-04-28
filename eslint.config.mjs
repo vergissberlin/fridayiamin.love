@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Repo automation scripts currently pull in an ESLint/plugin mismatch outside the app code.
+    ".github/scripts/**",
   ]),
 ]);
 
