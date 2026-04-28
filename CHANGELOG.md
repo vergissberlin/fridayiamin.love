@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.1](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.8.0...fridayiamin.love-v1.8.1) (2026-04-28)
+
+
+### Continuous Integration
+
+* configure git identity before OpenCode commit step ([4fbf339](https://github.com/vergissberlin/fridayiamin.love/commit/4fbf339cee22661c8ba85b74f7f42a6c1c5482fd))
+* fix git identity missing in opencode-feature workflow ([35b0700](https://github.com/vergissberlin/fridayiamin.love/commit/35b0700ac6265a3130d0660aa42a6629d279e405))
+
 ## [1.8.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.7.0...fridayiamin.love-v1.8.0) (2026-04-27)
 
 
