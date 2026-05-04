@@ -14,6 +14,13 @@ type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
+type FanResource = {
+  title: string;
+  source: string;
+  href: string;
+  description: string;
+};
+
 type FridayQuizQuestion = {
   id: string;
   prompt: string;
@@ -137,6 +144,51 @@ const NEWS_ITEMS = [
     source: "Pitchfork",
     text: "Robert Smith speaks out for fair ticket pricing on latest tour.",
     link: "https://pitchfork.com/news/the-cure-robert-smith-ticket-fairness/",
+  },
+];
+
+const FAN_RESOURCES: FanResource[] = [
+  {
+    title: "Official release page",
+    source: "Official",
+    href: "https://www.thecure.com/release/friday-im-in-love/",
+    description:
+      "Start with The Cure's own archive page for the single and keep the site anchored in the band's official history.",
+  },
+  {
+    title: "Tim Pope video on YouTube",
+    source: "Video",
+    href: "https://www.youtube.com/watch?v=mGgMZpGYiy8",
+    description:
+      "Jump straight into the song's color-soaked, handmade-chaos visual world and revisit the clip that fixed its playful identity.",
+  },
+  {
+    title: "Tour archive",
+    source: "Live",
+    href: "https://www.thecure.com/tour/",
+    description:
+      "Check the band's current and archived touring universe when you want to trace where Friday still glows inside modern Cure setlists.",
+  },
+  {
+    title: "Setlist.fm song stats",
+    source: "Live Data",
+    href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
+    description:
+      "See how often the song appears on stage and use the stats page as a quick live-history rabbit hole.",
+  },
+  {
+    title: "Discogs master release",
+    source: "Collectors",
+    href: "https://www.discogs.com/master/32005",
+    description:
+      "Browse formats, mixes, and pressing variations if your Friday fandom leans toward sleeves, editions, and release archaeology.",
+  },
+  {
+    title: "Official Charts snapshot",
+    source: "Charts",
+    href: "https://www.officialcharts.com/charts/singles-chart/19920606/7501/",
+    description:
+      "Open the UK chart week where the single peaked and add a little chart-era context to the glow of 1992.",
   },
 ];
 
@@ -1326,6 +1378,48 @@ const TourLiveMomentsSection = () => (
   </section>
 );
 
+const FanResourcesSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+
+  return (
+    <section className={styles.fanResourcesSection} aria-labelledby="fan-resources-title">
+      <motion.h2
+        id="fan-resources-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Friday Field Guide
+      </motion.h2>
+
+      <p className={styles.fanResourcesIntro}>
+        A compact link wall for the next part of your Friday rabbit hole: official pages, live-history stops,
+        and collector-friendly context.
+      </p>
+
+      <ul className={styles.fanResourcesList}>
+        {FAN_RESOURCES.map((resource, index) => (
+          <motion.li
+            key={resource.title}
+            className={styles.fanResourceItem}
+            initial={prefersReducedMotion ? undefined : { opacity: 0, y: 22, rotate: index % 2 === 0 ? -0.8 : 0.8 }}
+            whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.32, delay: index * 0.05 }}
+          >
+            <a href={resource.href} target="_blank" rel="noopener noreferrer" className={styles.fanResourceLink}>
+              <span className={styles.newsTickerSource}>{resource.source}</span>
+              <h3 className={styles.fanResourceName}>{resource.title}</h3>
+            </a>
+            <p className={styles.fanResourceDesc}>{resource.description}</p>
+          </motion.li>
+        ))}
+      </ul>
+    </section>
+  );
+};
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -1441,6 +1535,7 @@ export default function Home() {
       <MusicTheoryBreakdownSection />
       <BehindTheScenesSection />
       <TourLiveMomentsSection />
+      <FanResourcesSection />
     </main>
   );
 }

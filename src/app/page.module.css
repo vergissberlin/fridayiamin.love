@@ -1972,8 +1972,23 @@
   transform: translateX(4px);
 }
 
+.fanResourceItem:focus-within {
+  border-color: var(--pink-neon);
+  box-shadow: 0 0 26px rgba(255, 45, 149, 0.22);
+  transform: translateX(4px);
+}
+
 .fanResourceLink {
+  display: grid;
+  justify-items: start;
+  gap: 0.55rem;
   text-decoration: none;
+}
+
+.fanResourceLink:focus-visible {
+  outline: 2px solid var(--yellow-neon);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
 .fanResourceName {
