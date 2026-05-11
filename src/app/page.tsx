@@ -14,6 +14,8 @@ type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
+type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "nena" | "choir-choir-choir";
+
 type FanResource = {
   title: string;
   source: string;
@@ -29,6 +31,18 @@ type FridayQuizQuestion = {
     title: string;
     detail: string;
   }[];
+};
+
+type CoverVersion = {
+  id: CoverVersionId;
+  label: string;
+  description: string;
+  artist: string;
+  context: string;
+  note: string;
+  body: string;
+  href: string;
+  linkLabel: string;
 };
 
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
@@ -189,6 +203,69 @@ const FAN_RESOURCES: FanResource[] = [
     href: "https://www.officialcharts.com/charts/singles-chart/19920606/7501/",
     description:
       "Open the UK chart week where the single peaked and add a little chart-era context to the glow of 1992.",
+  },
+];
+
+const COVER_VERSIONS: CoverVersion[] = [
+  {
+    id: "david-gray",
+    label: "Live Rush",
+    description: "Big-stage joy with a little extra grin and grit.",
+    artist: "David Gray",
+    context: "2005 live performance",
+    note: "For when you want the chorus to feel arena-sized without losing its warmth.",
+    body:
+      "Cover Me singled out David Gray's Hammersmith Apollo performance as a version that goes fully showman without flattening the song's sweetness. It keeps the bounce, but trades some Cure shimmer for the feeling of a crowd already halfway into the singalong.",
+    href: "https://www.youtube.com/results?search_query=David+Gray+Friday+I%27m+In+Love",
+    linkLabel: "Search David Gray's take",
+  },
+  {
+    id: "himalaya-records",
+    label: "Soft Focus",
+    description: "A gentler read with airy phrasing and less pop sprint.",
+    artist: "Himalaya Records",
+    context: "Spanish indie interpretation",
+    note: "Best when Friday feels less like confetti and more like neon seen through rain.",
+    body:
+      "Cover Me highlighted Himalaya Records for approaching the song from a softer angle. The arrangement relaxes the original's forward motion and lets the melody breathe, which is useful if you love the song's optimism but want it wrapped in something more delicate.",
+    href: "https://www.youtube.com/results?search_query=Himalaya+Records+Friday+I%27m+In+Love",
+    linkLabel: "Search Himalaya Records",
+  },
+  {
+    id: "billy-rubin-trio",
+    label: "Hot Jazz",
+    description: "A playful swing detour for the fan who likes curveballs.",
+    artist: "Billy Rubin Trio",
+    context: "1920s-style jazz reinterpretation",
+    note: "A delightfully sideways route if you want the hook recast as a lounge-floor strut.",
+    body:
+      "The Billy Rubin Trio version was praised by Cover Me for pushing the song into hot-jazz territory. It proves how sturdy Robert Smith's melody really is: even with the rhythm and attitude rewritten, the core rush of relief and romance still comes through.",
+    href: "https://www.youtube.com/results?search_query=Billy+Rubin+Trio+Friday+I%27m+In+Love",
+    linkLabel: "Search Billy Rubin Trio",
+  },
+  {
+    id: "nena",
+    label: "Teen-Movie Glow",
+    description: "Bright and glossy, like a lost alt-pop soundtrack cut.",
+    artist: "Nena",
+    context: "2007 album cover",
+    note: "Choose this lane if you want the song's sunny side pushed right to the front.",
+    body:
+      "Cover Me described Nena's version as sounding like a missing track from a '90s teen-movie soundtrack, which fits the song surprisingly well. It leans into the tune's accessible pop shape and lets the romantic punchline land with almost zero melancholy fog around it.",
+    href: "https://www.youtube.com/results?search_query=Nena+Friday+I%27m+In+Love",
+    linkLabel: "Search Nena's version",
+  },
+  {
+    id: "choir-choir-choir",
+    label: "Crowd Lift",
+    description: "Human-voice overload for maximum communal release.",
+    artist: "Choir! Choir! Choir!",
+    context: "Mass singalong arrangement",
+    note: "The best pick if your favorite part of the song is hearing everyone reach the title together.",
+    body:
+      "Choir! Choir! Choir! turn the song into a collective exhale. Cover Me called out how the arrangement starts modestly, then builds into the kind of many-voice swell that makes the chorus feel less like a private mood and more like a shared ritual.",
+    href: "https://www.youtube.com/results?search_query=Choir+Choir+Choir+Friday+I%27m+In+Love",
+    linkLabel: "Search Choir! Choir! Choir!",
   },
 ];
 
@@ -1378,6 +1455,114 @@ const TourLiveMomentsSection = () => (
   </section>
 );
 
+const CoverVersionsSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedCoverId, setSelectedCoverId] = useState<CoverVersionId>(COVER_VERSIONS[0].id);
+  const selectedCover = COVER_VERSIONS.find((cover) => cover.id === selectedCoverId) ?? COVER_VERSIONS[0];
+
+  return (
+    <section className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
+      <motion.h2
+        id="cover-versions-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Cover Versions Mixtape
+      </motion.h2>
+
+      <p className={styles.coverIntro}>
+        The song travels well. These five fan-friendly starting points show how different performers keep the
+        Friday spark intact while bending the mood toward live rush, soft-focus indie, swing, or full-room
+        singalong.
+      </p>
+
+      <div className={styles.coverMoodBar} role="tablist" aria-label="Cover version moods">
+        {COVER_VERSIONS.map((cover) => (
+          <button
+            key={cover.id}
+            type="button"
+            role="tab"
+            id={`cover-tab-${cover.id}`}
+            aria-selected={selectedCover.id === cover.id}
+            aria-controls={`cover-panel-${cover.id}`}
+            tabIndex={selectedCover.id === cover.id ? 0 : -1}
+            className={`${styles.coverMoodButton} ${selectedCover.id === cover.id ? styles.coverMoodButtonActive : ""}`}
+            onClick={() => setSelectedCoverId(cover.id)}
+          >
+            <span className={styles.coverMoodLabel}>{cover.label}</span>
+            <span className={styles.coverMoodDescription}>{cover.description}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.coverExplorer}>
+        <div className={styles.coverListColumn}>
+          <p className={styles.coverSelectionHint}>Five paths out of the original glow</p>
+
+          <ul className={styles.coverList}>
+            {COVER_VERSIONS.map((cover, index) => (
+              <motion.li
+                key={cover.id}
+                className={styles.coverItem}
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, delay: index * 0.04 }}
+              >
+                <button
+                  type="button"
+                  className={`${styles.coverPickerButton} ${selectedCover.id === cover.id ? styles.coverPickerButtonActive : ""}`}
+                  onClick={() => setSelectedCoverId(cover.id)}
+                  aria-pressed={selectedCover.id === cover.id}
+                >
+                  <span className={styles.coverArtist}>{cover.artist}</span>
+                  <span className={styles.coverMeta}>{cover.context}</span>
+                  <span className={styles.coverNote}>{cover.note}</span>
+                </button>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+
+        <motion.aside
+          key={selectedCover.id}
+          id={`cover-panel-${selectedCover.id}`}
+          role="tabpanel"
+          aria-labelledby={`cover-tab-${selectedCover.id}`}
+          className={styles.coverSpotlight}
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+        >
+          <p className={styles.coverSpotlightKicker}>{selectedCover.label}</p>
+          <h3 className={styles.coverSpotlightTitle}>{selectedCover.artist}</h3>
+          <p className={styles.coverSpotlightMeta}>{selectedCover.context}</p>
+          <p className={styles.coverSpotlightBody}>{selectedCover.body}</p>
+          <a href={selectedCover.href} target="_blank" rel="noopener noreferrer" className={styles.coverSpotlightLink}>
+            {selectedCover.linkLabel}
+          </a>
+        </motion.aside>
+      </div>
+
+      <div className={styles.coverFooter}>
+        <small className={styles.coverFooterNote}>
+          Starting points adapted from{" "}
+          <a
+            href="https://www.covermesongs.com/2019/03/best-covers-friday-im-in-love-cure.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cover Me&apos;s Five Good Covers roundup
+          </a>
+          .
+        </small>
+      </div>
+    </section>
+  );
+};
+
 const FanResourcesSection = () => {
   const prefersReducedMotion = useReducedMotion();
 
@@ -1535,6 +1720,7 @@ export default function Home() {
       <MusicTheoryBreakdownSection />
       <BehindTheScenesSection />
       <TourLiveMomentsSection />
+      <CoverVersionsSection />
       <FanResourcesSection />
     </main>
   );

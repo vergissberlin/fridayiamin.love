@@ -21,6 +21,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 - `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
 - `Cure News Reel`: a manually controllable headline carousel with previous/next buttons, autoplay pause, and reduced-motion-friendly behavior.
+- `Cover Versions Mixtape`: a five-stop guide to notable reinterpretations of `Friday I'm in Love`, with vibe-based picking and quick external search links for each version.
 - `Friday Field Guide`: a curated fan-resources wall linking out to official pages, live-history references, chart context, and collector-friendly release details.
 - `Build Your Friday Cure Queue`: an interactive mood selector that recommends adjacent The Cure songs to follow up `Friday I'm in Love`, with short fan-facing notes and source links.
 - `Guitar Tabs & Chords`: a playable chord progression section with chord diagrams, MIDI practice playback, and downloadable `.mid` files for fan practice.
