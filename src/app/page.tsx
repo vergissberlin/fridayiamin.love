@@ -16,6 +16,8 @@ type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
 type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "nena" | "choir-choir-choir";
 
+type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti-closeup";
+
 type FanResource = {
   title: string;
   source: string;
@@ -43,6 +45,21 @@ type CoverVersion = {
   body: string;
   href: string;
   linkLabel: string;
+};
+
+type VideoScene = {
+  id: VideoSceneId;
+  label: string;
+  kicker: string;
+  headline: string;
+  scene: string;
+  whyItWorks: string;
+  fanMood: string;
+  body: string;
+  palette: {
+    name: string;
+    color: string;
+  }[];
 };
 
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
@@ -137,6 +154,73 @@ const BEHIND_THE_SCENES_FACTS = [
       "Decades later, the track remains a reliable live eruption. In long, emotionally varied Cure sets, it often acts like a flash of neon warmth that the whole crowd already knows by heart.",
     link: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
     source: "Setlist.fm song stats",
+  },
+];
+
+const VIDEO_SCENES: VideoScene[] = [
+  {
+    id: "paint-burst",
+    label: "Paint Burst",
+    kicker: "Handmade pop-goth",
+    headline: "The video sells joy by making the set feel gleefully unfinished.",
+    scene: "Paint splashes, rough edges, and a stage that looks built from pure impulse.",
+    whyItWorks: "The messiness keeps the song bright without sanding off The Cure's weirdness.",
+    fanMood: "Best for fans who love the band when the charm feels slightly off-center and human.",
+    body:
+      "Instead of smoothing the song into clean pop polish, the clip leans into obvious textures, visible craft, and playful clutter. That homemade energy makes the chorus feel earned rather than manufactured.",
+    palette: [
+      { name: "Neon pink", color: "#ff2d95" },
+      { name: "Poster cyan", color: "#00f0ff" },
+      { name: "Stage-black ink", color: "#120814" },
+    ],
+  },
+  {
+    id: "polka-chaos",
+    label: "Polka Chaos",
+    kicker: "Tim Pope playfulness",
+    headline: "Patterns keep colliding so the whole song feels like motion, not polish.",
+    scene: "Spots, stripes, and cutout shapes piling into each other like a moving scrapbook.",
+    whyItWorks: "The visual overload mirrors the rush of hitting Friday after a dull week.",
+    fanMood: "Perfect if your favorite Cure moments balance sincerity with a sly grin.",
+    body:
+      "The video's pattern clashes never settle into one tidy system. That constant visual bounce gives the single a cartoon-romantic velocity and helps its optimism feel gloriously excessive instead of generic.",
+    palette: [
+      { name: "Butter yellow", color: "#ffee00" },
+      { name: "Marker purple", color: "#bf00ff" },
+      { name: "Milk-white paper", color: "#f6f1ff" },
+    ],
+  },
+  {
+    id: "poster-romance",
+    label: "Poster Romance",
+    kicker: "Alt-pop tenderness",
+    headline: "Even at its loudest, the clip keeps a sweet center.",
+    scene: "Band portraits and collage framing that feel half teen-magazine pinup, half art-school prank.",
+    whyItWorks: "It lets the song stay romantic without losing the band identity fans came for.",
+    fanMood: "Choose this angle if the hook hits you as affectionate first and celebratory second.",
+    body:
+      "A lot of Cure imagery trades in longing, distance, and shadows. Here the framing turns toward warmth and directness, but the handmade collage treatment stops that sweetness from becoming flat or anonymous.",
+    palette: [
+      { name: "Lipstick red", color: "#ff0040" },
+      { name: "Warm cream", color: "#fff5cf" },
+      { name: "Midnight plum", color: "#32103d" },
+    ],
+  },
+  {
+    id: "confetti-closeup",
+    label: "Confetti Close-Up",
+    kicker: "Singalong release",
+    headline: "Close framing turns the chorus into a shared grin instead of a distant spectacle.",
+    scene: "Faces, confetti energy, and those sudden bursts where the room seems to tip into the title line.",
+    whyItWorks: "The clip keeps returning to people, which makes the song feel communal and replayable.",
+    fanMood: "Best when you love how the track transforms a whole crowd in one chorus.",
+    body:
+      "For all its visual noise, the video knows when to come back to expression and presence. Those tighter moments give the song its emotional anchor: not just Friday as a concept, but Friday as a feeling people can recognize together.",
+    palette: [
+      { name: "Glow yellow", color: "#ffe45c" },
+      { name: "Confetti green", color: "#39ff14" },
+      { name: "Night-sky navy", color: "#111d35" },
+    ],
   },
 ];
 
@@ -1413,6 +1497,112 @@ const BehindTheScenesSection = () => {
   );
 };
 
+const VideoSceneDecoderSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedSceneId, setSelectedSceneId] = useState<VideoSceneId>(VIDEO_SCENES[0].id);
+  const selectedScene = VIDEO_SCENES.find((scene) => scene.id === selectedSceneId) ?? VIDEO_SCENES[0];
+
+  return (
+    <section className={styles.videoDecoderSection} aria-labelledby="video-decoder-title">
+      <motion.h2
+        id="video-decoder-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Video Scene Decoder
+      </motion.h2>
+
+      <p className={styles.videoDecoderIntro}>
+        The Tim Pope clip turns the single into bright collage chaos. Pick a visual lane and see how the
+        video keeps the song playful, romantic, and unmistakably Cure.
+      </p>
+
+      <div className={styles.videoDecoderShell}>
+        <div className={styles.videoDecoderTabs} role="tablist" aria-label="Friday I'm in Love video scenes">
+          {VIDEO_SCENES.map((scene) => (
+            <button
+              key={scene.id}
+              type="button"
+              role="tab"
+              id={`video-scene-tab-${scene.id}`}
+              aria-selected={selectedScene.id === scene.id}
+              aria-controls={`video-scene-panel-${scene.id}`}
+              tabIndex={selectedScene.id === scene.id ? 0 : -1}
+              className={`${styles.videoDecoderTab} ${
+                selectedScene.id === scene.id ? styles.videoDecoderTabActive : ""
+              }`}
+              onClick={() => setSelectedSceneId(scene.id)}
+            >
+              <span className={styles.videoDecoderTabLabel}>{scene.label}</span>
+              <span className={styles.videoDecoderTabScene}>{scene.scene}</span>
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.article
+            key={selectedScene.id}
+            id={`video-scene-panel-${selectedScene.id}`}
+            role="tabpanel"
+            aria-labelledby={`video-scene-tab-${selectedScene.id}`}
+            className={styles.videoDecoderPanel}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          >
+            <div className={styles.videoDecoderPanelHeader}>
+              <p className={styles.videoDecoderKicker}>{selectedScene.kicker}</p>
+              <h3 className={styles.videoDecoderHeadline}>{selectedScene.headline}</h3>
+              <p className={styles.videoDecoderSceneDetail}>{selectedScene.scene}</p>
+            </div>
+
+            <p className={styles.videoDecoderBody}>{selectedScene.body}</p>
+
+            <dl className={styles.videoDecoderFacts}>
+              <div>
+                <dt>Why it lands</dt>
+                <dd>{selectedScene.whyItWorks}</dd>
+              </div>
+              <div>
+                <dt>Fan mood</dt>
+                <dd>{selectedScene.fanMood}</dd>
+              </div>
+            </dl>
+
+            <div className={styles.videoDecoderPaletteBlock}>
+              <p className={styles.videoDecoderPaletteLabel}>Palette cue</p>
+              <ul className={styles.videoDecoderPaletteList}>
+                {selectedScene.palette.map((swatch) => (
+                  <li key={swatch.name} className={styles.videoDecoderPaletteItem}>
+                    <span
+                      className={styles.videoDecoderSwatch}
+                      style={{ backgroundColor: swatch.color }}
+                      aria-hidden="true"
+                    />
+                    <span>{swatch.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <a
+              href="https://www.youtube.com/watch?v=mGgMZpGYiy8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.videoDecoderLink}
+            >
+              Revisit the official video
+            </a>
+          </motion.article>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
 const TourLiveMomentsSection = () => (
   <section className={styles.infoSection} aria-labelledby="tour-live-title">
     <motion.h2
@@ -1719,6 +1909,7 @@ export default function Home() {
       <ChordTabsSection />
       <MusicTheoryBreakdownSection />
       <BehindTheScenesSection />
+      <VideoSceneDecoderSection />
       <TourLiveMomentsSection />
       <CoverVersionsSection />
       <FanResourcesSection />
