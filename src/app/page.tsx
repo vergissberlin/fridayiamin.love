@@ -18,6 +18,8 @@ type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "
 
 type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti-closeup";
 
+type LiveSetSnapshotId = "wish-rush" | "festival-pop" | "marathon-singalong" | "lost-world-glow";
+
 type FanResource = {
   title: string;
   source: string;
@@ -59,6 +61,23 @@ type VideoScene = {
   palette: {
     name: string;
     color: string;
+  }[];
+};
+
+type LiveSetSnapshot = {
+  id: LiveSetSnapshotId;
+  label: string;
+  years: string;
+  kicker: string;
+  headline: string;
+  body: string;
+  crowdCue: string;
+  source: string;
+  href: string;
+  tracks: {
+    slot: string;
+    title: string;
+    note: string;
   }[];
 };
 
@@ -119,6 +138,125 @@ const TOUR_LIVE_MOMENTS = [
       "On recent tours, the track still lands as a burst of warmth inside expansive, emotional sets, proving how durable its optimism is for longtime fans.",
     link: "https://www.thecure.com/tour/",
     source: "Official tour archive",
+  },
+];
+
+const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
+  {
+    id: "wish-rush",
+    label: "Wish Rush",
+    years: "1992-1993",
+    kicker: "Album-launch glow",
+    headline: "The single reads like a bright detour without breaking the emotional weather.",
+    body:
+      "Early Wish-era sequencing often let jangly, openhearted songs cut through heavier material. In that kind of flow, 'Friday I'm in Love' feels less like a novelty pop turn and more like the exact flash of color the set was waiting for.",
+    crowdCue: "A quick jump from dreamy attention into full-voice chorus release.",
+    source: "Wish release page + 1992 setlist patterns",
+    href: "https://www.thecure.com/release/friday-im-in-love/",
+    tracks: [
+      {
+        slot: "Lift",
+        title: "High",
+        note: "Keeps the guitars airborne so the title track lands like the bigger grin hiding inside the same era.",
+      },
+      {
+        slot: "Singalong",
+        title: "Friday I'm in Love",
+        note: "The room shifts from sway to instant communal hook recognition.",
+      },
+      {
+        slot: "Stretch-out",
+        title: "From the Edge of the Deep Green Sea",
+        note: "A reminder that Wish could pivot back into depth and sprawl right after the pop flash.",
+      },
+    ],
+  },
+  {
+    id: "festival-pop",
+    label: "Festival Pop",
+    years: "2000s festival runs",
+    kicker: "Big-field clarity",
+    headline: "On larger outdoor bills, the song works like a universal handshake.",
+    body:
+      "Festival sets reward immediacy, and this single has it in seconds. Around darker standards and post-punk edges, it becomes the moment where casual listeners and devoted fans suddenly occupy the same melodic space.",
+    crowdCue: "Arms up, phones out, and a chorus that reaches beyond the first few rows.",
+    source: "Setlist.fm live song stats",
+    href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
+    tracks: [
+      {
+        slot: "Arrival",
+        title: "Just Like Heaven",
+        note: "Another immediate classic that warms up the widest possible crowd without flattening the band's identity.",
+      },
+      {
+        slot: "Centerpiece",
+        title: "Friday I'm in Love",
+        note: "The cleanest feel-good pivot when the set needs daylight and motion.",
+      },
+      {
+        slot: "Aftershock",
+        title: "In Between Days",
+        note: "Keeps the bounce moving instead of letting the energy settle too early.",
+      },
+    ],
+  },
+  {
+    id: "marathon-singalong",
+    label: "Marathon Night",
+    years: "2016 arena shows",
+    kicker: "Deep-set relief",
+    headline: "Inside long Cure marathons, the song lands like a perfectly timed exhale.",
+    body:
+      "When a show ranges across shadowy epics, early singles, and slow-burn emotional peaks, 'Friday I'm in Love' does special work. It resets the room without feeling lightweight, giving the audience one of the night's most collective smiles.",
+    crowdCue: "A grin-heavy reset in the middle of a set that has already earned its catharsis.",
+    source: "2016 live stats and tour-era references",
+    href: "https://www.setlist.fm/stats/the-cure-6bd6b266.html?year=2016",
+    tracks: [
+      {
+        slot: "Weight",
+        title: "Pictures of You",
+        note: "Opens the emotional space so the brighter single feels even warmer by contrast.",
+      },
+      {
+        slot: "Release",
+        title: "Friday I'm in Love",
+        note: "The exact point where a marathon show remembers to wink.",
+      },
+      {
+        slot: "Glow-on",
+        title: "Close to Me",
+        note: "Lets the room stay playful a little longer before drifting elsewhere again.",
+      },
+    ],
+  },
+  {
+    id: "lost-world-glow",
+    label: "Lost World Glow",
+    years: "2023-present",
+    kicker: "Modern warmth",
+    headline: "Recent tours make the song feel tender rather than merely nostalgic.",
+    body:
+      "Against the emotional scale of newer material, the single becomes a beacon rather than a throwback. It still sparks the singalong, but it also reads as proof that brightness has always belonged in The Cure story.",
+    crowdCue: "An affectionate chorus moment that feels earned by everything around it.",
+    source: "Official tour archive",
+    href: "https://www.thecure.com/tour/",
+    tracks: [
+      {
+        slot: "Prelude",
+        title: "Alone",
+        note: "Recent-era atmosphere makes the eventual jangle feel even more generous.",
+      },
+      {
+        slot: "Beacon",
+        title: "Friday I'm in Love",
+        note: "Less sugar rush, more shared warmth inside a very emotional night.",
+      },
+      {
+        slot: "Afterglow",
+        title: "Lovesong",
+        note: "Keeps the intimacy close after the crowd-wide singalong breaks open.",
+      },
+    ],
   },
 ];
 
@@ -1603,47 +1741,133 @@ const VideoSceneDecoderSection = () => {
   );
 };
 
-const TourLiveMomentsSection = () => (
-  <section className={styles.infoSection} aria-labelledby="tour-live-title">
-    <motion.h2
-      id="tour-live-title"
-      className={styles.sectionTitle}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-    >
-      Tour &amp; Live Moments
-    </motion.h2>
+const TourLiveMomentsSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedSnapshotId, setSelectedSnapshotId] = useState<LiveSetSnapshotId>(LIVE_SET_SNAPSHOTS[0].id);
+  const selectedSnapshot = LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
 
-    <p className={styles.sectionIntro}>
-      A tiny timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
-      beloved live singalong moments.
-    </p>
+  return (
+    <section className={styles.infoSection} aria-labelledby="tour-live-title">
+      <motion.h2
+        id="tour-live-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Tour &amp; Live Moments
+      </motion.h2>
 
-    <div className={styles.lyricsDisplay}>
-      {TOUR_LIVE_MOMENTS.map((item, index) => (
-        <motion.article
-          key={`${item.year}-${item.title}`}
-          className={styles.lyricBlock}
-          initial={{ opacity: 0, x: index % 2 === 0 ? -36 : 36, rotate: index % 2 === 0 ? -1 : 1 }}
-          whileInView={{ opacity: 1, x: 0, rotate: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: index * 0.08 }}
-        >
-          <p>
-            {item.year} — {item.title}
-          </p>
-          <span className={styles.lyricNote}>{item.detail}</span>
-          <div style={{ marginTop: "0.9rem" }}>
-            <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.chordTabsExternalLink}>
-              Source: {item.source}
-            </a>
+      <p className={styles.sectionIntro}>
+        A tiny timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
+        beloved live singalong moments.
+      </p>
+
+      <div className={styles.tourLiveLayout}>
+        <div className={styles.tourMomentsList}>
+          {TOUR_LIVE_MOMENTS.map((item, index) => (
+            <motion.article
+              key={`${item.year}-${item.title}`}
+              className={`${styles.lyricBlock} ${styles.tourMomentCard}`}
+              initial={prefersReducedMotion ? undefined : { opacity: 0, x: index % 2 === 0 ? -36 : 36, rotate: index % 2 === 0 ? -1 : 1 }}
+              whileInView={{ opacity: 1, x: 0, rotate: 0 }}
+              viewport={{ once: true }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.45, delay: index * 0.08 }}
+            >
+              <p>
+                {item.year} — {item.title}
+              </p>
+              <span className={styles.lyricNote}>{item.detail}</span>
+              <div style={{ marginTop: "0.9rem" }}>
+                <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.chordTabsExternalLink}>
+                  Source: {item.source}
+                </a>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+
+        <div className={styles.tourSnapshotShell}>
+          <div className={styles.tourSnapshotIntro}>
+            <p className={styles.tourSnapshotEyebrow}>Live Set Snapshot</p>
+            <p className={styles.tourSnapshotHint}>
+              Pick an era to see a fan-friendly sketch of how the song tends to hit inside different Cure live flows.
+            </p>
           </div>
-        </motion.article>
-      ))}
-    </div>
-  </section>
-);
+
+          <div className={styles.tourSnapshotTabs} role="tablist" aria-label="Friday I'm in Love live set snapshots">
+            {LIVE_SET_SNAPSHOTS.map((snapshot) => (
+              <button
+                key={snapshot.id}
+                type="button"
+                role="tab"
+                id={`tour-snapshot-tab-${snapshot.id}`}
+                aria-selected={selectedSnapshot.id === snapshot.id}
+                aria-controls={`tour-snapshot-panel-${snapshot.id}`}
+                tabIndex={selectedSnapshot.id === snapshot.id ? 0 : -1}
+                className={`${styles.tourSnapshotTab} ${
+                  selectedSnapshot.id === snapshot.id ? styles.tourSnapshotTabActive : ""
+                }`}
+                onClick={() => setSelectedSnapshotId(snapshot.id)}
+              >
+                <span className={styles.tourSnapshotTabLabel}>{snapshot.label}</span>
+                <span className={styles.tourSnapshotTabYears}>{snapshot.years}</span>
+              </button>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.article
+              key={selectedSnapshot.id}
+              id={`tour-snapshot-panel-${selectedSnapshot.id}`}
+              role="tabpanel"
+              aria-labelledby={`tour-snapshot-tab-${selectedSnapshot.id}`}
+              className={styles.tourSnapshotPanel}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+            >
+              <div className={styles.tourSnapshotPanelHeader}>
+                <p className={styles.tourSnapshotPanelKicker}>{selectedSnapshot.kicker}</p>
+                <h3 className={styles.tourSnapshotPanelTitle}>{selectedSnapshot.headline}</h3>
+                <p className={styles.tourSnapshotPanelYears}>{selectedSnapshot.years}</p>
+              </div>
+
+              <p className={styles.tourSnapshotBody}>{selectedSnapshot.body}</p>
+
+              <div className={styles.tourSnapshotFactCard}>
+                <p className={styles.tourSnapshotFactLabel}>Crowd cue</p>
+                <p className={styles.tourSnapshotFactValue}>{selectedSnapshot.crowdCue}</p>
+              </div>
+
+              <ol className={styles.tourSnapshotTrackList}>
+                {selectedSnapshot.tracks.map((track) => (
+                  <li key={`${selectedSnapshot.id}-${track.slot}-${track.title}`} className={styles.tourSnapshotTrackItem}>
+                    <span className={styles.tourSnapshotTrackSlot}>{track.slot}</span>
+                    <div className={styles.tourSnapshotTrackCopy}>
+                      <p className={styles.tourSnapshotTrackTitle}>{track.title}</p>
+                      <p className={styles.tourSnapshotTrackNote}>{track.note}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <a
+                href={selectedSnapshot.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.tourSnapshotLink}
+              >
+                Source: {selectedSnapshot.source}
+              </a>
+            </motion.article>
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const CoverVersionsSection = () => {
   const prefersReducedMotion = useReducedMotion();

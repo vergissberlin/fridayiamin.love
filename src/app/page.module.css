@@ -1845,6 +1845,270 @@
   filter: drop-shadow(0 0 8px rgba(255, 238, 0, 0.45));
 }
 
+/* --- Tour & live moments: timeline + live set snapshots --- */
+.tourLiveLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(300px, 1.05fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.tourMomentsList {
+  display: grid;
+  gap: 1rem;
+}
+
+.tourMomentCard {
+  height: 100%;
+}
+
+.tourSnapshotShell {
+  position: sticky;
+  top: 1.5rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.tourSnapshotIntro {
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(135deg, rgba(255, 45, 149, 0.12), rgba(0, 0, 0, 0.35)),
+    rgba(7, 9, 20, 0.88);
+}
+
+.tourSnapshotEyebrow {
+  margin-bottom: 0.45rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.tourSnapshotHint {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.02rem, 2.3vw, 1.18rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.tourSnapshotTabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tourSnapshotTab {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.5)),
+    rgba(8, 10, 22, 0.86);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tourSnapshotTab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 240, 255, 0.46);
+}
+
+.tourSnapshotTab:focus-visible {
+  outline: 3px solid var(--yellow-neon);
+  outline-offset: 2px;
+}
+
+.tourSnapshotTabActive {
+  border-color: rgba(255, 238, 0, 0.55);
+  box-shadow:
+    0 0 24px rgba(255, 45, 149, 0.16),
+    inset 0 0 0 1px rgba(255, 45, 149, 0.22);
+}
+
+.tourSnapshotTabLabel {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  color: var(--yellow-neon);
+}
+
+.tourSnapshotTabYears {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.tourSnapshotPanel {
+  padding: 1.25rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 45, 149, 0.32);
+  background:
+    radial-gradient(circle at top right, rgba(255, 238, 0, 0.12), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.12), transparent 34%),
+    rgba(9, 11, 24, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 34px rgba(0, 0, 0, 0.3);
+}
+
+.tourSnapshotPanelHeader {
+  margin-bottom: 0.95rem;
+}
+
+.tourSnapshotPanelKicker {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pink-neon);
+}
+
+.tourSnapshotPanelTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4vw, 2.5rem);
+  line-height: 1.08;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.tourSnapshotPanelYears {
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.tourSnapshotBody {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.12rem, 2.4vw, 1.3rem);
+  line-height: 1.62;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.tourSnapshotFactCard {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.tourSnapshotFactLabel {
+  margin-bottom: 0.3rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.tourSnapshotFactValue {
+  font-family: var(--font-marker);
+  font-size: clamp(0.98rem, 2vw, 1.08rem);
+  line-height: 1.45;
+  color: #fff;
+}
+
+.tourSnapshotTrackList {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.tourSnapshotTrackItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.9rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.36);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tourSnapshotTrackSlot {
+  min-width: 5.4rem;
+  padding-top: 0.15rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-neon);
+}
+
+.tourSnapshotTrackCopy {
+  min-width: 0;
+}
+
+.tourSnapshotTrackTitle {
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.tourSnapshotTrackNote {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1rem, 2vw, 1.08rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tourSnapshotLink {
+  display: inline-flex;
+  margin-top: 1rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.tourSnapshotLink:hover,
+.tourSnapshotLink:focus-visible {
+  color: var(--yellow-neon);
+}
+
+@media (max-width: 900px) {
+  .tourLiveLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .tourSnapshotShell {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .tourSnapshotTabs {
+    grid-template-columns: 1fr;
+  }
+
+  .tourSnapshotTrackItem {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+}
+
 /* --- Cover versions: mixtape / collage strip --- */
 .coverVersionsSection {
   position: relative;
