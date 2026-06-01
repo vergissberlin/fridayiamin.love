@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.10.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.9.0...fridayiamin.love-v1.10.0) (2026-06-01)
+
+
+### Features
+
+* add cover version matchmaker ([9d852df](https://github.com/vergissberlin/fridayiamin.love/commit/9d852df86db71d403e7976f01d3097cc78ec2eac))
+* add cover versions mixtape ([ce48d9d](https://github.com/vergissberlin/fridayiamin.love/commit/ce48d9d9349da276cfc9ba7c8e70a09d0b2b32d2))
+* add Friday Field Guide fan resources ([d235876](https://github.com/vergissberlin/fridayiamin.love/commit/d2358760a31dab597cacec4f6c8b789f85d187e3))
+* add live set snapshot explorer ([40c9386](https://github.com/vergissberlin/fridayiamin.love/commit/40c9386c35c5e1d15f886c7f951b8279bd142ed7))
+* add video scene decoder ([85023c0](https://github.com/vergissberlin/fridayiamin.love/commit/85023c0ef40494fe3d2c032bf4205c81e5e36fd0))
+
+
+### Bug Fixes
+
+* **deps:** update nextjs monorepo to v16.2.6 ([f5a190f](https://github.com/vergissberlin/fridayiamin.love/commit/f5a190f402604a8d7540d74daf1caca4dc1bcedc))
+* **deps:** update nextjs monorepo to v16.2.6 ([761c2ee](https://github.com/vergissberlin/fridayiamin.love/commit/761c2ee4f14a0aed4f5693fbdee3da8caa75ad59))
+
 ## [1.9.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.8.1...fridayiamin.love-v1.9.0) (2026-04-28)
 
 
