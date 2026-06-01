@@ -22,6 +22,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
 - `Cure News Reel`: a manually controllable headline carousel with previous/next buttons, autoplay pause, and reduced-motion-friendly behavior.
 - `Cover Versions Mixtape`: a five-stop guide to notable reinterpretations of `Friday I'm in Love`, with vibe-based picking and quick external search links for each version.
+- `Cover Version Matchmaker`: a three-prompt recommendation tool inside the mixtape section that syncs the spotlight to the cover version matching the visitor's Friday mood.
 - `Video Scene Decoder`: an interactive guide to four visual moods from the Tim Pope video, with fan-facing interpretation notes and palette cues.
 - `Live Set Snapshot`: an era picker inside `Tour & Live Moments` that sketches how `Friday I'm in Love` shifts across Wish-era, festival, marathon-show, and recent-tour live flows.
 - `Friday Field Guide`: a curated fan-resources wall linking out to official pages, live-history references, chart context, and collector-friendly release details.
