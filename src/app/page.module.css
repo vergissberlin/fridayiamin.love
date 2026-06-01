@@ -2167,6 +2167,244 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
+.coverMatchmaker {
+  margin: 0 auto 2rem;
+  padding: 1.2rem;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 240, 255, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(0, 240, 255, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(255, 45, 149, 0.14), transparent 38%),
+    rgba(5, 8, 19, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.coverMatchmakerHeader {
+  text-align: center;
+  max-width: 50ch;
+  margin: 0 auto 1.5rem;
+}
+
+.coverMatchmakerEyebrow {
+  margin-bottom: 0.45rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.coverMatchmakerTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.45rem);
+  line-height: 1.05;
+  color: #fff;
+  margin-bottom: 0.6rem;
+}
+
+.coverMatchmakerIntro {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.08rem, 2.3vw, 1.28rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.coverMatchmakerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.coverMatchmakerQuestions {
+  min-width: 0;
+}
+
+.coverMatchmakerProgress {
+  margin-bottom: 0.85rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.coverMatchQuestionCard {
+  margin: 0 0 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.coverMatchQuestionTitle {
+  padding: 0 0.35rem;
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  color: var(--yellow-neon);
+}
+
+.coverMatchOptionList {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+.coverMatchOption {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.38)),
+    rgba(8, 10, 22, 0.88);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.coverMatchOption:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 240, 255, 0.42);
+}
+
+.coverMatchOption:focus-visible {
+  outline: 3px solid var(--yellow-neon);
+  outline-offset: 2px;
+}
+
+.coverMatchOptionActive {
+  border-color: rgba(255, 45, 149, 0.72);
+  box-shadow:
+    0 0 18px rgba(255, 45, 149, 0.18),
+    inset 0 0 0 1px rgba(255, 45, 149, 0.18);
+}
+
+.coverMatchOptionTitle {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.04rem, 2.2vw, 1.16rem);
+  line-height: 1.4;
+}
+
+.coverMatchOptionDetail {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.coverMatchResult {
+  position: sticky;
+  top: 1.5rem;
+  padding: 1.2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 238, 0, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(255, 238, 0, 0.12), transparent 32%),
+    radial-gradient(circle at bottom left, rgba(191, 0, 255, 0.14), transparent 36%),
+    rgba(9, 11, 24, 0.92);
+}
+
+.coverMatchResultKicker {
+  margin-bottom: 0.55rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.coverMatchResultTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.6vw, 2.05rem);
+  line-height: 1.08;
+  color: #fff;
+  margin-bottom: 0.45rem;
+}
+
+.coverMatchResultMeta {
+  margin-bottom: 0.8rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.coverMatchResultBody {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.08rem, 2.4vw, 1.22rem);
+  line-height: 1.58;
+  color: rgba(255, 255, 255, 0.93);
+}
+
+.coverMatchResultHint {
+  margin-top: 0.85rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.coverMatchResultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.coverMatchResultLink,
+.coverMatchResetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.coverMatchResultLink {
+  border: 1px solid rgba(0, 240, 255, 0.32);
+  background: rgba(0, 240, 255, 0.08);
+  color: var(--cyan-neon);
+}
+
+.coverMatchResetButton {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+.coverMatchResultLink:hover,
+.coverMatchResultLink:focus-visible,
+.coverMatchResetButton:hover,
+.coverMatchResetButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.48);
+  color: var(--yellow-neon);
+  background: rgba(255, 238, 0, 0.08);
+}
+
 .coverMoodBar {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -3132,6 +3370,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .coverMatchmakerLayout,
   .coverMoodBar,
   .coverExplorer {
     grid-template-columns: 1fr;
@@ -3142,6 +3381,7 @@
     grid-template-columns: 1fr;
   }
 
+  .coverMatchResult,
   .coverSpotlight {
     position: static;
   }
@@ -3201,6 +3441,8 @@
   }
 
   .coverMoodButton,
+  .coverMatchQuestionCard,
+  .coverMatchResult,
   .coverPickerButton,
   .coverSpotlight,
   .videoDecoderTab,

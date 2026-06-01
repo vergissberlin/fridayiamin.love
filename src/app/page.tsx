@@ -37,6 +37,16 @@ type FridayQuizQuestion = {
   }[];
 };
 
+type CoverMatchQuestion = {
+  id: string;
+  prompt: string;
+  options: {
+    result: CoverVersionId;
+    title: string;
+    detail: string;
+  }[];
+};
+
 type CoverVersion = {
   id: CoverVersionId;
   label: string;
@@ -491,6 +501,110 @@ const COVER_VERSIONS: CoverVersion[] = [
   },
 ];
 
+const COVER_VERSION_RESULT_ORDER: CoverVersionId[] = [
+  "david-gray",
+  "himalaya-records",
+  "billy-rubin-trio",
+  "nena",
+  "choir-choir-choir",
+];
+
+const COVER_MATCH_QUESTIONS: CoverMatchQuestion[] = [
+  {
+    id: "arrival",
+    prompt: "How should the cover arrive?",
+    options: [
+      {
+        result: "david-gray",
+        title: "Like the crowd is already halfway through the chorus.",
+        detail: "Big-stage warmth and a little extra grit.",
+      },
+      {
+        result: "himalaya-records",
+        title: "Like neon seen through rain on a train window.",
+        detail: "Soft edges, slower breath, and a gentler glow.",
+      },
+      {
+        result: "billy-rubin-trio",
+        title: "Like a sideways detour with a knowing grin.",
+        detail: "A playful swing if you want the song recut at an angle.",
+      },
+      {
+        result: "nena",
+        title: "Like a glossy alt-pop montage from another decade.",
+        detail: "Bright, direct, and all-in on the hook.",
+      },
+      {
+        result: "choir-choir-choir",
+        title: "Like everybody in the room gets a microphone.",
+        detail: "Maximum communal lift and full human-voice release.",
+      },
+    ],
+  },
+  {
+    id: "setting",
+    prompt: "Where does this version belong tonight?",
+    options: [
+      {
+        result: "david-gray",
+        title: "A festival field right before sunset.",
+        detail: "You want immediate recognition and open-air energy.",
+      },
+      {
+        result: "himalaya-records",
+        title: "A small bar with condensation on the windows.",
+        detail: "The hook should feel intimate, not explosive.",
+      },
+      {
+        result: "billy-rubin-trio",
+        title: "A lounge with impossible wallpaper and excellent timing.",
+        detail: "You are here for charm, texture, and curveballs.",
+      },
+      {
+        result: "nena",
+        title: "The perfect scene change in a bright pop romance.",
+        detail: "You want the melody pushed right to the front.",
+      },
+      {
+        result: "choir-choir-choir",
+        title: "A room full of friends singing the title line together.",
+        detail: "The best part is everyone arriving at the same feeling.",
+      },
+    ],
+  },
+  {
+    id: "aftereffect",
+    prompt: "What should the cover leave behind?",
+    options: [
+      {
+        result: "david-gray",
+        title: "A bigger grin than the original started with.",
+        detail: "More live rush, still recognizably warm.",
+      },
+      {
+        result: "himalaya-records",
+        title: "A softer comedown that lingers for a while.",
+        detail: "Friday, but with a little mist around it.",
+      },
+      {
+        result: "billy-rubin-trio",
+        title: "The feeling that this melody can survive any costume change.",
+        detail: "A cover for fans who love structural mischief.",
+      },
+      {
+        result: "nena",
+        title: "Pure candy-color momentum.",
+        detail: "Less shadow, more sparkle, no hesitation.",
+      },
+      {
+        result: "choir-choir-choir",
+        title: "That shared-release shiver from a room singing in sync.",
+        detail: "A chorus that feels bigger because everybody is inside it.",
+      },
+    ],
+  },
+];
+
 const CHORDS = [
   { name: "D", fingering: "xx0232" },
   { name: "A", fingering: "x02220" },
@@ -813,6 +927,26 @@ function getFridayQuizResult(answers: Partial<Record<string, FridayQueueMood>>) 
 
   return FRIDAY_QUIZ_RESULT_ORDER.reduce((bestMood, mood) =>
     scorecard[mood] > scorecard[bestMood] ? mood : bestMood,
+  );
+}
+
+function getCoverMatchResult(answers: Partial<Record<string, CoverVersionId>>) {
+  const scorecard: Record<CoverVersionId, number> = {
+    "david-gray": 0,
+    "himalaya-records": 0,
+    "billy-rubin-trio": 0,
+    nena: 0,
+    "choir-choir-choir": 0,
+  };
+
+  Object.values(answers).forEach((answer) => {
+    if (answer) {
+      scorecard[answer] += 1;
+    }
+  });
+
+  return COVER_VERSION_RESULT_ORDER.reduce((bestCover, coverId) =>
+    scorecard[coverId] > scorecard[bestCover] ? coverId : bestCover,
   );
 }
 
@@ -1872,7 +2006,27 @@ const TourLiveMomentsSection = () => {
 const CoverVersionsSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedCoverId, setSelectedCoverId] = useState<CoverVersionId>(COVER_VERSIONS[0].id);
+  const [coverAnswers, setCoverAnswers] = useState<Partial<Record<string, CoverVersionId>>>({});
+  const coverAnsweredCount = Object.keys(coverAnswers).length;
+  const isCoverMatchComplete = coverAnsweredCount === COVER_MATCH_QUESTIONS.length;
+  const matchedCoverId = isCoverMatchComplete ? getCoverMatchResult(coverAnswers) : null;
+  const matchedCover = matchedCoverId
+    ? COVER_VERSIONS.find((cover) => cover.id === matchedCoverId) ?? COVER_VERSIONS[0]
+    : null;
   const selectedCover = COVER_VERSIONS.find((cover) => cover.id === selectedCoverId) ?? COVER_VERSIONS[0];
+
+  const handleCoverAnswerSelect = (questionId: string, result: CoverVersionId) => {
+    const nextAnswers = {
+      ...coverAnswers,
+      [questionId]: result,
+    };
+
+    setCoverAnswers(nextAnswers);
+
+    if (Object.keys(nextAnswers).length === COVER_MATCH_QUESTIONS.length) {
+      setSelectedCoverId(getCoverMatchResult(nextAnswers));
+    }
+  };
 
   return (
     <section className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
@@ -1891,6 +2045,104 @@ const CoverVersionsSection = () => {
         Friday spark intact while bending the mood toward live rush, soft-focus indie, swing, or full-room
         singalong.
       </p>
+
+      <div className={styles.coverMatchmaker} aria-labelledby="cover-matchmaker-title">
+        <div className={styles.coverMatchmakerHeader}>
+          <p className={styles.coverMatchmakerEyebrow}>Need a fast pick?</p>
+          <h3 id="cover-matchmaker-title" className={styles.coverMatchmakerTitle}>
+            Cover Version Matchmaker
+          </h3>
+          <p className={styles.coverMatchmakerIntro}>
+            Answer three quick prompts and the mixtape spotlight below will sync to the version that best fits
+            your Friday mood.
+          </p>
+        </div>
+
+        <div className={styles.coverMatchmakerLayout}>
+          <div className={styles.coverMatchmakerQuestions}>
+            <p className={styles.coverMatchmakerProgress}>
+              {coverAnsweredCount === 0
+                ? "Pick the mood cues that feel closest to your version of Friday."
+                : `Answered ${coverAnsweredCount} of ${COVER_MATCH_QUESTIONS.length} prompts.`}
+            </p>
+
+            {COVER_MATCH_QUESTIONS.map((question) => (
+              <fieldset key={question.id} className={styles.coverMatchQuestionCard}>
+                <legend className={styles.coverMatchQuestionTitle}>{question.prompt}</legend>
+
+                <div className={styles.coverMatchOptionList}>
+                  {question.options.map((option) => {
+                    const isSelected = coverAnswers[question.id] === option.result;
+
+                    return (
+                      <button
+                        key={`${question.id}-${option.result}`}
+                        type="button"
+                        className={`${styles.coverMatchOption} ${isSelected ? styles.coverMatchOptionActive : ""}`}
+                        onClick={() => handleCoverAnswerSelect(question.id, option.result)}
+                        aria-pressed={isSelected}
+                      >
+                        <span className={styles.coverMatchOptionTitle}>{option.title}</span>
+                        <span className={styles.coverMatchOptionDetail}>{option.detail}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.aside
+              key={matchedCover?.id ?? "cover-match-empty"}
+              className={styles.coverMatchResult}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+            >
+              {matchedCover ? (
+                <>
+                  <p className={styles.coverMatchResultKicker}>Your cover cue</p>
+                  <h4 className={styles.coverMatchResultTitle}>{matchedCover.artist}</h4>
+                  <p className={styles.coverMatchResultMeta}>{matchedCover.context}</p>
+                  <p className={styles.coverMatchResultBody}>{matchedCover.note}</p>
+                  <p className={styles.coverMatchResultHint}>
+                    The mixtape spotlight below is synced to this pick, so you can keep reading or jump straight
+                    to the search link.
+                  </p>
+                  <div className={styles.coverMatchResultActions}>
+                    <a
+                      href={matchedCover.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.coverMatchResultLink}
+                    >
+                      {matchedCover.linkLabel}
+                    </a>
+                    <button
+                      type="button"
+                      className={styles.coverMatchResetButton}
+                      onClick={() => setCoverAnswers({})}
+                    >
+                      Reset prompts
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className={styles.coverMatchResultKicker}>Mixtape waiting room</p>
+                  <h4 className={styles.coverMatchResultTitle}>Your recommendation appears after the third pick.</h4>
+                  <p className={styles.coverMatchResultBody}>
+                    This fast matchmaker is for fans who want the right cover mood first and the deeper write-up
+                    second.
+                  </p>
+                </>
+              )}
+            </motion.aside>
+          </AnimatePresence>
+        </div>
+      </div>
 
       <div className={styles.coverMoodBar} role="tablist" aria-label="Cover version moods">
         {COVER_VERSIONS.map((cover) => (
