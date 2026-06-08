@@ -12,6 +12,8 @@ import styles from "./page.module.css";
 
 type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
+type LyricMomentId = "monday-blue" | "midweek-grey" | "thursday-shrug" | "friday-release";
+
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
 type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "nena" | "choir-choir-choir";
@@ -25,6 +27,17 @@ type FanResource = {
   source: string;
   href: string;
   description: string;
+};
+
+type LyricMoment = {
+  id: LyricMomentId;
+  tabLabel: string;
+  line: string;
+  mood: string;
+  headline: string;
+  body: string;
+  collageCue: string;
+  fanNote: string;
 };
 
 type FridayQuizQuestion = {
@@ -109,12 +122,54 @@ const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
   ja: "金曜日がもたらす喜びと期待を歌い、平日の退屈さと恋の高揚感を対比しています。",
 };
 
-const LYRICS = [
-  "I don't care if Monday's blue",
-  "Tuesday's grey and Wednesday too",
-  "Thursday I don't care about you",
-  "It's Friday I'm in love",
+const LYRIC_MOMENTS: LyricMoment[] = [
+  {
+    id: "monday-blue",
+    tabLabel: "Monday",
+    line: "I don't care if Monday's blue",
+    mood: "Blue Monday shrug",
+    headline: "The song starts by acknowledging drag instead of pretending the week feels magical.",
+    body:
+      "That quick shrug matters. The lyric gives the week a little emotional weight first, so the eventual Friday rush feels earned rather than weightless.",
+    collageCue: "Smudged office-grey paper with one neon pink sticker refusing to stay quiet.",
+    fanNote: "The Cure let gloom appear for a second, then sidestep it with style.",
+  },
+  {
+    id: "midweek-grey",
+    tabLabel: "Tuesday-Wednesday",
+    line: "Tuesday's grey and Wednesday too",
+    mood: "Midweek blur",
+    headline: "The middle of the week is compressed into one washed-out stretch of sameness.",
+    body:
+      "Bundling Tuesday and Wednesday together makes them feel almost interchangeable. That little monotony trick sharpens the chorus by turning Friday into a real break in the pattern.",
+    collageCue: "Photocopied calendar squares fading into each other under cyan marker streaks.",
+    fanNote: "It is one of the song's smartest moves: the weekdays feel repetitive, not tragic.",
+  },
+  {
+    id: "thursday-shrug",
+    tabLabel: "Thursday",
+    line: "Thursday I don't care about you",
+    mood: "Dismissive pivot",
+    headline: "Thursday is not dramatic; it just gets waved out of the frame.",
+    body:
+      "Instead of building pressure with grand misery, the lyric simply drops Thursday with a sly dismissal. That playful impatience keeps the song buoyant and makes the turn into Friday feel cheeky.",
+    collageCue: "A ripped-out flyer corner tossed off the page with yellow tape still attached.",
+    fanNote: "The line lands because it sounds amused, not cruel or self-serious.",
+  },
+  {
+    id: "friday-release",
+    tabLabel: "Friday",
+    line: "It's Friday I'm in love",
+    mood: "Full release",
+    headline: "The payoff lands as a rush of relief, romance, and collective recognition all at once.",
+    body:
+      "After the dull run-up, the title line opens the whole song. Friday becomes both a day and a feeling: the instant when routine breaks and affection floods the room.",
+    collageCue: "Confetti-yellow lettering bursting over pink-and-purple poster layers.",
+    fanNote: "This is why the chorus works live: everyone already knows exactly when the color arrives.",
+  },
 ];
+
+const LYRICS = LYRIC_MOMENTS.map((moment) => moment.line);
 
 const TOUR_LIVE_MOMENTS = [
   {
@@ -2271,13 +2326,117 @@ const FanResourcesSection = () => {
   );
 };
 
+const LyricsMeaningSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>("en");
+  const [selectedLyricMomentId, setSelectedLyricMomentId] = useState<LyricMomentId>(LYRIC_MOMENTS[0].id);
+  const selectedLyricMoment =
+    LYRIC_MOMENTS.find((moment) => moment.id === selectedLyricMomentId) ?? LYRIC_MOMENTS[0];
+
+  return (
+    <section className={styles.infoSection} aria-labelledby="lyrics-meaning-title">
+      <motion.h2
+        id="lyrics-meaning-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Lyrics &amp; Meaning
+      </motion.h2>
+
+      <div className={styles.lyricsHeader}>
+        <div className={styles.languageSelector} aria-label="Lyric summary languages">
+          {LANGUAGE_OPTIONS.map((option) => (
+            <button
+              key={option.code}
+              type="button"
+              className={selectedLanguage === option.code ? styles.activeLanguageButton : styles.languageButton}
+              onClick={() => setSelectedLanguage(option.code)}
+              aria-pressed={selectedLanguage === option.code}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.lyricSummaryCard}>
+          <p className={styles.lyricSummaryText}>Quick meaning summary</p>
+          <p className={styles.lyricSummaryBody}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
+        </div>
+      </div>
+
+      <div className={styles.lyricDecoder}>
+        <div className={styles.lyricDecoderHeader}>
+          <p className={styles.lyricDecoderEyebrow}>Weekday Mood Decoder</p>
+          <h3 className={styles.lyricDecoderTitle}>Tap each line to watch the week turn from blur into release.</h3>
+          <p className={styles.lyricDecoderIntro}>
+            This fan-focused read keeps to a short, legal excerpt and treats each line like one panel in the
+            song&apos;s emotional collage.
+          </p>
+        </div>
+
+        <div className={styles.lyricsStage}>
+          <div className={styles.lyricMomentList} aria-label="Weekday lyric moments">
+            {LYRIC_MOMENTS.map((moment) => {
+              const isSelected = selectedLyricMoment.id === moment.id;
+
+              return (
+                <button
+                  key={moment.id}
+                  type="button"
+                  className={`${styles.lyricMomentButton} ${isSelected ? styles.lyricMomentButtonActive : ""}`}
+                  onClick={() => setSelectedLyricMomentId(moment.id)}
+                  aria-pressed={isSelected}
+                  aria-controls={`lyric-moment-panel-${moment.id}`}
+                >
+                  <span className={styles.lyricMomentDay}>{moment.tabLabel}</span>
+                  <span className={styles.lyricMomentLine}>{moment.line}</span>
+                  <span className={styles.lyricMomentMood}>{moment.mood}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.aside
+              key={selectedLyricMoment.id}
+              id={`lyric-moment-panel-${selectedLyricMoment.id}`}
+              className={styles.lyricDetailPanel}
+              aria-live="polite"
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+            >
+              <p className={styles.lyricDetailKicker}>{selectedLyricMoment.mood}</p>
+              <h3 className={styles.lyricDetailTitle}>{selectedLyricMoment.headline}</h3>
+              <p className={styles.lyricDetailBody}>{selectedLyricMoment.body}</p>
+
+              <dl className={styles.lyricDetailFacts}>
+                <div>
+                  <dt>Collage cue</dt>
+                  <dd>{selectedLyricMoment.collageCue}</dd>
+                </div>
+                <div>
+                  <dt>Fan note</dt>
+                  <dd>{selectedLyricMoment.fanNote}</dd>
+                </div>
+              </dl>
+            </motion.aside>
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
   const y = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>("en");
 
   return (
     <main className={styles.main}>
@@ -2346,41 +2505,7 @@ export default function Home() {
       <FridayQueueQuizSection />
       <FridayQueueSection />
 
-      <section className={styles.infoSection} aria-labelledby="lyrics-meaning-title">
-        <motion.h2
-          id="lyrics-meaning-title"
-          className={styles.sectionTitle}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          Lyrics &amp; Meaning
-        </motion.h2>
-
-        <div className={styles.languageSelector}>
-          {LANGUAGE_OPTIONS.map((option) => (
-            <button
-              key={option.code}
-              type="button"
-              className={selectedLanguage === option.code ? styles.activeLanguageButton : styles.languageButton}
-              onClick={() => setSelectedLanguage(option.code)}
-              aria-pressed={selectedLanguage === option.code}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <p className={styles.sectionIntro}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
-
-        <div className={styles.lyricsDisplay}>
-          {LYRICS.map((line) => (
-            <div key={line} className={styles.lyricBlock}>
-              <p>{line}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <LyricsMeaningSection />
 
       <ChordTabsSection />
       <MusicTheoryBreakdownSection />
