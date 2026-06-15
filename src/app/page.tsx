@@ -16,6 +16,8 @@ type LyricMomentId = "monday-blue" | "midweek-grey" | "thursday-shrug" | "friday
 
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
+type FanResourceCategoryId = "all" | "official" | "video" | "live" | "collectors" | "charts";
+
 type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "nena" | "choir-choir-choir";
 
 type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti-closeup";
@@ -23,10 +25,12 @@ type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti
 type LiveSetSnapshotId = "wish-rush" | "festival-pop" | "marathon-singalong" | "lost-world-glow";
 
 type FanResource = {
+  category: Exclude<FanResourceCategoryId, "all">;
   title: string;
   source: string;
   href: string;
   description: string;
+  whyVisit: string;
 };
 
 type LyricMoment = {
@@ -450,46 +454,102 @@ const NEWS_ITEMS = [
 
 const FAN_RESOURCES: FanResource[] = [
   {
+    category: "official",
     title: "Official release page",
     source: "Official",
     href: "https://www.thecure.com/release/friday-im-in-love/",
     description:
       "Start with The Cure's own archive page for the single and keep the site anchored in the band's official history.",
+    whyVisit: "Best first stop if you want the song framed by the band's own archive and release history.",
   },
   {
+    category: "video",
     title: "Tim Pope video on YouTube",
     source: "Video",
     href: "https://www.youtube.com/watch?v=mGgMZpGYiy8",
     description:
       "Jump straight into the song's color-soaked, handmade-chaos visual world and revisit the clip that fixed its playful identity.",
+    whyVisit: "Ideal when your Friday mood needs the full visual collage, not just the chorus in your head.",
   },
   {
+    category: "live",
     title: "Tour archive",
     source: "Live",
     href: "https://www.thecure.com/tour/",
     description:
       "Check the band's current and archived touring universe when you want to trace where Friday still glows inside modern Cure setlists.",
+    whyVisit: "Use this when you want to follow the song into the broader live history of The Cure.",
   },
   {
+    category: "live",
     title: "Setlist.fm song stats",
     source: "Live Data",
     href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
     description:
       "See how often the song appears on stage and use the stats page as a quick live-history rabbit hole.",
+    whyVisit: "The right pick for fans who want numbers, recurrence, and live-era patterns at a glance.",
   },
   {
+    category: "collectors",
     title: "Discogs master release",
     source: "Collectors",
     href: "https://www.discogs.com/master/32005",
     description:
       "Browse formats, mixes, and pressing variations if your Friday fandom leans toward sleeves, editions, and release archaeology.",
+    whyVisit: "A collector-friendly route for artwork, formats, and release-detail rabbit holes.",
   },
   {
+    category: "charts",
     title: "Official Charts snapshot",
     source: "Charts",
     href: "https://www.officialcharts.com/charts/singles-chart/19920606/7501/",
     description:
       "Open the UK chart week where the single peaked and add a little chart-era context to the glow of 1992.",
+    whyVisit: "Choose this if you want a quick dose of 1992 chart context around the single's pop crossover moment.",
+  },
+];
+
+const FAN_RESOURCE_FILTERS: {
+  id: FanResourceCategoryId;
+  label: string;
+  eyebrow: string;
+  description: string;
+}[] = [
+  {
+    id: "all",
+    label: "All stops",
+    eyebrow: "Whole collage",
+    description: "Keep every branch of the Friday rabbit hole in view, from official history to collecting detours.",
+  },
+  {
+    id: "official",
+    label: "Official",
+    eyebrow: "Band archive",
+    description: "Start with The Cure's own framing when you want the cleanest, most grounded context first.",
+  },
+  {
+    id: "video",
+    label: "Video",
+    eyebrow: "Visual chaos",
+    description: "Go straight to the Tim Pope clip if your next step is color, collage, and handmade strangeness.",
+  },
+  {
+    id: "live",
+    label: "Live",
+    eyebrow: "Stage glow",
+    description: "Follow the song across tours and setlists when you want the communal singalong version of Friday.",
+  },
+  {
+    id: "collectors",
+    label: "Collectors",
+    eyebrow: "Shelf archaeology",
+    description: "Zoom into formats, pressings, and release details if your fandom lives in sleeves and editions.",
+  },
+  {
+    id: "charts",
+    label: "Charts",
+    eyebrow: "1992 snapshot",
+    description: "Open the chart-era lane when you want to place the single inside its original pop-week context.",
   },
 ];
 
@@ -2286,6 +2346,13 @@ const CoverVersionsSection = () => {
 
 const FanResourcesSection = () => {
   const prefersReducedMotion = useReducedMotion();
+  const [selectedCategory, setSelectedCategory] = useState<FanResourceCategoryId>("all");
+  const activeFilter = FAN_RESOURCE_FILTERS.find((filter) => filter.id === selectedCategory) ?? FAN_RESOURCE_FILTERS[0];
+  const filteredResources =
+    selectedCategory === "all"
+      ? FAN_RESOURCES
+      : FAN_RESOURCES.filter((resource) => resource.category === selectedCategory);
+  const spotlightResource = filteredResources[0] ?? FAN_RESOURCES[0];
 
   return (
     <section className={styles.fanResourcesSection} aria-labelledby="fan-resources-title">
@@ -2304,8 +2371,62 @@ const FanResourcesSection = () => {
         and collector-friendly context.
       </p>
 
+      <div className={styles.fanResourceControls}>
+        <div className={styles.fanResourceFilterGroup} role="group" aria-label="Filter Friday field guide links">
+          {FAN_RESOURCE_FILTERS.map((filter) => {
+            const isSelected = filter.id === selectedCategory;
+
+            return (
+              <button
+                key={filter.id}
+                type="button"
+                className={isSelected ? styles.fanResourceFilterButtonActive : styles.fanResourceFilterButton}
+                onClick={() => setSelectedCategory(filter.id)}
+                aria-pressed={isSelected}
+              >
+                {filter.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.aside
+            key={selectedCategory}
+            className={styles.fanResourceSpotlight}
+            initial={prefersReducedMotion ? undefined : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? undefined : { opacity: 0, y: -10 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+            aria-live="polite"
+          >
+            <p className={styles.fanResourceSpotlightEyebrow}>{activeFilter.eyebrow}</p>
+            <div className={styles.fanResourceSpotlightHeader}>
+              <div>
+                <h3 className={styles.fanResourceSpotlightTitle}>{spotlightResource.title}</h3>
+                <p className={styles.fanResourceSpotlightMeta}>
+                  {filteredResources.length} stop{filteredResources.length === 1 ? "" : "s"} in this lane
+                </p>
+              </div>
+
+              <a
+                href={spotlightResource.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.fanResourceSpotlightLink}
+              >
+                Open this stop
+              </a>
+            </div>
+
+            <p className={styles.fanResourceSpotlightBody}>{activeFilter.description}</p>
+            <p className={styles.fanResourceSpotlightNote}>{spotlightResource.whyVisit}</p>
+          </motion.aside>
+        </AnimatePresence>
+      </div>
+
       <ul className={styles.fanResourcesList}>
-        {FAN_RESOURCES.map((resource, index) => (
+        {filteredResources.map((resource, index) => (
           <motion.li
             key={resource.title}
             className={styles.fanResourceItem}
