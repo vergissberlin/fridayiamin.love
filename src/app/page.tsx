@@ -917,6 +917,8 @@ const FRIDAY_CURE_QUEUES: {
   },
 ];
 
+const OFFICIAL_VIDEO_URL = "https://www.youtube.com/watch?v=mGgMZpGYiy8";
+
 const FRIDAY_QUIZ_RESULT_ORDER: FridayQueueMood[] = ["lift-off", "twilight", "glitter", "afterglow"];
 
 const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
@@ -1063,6 +1065,22 @@ function getCoverMatchResult(answers: Partial<Record<string, CoverVersionId>>) {
   return COVER_VERSION_RESULT_ORDER.reduce((bestCover, coverId) =>
     scorecard[coverId] > scorecard[bestCover] ? coverId : bestCover,
   );
+}
+
+function buildFridayFanFlyerText(
+  queue: (typeof FRIDAY_CURE_QUEUES)[number],
+  scene: VideoScene,
+  snapshot: LiveSetSnapshot,
+) {
+  return [
+    `Friday Fan Flyer`,
+    `${queue.label} mood | ${scene.label} visual | ${snapshot.label} live cue`,
+    "",
+    `Start with ${queue.tracks[0].title} (${queue.tracks[0].era}) for ${queue.time.toLowerCase()}.`,
+    `Visual cue: ${scene.scene}`,
+    `Live cue: ${snapshot.crowdCue}`,
+    `Keep reading: ${snapshot.href}`,
+  ].join("\n");
 }
 
 const GothicSilhouette = () => (
@@ -1349,6 +1367,201 @@ const FridayQueueSection = () => {
               ))}
             </ol>
           </motion.section>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
+const FridayFanFlyerSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedMood, setSelectedMood] = useState<FridayQueueMood>(FRIDAY_CURE_QUEUES[0].mood);
+  const [selectedSceneId, setSelectedSceneId] = useState<VideoSceneId>(VIDEO_SCENES[0].id);
+  const [selectedSnapshotId, setSelectedSnapshotId] = useState<LiveSetSnapshotId>(LIVE_SET_SNAPSHOTS[0].id);
+  const [copyStatus, setCopyStatus] = useState("Copy the flyer text for later.");
+
+  const selectedQueue = FRIDAY_CURE_QUEUES.find((queue) => queue.mood === selectedMood) ?? FRIDAY_CURE_QUEUES[0];
+  const selectedScene = VIDEO_SCENES.find((scene) => scene.id === selectedSceneId) ?? VIDEO_SCENES[0];
+  const selectedSnapshot =
+    LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
+
+  const flyerText = buildFridayFanFlyerText(selectedQueue, selectedScene, selectedSnapshot);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(flyerText);
+      setCopyStatus("Flyer text copied.");
+    } catch {
+      setCopyStatus("Copy did not work here, but the flyer links are still ready below.");
+    }
+  };
+
+  return (
+    <section className={styles.fanFlyerSection} aria-labelledby="fan-flyer-title">
+      <motion.h2
+        id="fan-flyer-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Friday Fan Flyer
+      </motion.h2>
+
+      <p className={styles.fanFlyerIntro}>
+        Build a one-card Cure night plan by mixing a listening mood, a video color story, and a live-era glow.
+      </p>
+
+      <div className={styles.fanFlyerLayout}>
+        <div className={styles.fanFlyerControls}>
+          <fieldset className={styles.fanFlyerFieldset}>
+            <legend className={styles.fanFlyerLegend}>1. Pick the Friday mood</legend>
+            <div className={styles.fanFlyerOptionGrid}>
+              {FRIDAY_CURE_QUEUES.map((queue) => {
+                const isSelected = selectedQueue.mood === queue.mood;
+
+                return (
+                  <button
+                    key={queue.mood}
+                    type="button"
+                    className={`${styles.fanFlyerOption} ${isSelected ? styles.fanFlyerOptionActive : ""}`}
+                    onClick={() => setSelectedMood(queue.mood)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className={styles.fanFlyerOptionTitle}>{queue.label}</span>
+                    <span className={styles.fanFlyerOptionMeta}>{queue.time}</span>
+                    <span className={styles.fanFlyerOptionBody}>{queue.kicker}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className={styles.fanFlyerFieldset}>
+            <legend className={styles.fanFlyerLegend}>2. Choose a video texture</legend>
+            <div className={styles.fanFlyerOptionGrid}>
+              {VIDEO_SCENES.map((scene) => {
+                const isSelected = selectedScene.id === scene.id;
+
+                return (
+                  <button
+                    key={scene.id}
+                    type="button"
+                    className={`${styles.fanFlyerOption} ${isSelected ? styles.fanFlyerOptionActive : ""}`}
+                    onClick={() => setSelectedSceneId(scene.id)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className={styles.fanFlyerOptionTitle}>{scene.label}</span>
+                    <span className={styles.fanFlyerOptionMeta}>{scene.kicker}</span>
+                    <span className={styles.fanFlyerOptionBody}>{scene.scene}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className={styles.fanFlyerFieldset}>
+            <legend className={styles.fanFlyerLegend}>3. Land in a live-era frame</legend>
+            <div className={styles.fanFlyerOptionGrid}>
+              {LIVE_SET_SNAPSHOTS.map((snapshot) => {
+                const isSelected = selectedSnapshot.id === snapshot.id;
+
+                return (
+                  <button
+                    key={snapshot.id}
+                    type="button"
+                    className={`${styles.fanFlyerOption} ${isSelected ? styles.fanFlyerOptionActive : ""}`}
+                    onClick={() => setSelectedSnapshotId(snapshot.id)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className={styles.fanFlyerOptionTitle}>{snapshot.label}</span>
+                    <span className={styles.fanFlyerOptionMeta}>{snapshot.years}</span>
+                    <span className={styles.fanFlyerOptionBody}>{snapshot.kicker}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.aside
+            key={`${selectedQueue.mood}-${selectedScene.id}-${selectedSnapshot.id}`}
+            className={styles.fanFlyerPreview}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18, rotate: -1 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18, rotate: 1 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          >
+            <p className={styles.fanFlyerPreviewEyebrow}>Custom Friday route</p>
+
+            <div className={styles.fanFlyerStickerRow} aria-label="Selected Friday flyer cues">
+              <span className={styles.fanFlyerSticker}>{selectedQueue.time}</span>
+              <span className={styles.fanFlyerSticker}>{selectedScene.label}</span>
+              <span className={styles.fanFlyerSticker}>{selectedSnapshot.years}</span>
+            </div>
+
+            <h3 className={styles.fanFlyerTitle}>
+              {selectedQueue.label} hearts, {selectedScene.label} colors, {selectedSnapshot.label} energy.
+            </h3>
+
+            <p className={styles.fanFlyerBody}>
+              Start with <strong>{selectedQueue.tracks[0].title}</strong> to set a {selectedQueue.time.toLowerCase()} tone,
+              keep the room inside {selectedScene.scene.toLowerCase()}, and imagine the {selectedSnapshot.years} crowd
+              response when the chorus arrives.
+            </p>
+
+            <ol className={styles.fanFlyerChecklist}>
+              <li className={styles.fanFlyerStep}>
+                <span className={styles.fanFlyerStepLabel}>Spin</span>
+                <span className={styles.fanFlyerStepText}>{selectedQueue.tracks[0].note}</span>
+              </li>
+              <li className={styles.fanFlyerStep}>
+                <span className={styles.fanFlyerStepLabel}>See</span>
+                <span className={styles.fanFlyerStepText}>{selectedScene.whyItWorks}</span>
+              </li>
+              <li className={styles.fanFlyerStep}>
+                <span className={styles.fanFlyerStepLabel}>Imagine</span>
+                <span className={styles.fanFlyerStepText}>{selectedSnapshot.crowdCue}</span>
+              </li>
+            </ol>
+
+            <div className={styles.fanFlyerActions}>
+              <a
+                href={selectedQueue.tracks[0].link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.fanFlyerActionLink}
+              >
+                Search {selectedQueue.tracks[0].title}
+              </a>
+              <a
+                href={OFFICIAL_VIDEO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.fanFlyerActionLink}
+              >
+                Open official video
+              </a>
+              <a
+                href={selectedSnapshot.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.fanFlyerActionLink}
+              >
+                Read live reference
+              </a>
+            </div>
+
+            <div className={styles.fanFlyerFooter}>
+              <button type="button" className={styles.fanFlyerCopyButton} onClick={handleCopy}>
+                Copy flyer text
+              </button>
+              <p className={styles.fanFlyerCopyStatus} aria-live="polite">
+                {copyStatus}
+              </p>
+            </div>
+          </motion.aside>
         </AnimatePresence>
       </div>
     </section>
@@ -1976,7 +2189,7 @@ const VideoSceneDecoderSection = () => {
             </div>
 
             <a
-              href="https://www.youtube.com/watch?v=mGgMZpGYiy8"
+              href={OFFICIAL_VIDEO_URL}
               target="_blank"
               rel="noopener noreferrer"
               className={styles.videoDecoderLink}
@@ -2625,6 +2838,7 @@ export default function Home() {
       <SpotifyPlayer />
       <FridayQueueQuizSection />
       <FridayQueueSection />
+      <FridayFanFlyerSection />
 
       <LyricsMeaningSection />
 

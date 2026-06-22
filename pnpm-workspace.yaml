@@ -1,0 +1,5 @@
+allowBuilds:
+  esbuild: true
+  midi-writer-js: true
+  sharp: true
+  unrs-resolver: true

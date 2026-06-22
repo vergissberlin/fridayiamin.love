@@ -3752,6 +3752,255 @@
   box-shadow: 0 0 18px rgba(255, 45, 149, 0.14);
 }
 
+.fanFlyerSection {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+
+.fanFlyerIntro {
+  max-width: 46rem;
+  margin: 0 auto 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.25rem, 2.7vw, 1.6rem);
+  line-height: 1.35;
+}
+
+.fanFlyerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 1.35rem;
+  align-items: start;
+}
+
+.fanFlyerControls {
+  display: grid;
+  gap: 1rem;
+}
+
+.fanFlyerFieldset {
+  padding: 1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  background:
+    radial-gradient(circle at top left, rgba(0, 240, 255, 0.1), transparent 32%),
+    linear-gradient(155deg, rgba(10, 8, 20, 0.9), rgba(34, 8, 44, 0.82));
+  box-shadow: 0 0 22px rgba(0, 0, 0, 0.2);
+}
+
+.fanFlyerLegend {
+  padding: 0 0.45rem;
+  color: var(--yellow-neon);
+  font-family: var(--font-typewriter);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fanFlyerOptionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.fanFlyerOption {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-height: 100%;
+  padding: 0.95rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.fanFlyerOption:hover,
+.fanFlyerOption:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 45, 149, 0.42);
+  background: rgba(255, 45, 149, 0.1);
+}
+
+.fanFlyerOptionActive {
+  border-color: rgba(255, 238, 0, 0.65);
+  background:
+    linear-gradient(145deg, rgba(255, 238, 0, 0.14), rgba(255, 45, 149, 0.12)),
+    rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 0 18px rgba(255, 238, 0, 0.16),
+    inset 0 0 0 1px rgba(255, 238, 0, 0.18);
+}
+
+.fanFlyerOptionTitle {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--pink-neon);
+}
+
+.fanFlyerOptionMeta {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.fanFlyerOptionBody {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.02rem;
+  line-height: 1.35;
+}
+
+.fanFlyerPreview {
+  position: sticky;
+  top: 1.25rem;
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 26px;
+  border: 2px solid rgba(255, 45, 149, 0.38);
+  background:
+    radial-gradient(circle at top right, rgba(255, 238, 0, 0.16), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.16), transparent 32%),
+    linear-gradient(150deg, rgba(18, 8, 34, 0.96), rgba(7, 12, 26, 0.92));
+  box-shadow: 0 0 34px rgba(191, 0, 255, 0.16);
+}
+
+.fanFlyerPreviewEyebrow {
+  font-family: var(--font-typewriter);
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.fanFlyerStickerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.fanFlyerSticker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 240, 255, 0.32);
+  background: rgba(0, 240, 255, 0.08);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fanFlyerTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.98;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(255, 45, 149, 0.45);
+}
+
+.fanFlyerBody {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.15rem;
+  line-height: 1.5;
+}
+
+.fanFlyerChecklist {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.fanFlyerStep {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fanFlyerStepLabel {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pink-neon);
+}
+
+.fanFlyerStepText {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+}
+
+.fanFlyerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.fanFlyerActionLink,
+.fanFlyerCopyButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.fanFlyerActionLink:hover,
+.fanFlyerActionLink:focus-visible,
+.fanFlyerCopyButton:hover,
+.fanFlyerCopyButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 240, 255, 0.48);
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--cyan-neon);
+}
+
+.fanFlyerFooter {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.fanFlyerCopyStatus {
+  color: rgba(255, 255, 255, 0.82);
+  font-family: var(--font-handwritten);
+  font-size: 1.08rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .silhouette {
@@ -3832,6 +4081,15 @@
     text-align: left;
   }
 
+  .fanFlyerLayout,
+  .fanFlyerOptionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fanFlyerPreview {
+    position: static;
+  }
+
   .newsTickerControls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -3862,9 +4120,15 @@
   .coverMatchResult,
   .coverPickerButton,
   .coverSpotlight,
+  .fanFlyerFieldset,
+  .fanFlyerPreview,
   .videoDecoderTab,
   .videoDecoderPanel {
     padding-inline: 0.95rem;
+  }
+
+  .fanFlyerActions {
+    display: grid;
   }
 
   .newsTickerWrapper {
