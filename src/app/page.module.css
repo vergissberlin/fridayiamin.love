@@ -4001,6 +4001,145 @@
   font-size: 1.08rem;
 }
 
+.jumpTargetSection {
+  scroll-margin-top: 13rem;
+}
+
+.mixtapeNavigatorSection {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 40;
+  max-width: 1160px;
+  margin: -1rem auto 1.75rem;
+  padding: 0 1.5rem;
+}
+
+.mixtapeNavigatorShell {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem 1.15rem 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 240, 255, 0.32);
+  background:
+    radial-gradient(circle at top left, rgba(255, 45, 149, 0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(0, 240, 255, 0.16), transparent 28%),
+    rgba(7, 9, 20, 0.86);
+  box-shadow:
+    0 0 24px rgba(191, 0, 255, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.mixtapeNavigatorHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.9fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.mixtapeNavigatorEyebrow,
+.mixtapeNavigatorNowPlayingLabel {
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.mixtapeNavigatorTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 3.8vw, 2.55rem);
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(255, 45, 149, 0.45);
+}
+
+.mixtapeNavigatorIntro {
+  font-family: var(--font-handwritten);
+  font-size: 1.2rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.86);
+  text-align: right;
+}
+
+.mixtapeNavigatorList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.mixtapeNavigatorLink {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 132px;
+  padding: 0.8rem 0.95rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.mixtapeNavigatorLink:hover,
+.mixtapeNavigatorLink:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 238, 0, 0.55);
+  background: rgba(255, 238, 0, 0.1);
+  box-shadow: 0 0 16px rgba(255, 238, 0, 0.16);
+  outline: none;
+}
+
+.mixtapeNavigatorLinkActive {
+  border-color: rgba(0, 240, 255, 0.7);
+  background:
+    linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(255, 45, 149, 0.16)),
+    rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 0 18px rgba(0, 240, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.mixtapeNavigatorTrack {
+  font-family: var(--font-typewriter);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.mixtapeNavigatorLabel {
+  font-family: var(--font-marker);
+  font-size: 1rem;
+}
+
+.mixtapeNavigatorNowPlaying {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 45, 149, 0.28);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mixtapeNavigatorNowPlayingTitle {
+  font-family: var(--font-marker);
+  font-size: 1.02rem;
+  color: var(--pink-neon);
+}
+
+.mixtapeNavigatorNowPlayingBody {
+  font-family: var(--font-handwritten);
+  font-size: 1.18rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .silhouette {
@@ -4093,6 +4232,33 @@
   .newsTickerControls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .jumpTargetSection {
+    scroll-margin-top: 14.5rem;
+  }
+
+  .mixtapeNavigatorSection {
+    top: 0.5rem;
+    padding-inline: 1rem;
+  }
+
+  .mixtapeNavigatorHeader {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .mixtapeNavigatorIntro {
+    text-align: left;
+  }
+
+  .mixtapeNavigatorList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mixtapeNavigatorLink {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -4143,5 +4309,26 @@
   .newsTickerControlButton,
   .newsTickerMarker {
     min-width: 0;
+  }
+
+  .jumpTargetSection {
+    scroll-margin-top: 16rem;
+  }
+
+  .mixtapeNavigatorSection {
+    margin-bottom: 1.25rem;
+    padding-inline: 0.75rem;
+  }
+
+  .mixtapeNavigatorShell {
+    padding-inline: 0.95rem;
+  }
+
+  .mixtapeNavigatorList {
+    grid-template-columns: 1fr;
+  }
+
+  .mixtapeNavigatorNowPlayingBody {
+    font-size: 1.08rem;
   }
 }

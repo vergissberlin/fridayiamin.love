@@ -108,6 +108,13 @@ type LiveSetSnapshot = {
   }[];
 };
 
+type QuickJumpLink = {
+  id: string;
+  track: string;
+  title: string;
+  note: string;
+};
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -174,6 +181,69 @@ const LYRIC_MOMENTS: LyricMoment[] = [
 ];
 
 const LYRICS = LYRIC_MOMENTS.map((moment) => moment.line);
+
+const QUICK_JUMP_LINKS: QuickJumpLink[] = [
+  {
+    id: "cure-news-reel",
+    track: "Track 01",
+    title: "News Reel",
+    note: "Start with the latest Cure headlines and ease into the collage.",
+  },
+  {
+    id: "song-snapshot",
+    track: "Track 02",
+    title: "Song Snapshot",
+    note: "Grab the core release details before you wander deeper.",
+  },
+  {
+    id: "listen-friday",
+    track: "Track 03",
+    title: "Listen",
+    note: "Jump straight to the official track embed when you want the instant chorus rush.",
+  },
+  {
+    id: "friday-quiz",
+    track: "Track 04",
+    title: "Quiz",
+    note: "Match your current Friday mood to a Cure queue in four quick prompts.",
+  },
+  {
+    id: "friday-cure-queue",
+    track: "Track 05",
+    title: "Queue",
+    note: "Build a themed three-song route that picks up after the single.",
+  },
+  {
+    id: "friday-fan-flyer",
+    track: "Track 06",
+    title: "Fan Flyer",
+    note: "Assemble a one-card plan for your own Cure-themed Friday night.",
+  },
+  {
+    id: "lyrics-meaning",
+    track: "Track 07",
+    title: "Lyrics",
+    note: "Follow the song's weekday-to-Friday emotional turn with short legal excerpts.",
+  },
+  {
+    id: "guitar-tabs",
+    track: "Track 08",
+    title: "Chords",
+    note: "Switch from listening mode to playing mode with diagrams and MIDI practice.",
+  },
+  {
+    id: "cover-versions",
+    track: "Track 09",
+    title: "Covers",
+    note: "Compare a few fan-interesting reinterpretations without leaving the theme behind.",
+  },
+  {
+    id: "fan-resources",
+    track: "Track 10",
+    title: "Field Guide",
+    note: "Finish with links for official history, live stats, and collector context.",
+  },
+];
 
 const TOUR_LIVE_MOMENTS = [
   {
@@ -1258,7 +1328,7 @@ const SongInfo = () => (
 );
 
 const SpotifyPlayer = () => (
-  <section className={styles.spotifySection}>
+  <section id="listen-friday" className={`${styles.spotifySection} ${styles.jumpTargetSection}`}>
     <h2 className={styles.sectionTitle}>Listen: Friday I&apos;m in Love</h2>
     <div className={styles.spotifyEmbedWrapper}>
       <iframe
@@ -1281,13 +1351,104 @@ const SpotifyPlayer = () => (
   </section>
 );
 
+const FridayMixtapeNavigator = () => {
+  const [activeSectionId, setActiveSectionId] = useState(QUICK_JUMP_LINKS[0].id);
+  const activeLink = QUICK_JUMP_LINKS.find((link) => link.id === activeSectionId) ?? QUICK_JUMP_LINKS[0];
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const sections = QUICK_JUMP_LINKS.map((link) => document.getElementById(link.id)).filter(
+      (section): section is HTMLElement => section !== null,
+    );
+
+    if (sections.length === 0) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((entryA, entryB) => entryB.intersectionRatio - entryA.intersectionRatio);
+
+        if (visibleEntries[0]) {
+          setActiveSectionId(visibleEntries[0].target.id);
+        }
+      },
+      {
+        rootMargin: "-35% 0px -45% 0px",
+        threshold: [0.2, 0.35, 0.5, 0.7],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section className={styles.mixtapeNavigatorSection} aria-labelledby="mixtape-navigator-title">
+      <div className={styles.mixtapeNavigatorShell}>
+        <div className={styles.mixtapeNavigatorHeader}>
+          <div>
+            <p className={styles.mixtapeNavigatorEyebrow}>Quick Jump Mixtape</p>
+            <h2 id="mixtape-navigator-title" className={styles.mixtapeNavigatorTitle}>
+              Skip to the Friday mood you want.
+            </h2>
+          </div>
+
+          <p className={styles.mixtapeNavigatorIntro}>
+            This page runs like a long fan collage, so these track buttons keep the singalong moving.
+          </p>
+        </div>
+
+        <nav aria-label="Quick jump across Friday I&apos;m in Love sections">
+          <ul className={styles.mixtapeNavigatorList}>
+            {QUICK_JUMP_LINKS.map((link) => {
+              const isActive = link.id === activeLink.id;
+
+              return (
+                <li key={link.id}>
+                  <a
+                    href={`#${link.id}`}
+                    className={`${styles.mixtapeNavigatorLink} ${isActive ? styles.mixtapeNavigatorLinkActive : ""}`}
+                    aria-current={isActive ? "location" : undefined}
+                  >
+                    <span className={styles.mixtapeNavigatorTrack}>{link.track}</span>
+                    <span className={styles.mixtapeNavigatorLabel}>{link.title}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className={styles.mixtapeNavigatorNowPlaying}>
+          <p className={styles.mixtapeNavigatorNowPlayingLabel}>Now spotlighting</p>
+          <p className={styles.mixtapeNavigatorNowPlayingTitle}>
+            {activeLink.track} · {activeLink.title}
+          </p>
+          <p className={styles.mixtapeNavigatorNowPlayingBody}>{activeLink.note}</p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const FridayQueueSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedMood, setSelectedMood] = useState<FridayQueueMood>("lift-off");
   const selectedQueue = FRIDAY_CURE_QUEUES.find((queue) => queue.mood === selectedMood) ?? FRIDAY_CURE_QUEUES[0];
 
   return (
-    <section id="friday-cure-queue" className={styles.fridayQueueSection} aria-labelledby="friday-queue-title">
+    <section
+      id="friday-cure-queue"
+      className={`${styles.fridayQueueSection} ${styles.jumpTargetSection}`}
+      aria-labelledby="friday-queue-title"
+    >
       <motion.h2
         id="friday-queue-title"
         className={styles.sectionTitle}
@@ -1397,7 +1558,11 @@ const FridayFanFlyerSection = () => {
   };
 
   return (
-    <section className={styles.fanFlyerSection} aria-labelledby="fan-flyer-title">
+    <section
+      id="friday-fan-flyer"
+      className={`${styles.fanFlyerSection} ${styles.jumpTargetSection}`}
+      aria-labelledby="fan-flyer-title"
+    >
       <motion.h2
         id="fan-flyer-title"
         className={styles.sectionTitle}
@@ -1578,7 +1743,7 @@ const FridayQueueQuizSection = () => {
     : null;
 
   return (
-    <section className={styles.fridayQuizSection} aria-labelledby="friday-quiz-title">
+    <section id="friday-quiz" className={`${styles.fridayQuizSection} ${styles.jumpTargetSection}`} aria-labelledby="friday-quiz-title">
       <motion.h2
         id="friday-quiz-title"
         className={styles.sectionTitle}
@@ -1721,7 +1886,7 @@ const NewsTicker = () => {
   };
 
   return (
-    <section className={styles.newsTickerSection} aria-labelledby="news-reel-title">
+    <section id="cure-news-reel" className={`${styles.newsTickerSection} ${styles.jumpTargetSection}`} aria-labelledby="news-reel-title">
       <div className={styles.newsTickerWrapper}>
         <div className={styles.newsTickerHeader}>
           <div>
@@ -1909,7 +2074,7 @@ const ChordTabsSection = () => {
   const chordMidiRef = useRef<ChordMidiPlayerHandle>(null);
 
   return (
-    <section className={styles.chordTabsSection}>
+    <section id="guitar-tabs" className={`${styles.chordTabsSection} ${styles.jumpTargetSection}`}>
       <motion.h2
         className={styles.sectionTitle}
         initial={{ opacity: 0 }}
@@ -1977,7 +2142,7 @@ const ChordTabsSection = () => {
 };
 
 const MusicTheoryBreakdownSection = () => (
-  <section className={styles.infoSection} aria-labelledby="music-theory-title">
+  <section id="music-theory" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="music-theory-title">
     <motion.h2
       id="music-theory-title"
       className={styles.sectionTitle}
@@ -2038,7 +2203,11 @@ const BehindTheScenesSection = () => {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className={styles.infoSection} aria-labelledby="behind-the-scenes-title">
+    <section
+      id="behind-the-scenes"
+      className={`${styles.infoSection} ${styles.jumpTargetSection}`}
+      aria-labelledby="behind-the-scenes-title"
+    >
       <motion.h2
         id="behind-the-scenes-title"
         className={styles.sectionTitle}
@@ -2103,7 +2272,11 @@ const VideoSceneDecoderSection = () => {
   const selectedScene = VIDEO_SCENES.find((scene) => scene.id === selectedSceneId) ?? VIDEO_SCENES[0];
 
   return (
-    <section className={styles.videoDecoderSection} aria-labelledby="video-decoder-title">
+    <section
+      id="video-scene-decoder"
+      className={`${styles.videoDecoderSection} ${styles.jumpTargetSection}`}
+      aria-labelledby="video-decoder-title"
+    >
       <motion.h2
         id="video-decoder-title"
         className={styles.sectionTitle}
@@ -2209,7 +2382,7 @@ const TourLiveMomentsSection = () => {
   const selectedSnapshot = LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
 
   return (
-    <section className={styles.infoSection} aria-labelledby="tour-live-title">
+    <section id="tour-live-moments" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="tour-live-title">
       <motion.h2
         id="tour-live-title"
         className={styles.sectionTitle}
@@ -2357,7 +2530,7 @@ const CoverVersionsSection = () => {
   };
 
   return (
-    <section className={styles.coverVersionsSection} aria-labelledby="cover-versions-title">
+    <section id="cover-versions" className={`${styles.coverVersionsSection} ${styles.jumpTargetSection}`} aria-labelledby="cover-versions-title">
       <motion.h2
         id="cover-versions-title"
         className={styles.sectionTitle}
@@ -2568,7 +2741,7 @@ const FanResourcesSection = () => {
   const spotlightResource = filteredResources[0] ?? FAN_RESOURCES[0];
 
   return (
-    <section className={styles.fanResourcesSection} aria-labelledby="fan-resources-title">
+    <section id="fan-resources" className={`${styles.fanResourcesSection} ${styles.jumpTargetSection}`} aria-labelledby="fan-resources-title">
       <motion.h2
         id="fan-resources-title"
         className={styles.sectionTitle}
@@ -2668,7 +2841,7 @@ const LyricsMeaningSection = () => {
     LYRIC_MOMENTS.find((moment) => moment.id === selectedLyricMomentId) ?? LYRIC_MOMENTS[0];
 
   return (
-    <section className={styles.infoSection} aria-labelledby="lyrics-meaning-title">
+    <section id="lyrics-meaning" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="lyrics-meaning-title">
       <motion.h2
         id="lyrics-meaning-title"
         className={styles.sectionTitle}
@@ -2821,9 +2994,11 @@ export default function Home() {
         ))}
       </motion.section>
 
+      <FridayMixtapeNavigator />
+
       <NewsTicker />
 
-      <section className={styles.infoSection}>
+      <section id="song-snapshot" className={`${styles.infoSection} ${styles.jumpTargetSection}`}>
         <motion.h2
           className={styles.sectionTitle}
           initial={{ opacity: 0 }}
