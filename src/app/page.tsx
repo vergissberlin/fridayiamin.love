@@ -24,6 +24,8 @@ type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti
 
 type LiveSetSnapshotId = "wish-rush" | "festival-pop" | "marathon-singalong" | "lost-world-glow";
 
+type ListeningLaneId = "stream" | "video" | "live";
+
 type FanResource = {
   category: Exclude<FanResourceCategoryId, "all">;
   title: string;
@@ -115,6 +117,18 @@ type QuickJumpLink = {
   note: string;
 };
 
+type ListeningLane = {
+  id: ListeningLaneId;
+  label: string;
+  eyebrow: string;
+  headline: string;
+  body: string;
+  detailLabel: string;
+  detail: string;
+  href: string;
+  linkLabel: string;
+};
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -199,7 +213,7 @@ const QUICK_JUMP_LINKS: QuickJumpLink[] = [
     id: "listen-friday",
     track: "Track 03",
     title: "Listen",
-    note: "Jump straight to the official track embed when you want the instant chorus rush.",
+    note: "Choose a studio, video, or live entry point depending on how you want Friday to start.",
   },
   {
     id: "friday-quiz",
@@ -989,6 +1003,47 @@ const FRIDAY_CURE_QUEUES: {
 
 const OFFICIAL_VIDEO_URL = "https://www.youtube.com/watch?v=mGgMZpGYiy8";
 
+const SPOTIFY_TRACK_URL = "https://open.spotify.com/track/263aNAQCeFSWipk896byo6";
+
+const LISTENING_LANES: ListeningLane[] = [
+  {
+    id: "stream",
+    label: "Studio",
+    eyebrow: "Wish-era single",
+    headline: "Start with the clean jangle and let the chorus hit fast.",
+    body:
+      "The original recording is still the quickest route to that instant Friday lift: bright guitars, open air, and the feeling that the week just cracked apart.",
+    detailLabel: "Best when",
+    detail: "you want the studio version first and the shortest path to the hook everyone already knows.",
+    href: SPOTIFY_TRACK_URL,
+    linkLabel: "Open on Spotify",
+  },
+  {
+    id: "video",
+    label: "Video",
+    eyebrow: "Tim Pope collage",
+    headline: "Watch the song turn into paint, pattern, and playful chaos.",
+    body:
+      "The official clip keeps the joy handmade instead of polished. It is bright, odd, affectionate, and one of the clearest reasons the single still feels unmistakably Cure.",
+    detailLabel: "Best when",
+    detail: "the visual clutter is part of the memory and you want Friday to arrive in full color, not just audio.",
+    href: OFFICIAL_VIDEO_URL,
+    linkLabel: "Open the official video",
+  },
+  {
+    id: "live",
+    label: "Live",
+    eyebrow: "Crowd-wide singalong",
+    headline: "Trace how the song keeps detonating warmth on stage.",
+    body:
+      "Live, the single stops being only a pop outlier and starts reading like a shared release valve. The stats and tour archive show how often it still arrives as the room-reset grin in long Cure sets.",
+    detailLabel: "Best when",
+    detail: "your favorite version of the song is the one that turns thousands of voices into one title-line release.",
+    href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
+    linkLabel: "Open live stats",
+  },
+];
+
 const FRIDAY_QUIZ_RESULT_ORDER: FridayQueueMood[] = ["lift-off", "twilight", "glitter", "afterglow"];
 
 const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
@@ -1327,29 +1382,157 @@ const SongInfo = () => (
   </div>
 );
 
-const SpotifyPlayer = () => (
-  <section id="listen-friday" className={`${styles.spotifySection} ${styles.jumpTargetSection}`}>
-    <h2 className={styles.sectionTitle}>Listen: Friday I&apos;m in Love</h2>
-    <div className={styles.spotifyEmbedWrapper}>
-      <iframe
-        title="Friday I'm in Love - Spotify Player"
-        src="https://open.spotify.com/embed/track/263aNAQCeFSWipk896byo6?utm_source=generator"
-        width="100%"
-        height="80"
-        frameBorder="0"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        allowFullScreen
-        loading="lazy"
-        style={{
-          borderRadius: "12px",
-          border: "2px solid var(--pink-neon)",
-          boxShadow: "0 0 24px var(--purple-neon), 0 0 8px var(--cyan-neon)",
-          background: "rgba(0,0,0,0.7)",
-        }}
-      />
-    </div>
-  </section>
-);
+const ListenLoungeSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedLaneId, setSelectedLaneId] = useState<ListeningLaneId>("stream");
+  const selectedLane = LISTENING_LANES.find((lane) => lane.id === selectedLaneId) ?? LISTENING_LANES[0];
+
+  return (
+    <section
+      id="listen-friday"
+      className={`${styles.spotifySection} ${styles.jumpTargetSection}`}
+      aria-labelledby="listen-lounge-title"
+    >
+      <motion.h2
+        id="listen-lounge-title"
+        className={styles.sectionTitle}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        Listen Lounge
+      </motion.h2>
+
+      <p className={styles.listenLoungeIntro}>
+        Start with the studio single, the official video, or the live-history route and let the rest of the
+        collage follow that version of Friday.
+      </p>
+
+      <div className={styles.listenLoungeShell}>
+        <div className={styles.listenLoungeLaneGrid} role="group" aria-label="Choose a Friday I'm in Love listening lane">
+          {LISTENING_LANES.map((lane) => {
+            const isSelected = selectedLane.id === lane.id;
+
+            return (
+              <button
+                key={lane.id}
+                type="button"
+                data-lane={lane.id}
+                aria-pressed={isSelected}
+                className={`${styles.listenLoungeLaneButton} ${
+                  isSelected ? styles.listenLoungeLaneButtonActive : ""
+                }`}
+                onClick={() => setSelectedLaneId(lane.id)}
+              >
+                <span className={styles.listenLoungeLaneEyebrow}>{lane.eyebrow}</span>
+                <span className={styles.listenLoungeLaneTitle}>{lane.label}</span>
+                <span className={styles.listenLoungeLaneBody}>{lane.detail}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.article
+            key={selectedLane.id}
+            className={styles.listenLoungePanel}
+            data-lane={selectedLane.id}
+            aria-live="polite"
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          >
+            <div className={styles.listenLoungePanelHeader}>
+              <p className={styles.listenLoungeKicker}>{selectedLane.eyebrow}</p>
+              <h3 className={styles.listenLoungeHeadline}>{selectedLane.headline}</h3>
+              <p className={styles.listenLoungeBody}>{selectedLane.body}</p>
+            </div>
+
+            {selectedLane.id === "stream" ? (
+              <div className={styles.listenLoungeEmbedCard}>
+                <div className={styles.spotifyEmbedWrapper}>
+                  <iframe
+                    title="Friday I'm in Love - Spotify Player"
+                    src="https://open.spotify.com/embed/track/263aNAQCeFSWipk896byo6?utm_source=generator"
+                    width="100%"
+                    height="152"
+                    frameBorder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                    style={{
+                      borderRadius: "12px",
+                      border: "2px solid var(--pink-neon)",
+                      boxShadow: "0 0 24px var(--purple-neon), 0 0 8px var(--cyan-neon)",
+                      background: "rgba(0,0,0,0.7)",
+                    }}
+                  />
+                </div>
+                <p className={styles.listenLoungeDetail}>
+                  <span>{selectedLane.detailLabel}</span>
+                  {selectedLane.detail}
+                </p>
+              </div>
+            ) : selectedLane.id === "video" ? (
+              <div className={styles.listenLoungeMediaCard}>
+                <div className={styles.listenLoungePalettePoster} aria-hidden="true">
+                  {VIDEO_SCENES[0].palette.map((swatch) => (
+                    <span key={swatch.name} style={{ backgroundColor: swatch.color }} />
+                  ))}
+                </div>
+                <div className={styles.listenLoungeFactBlock}>
+                  <p className={styles.listenLoungeFactLabel}>Visual cue</p>
+                  <p className={styles.listenLoungeFactValue}>{VIDEO_SCENES[1].scene}</p>
+                </div>
+                <p className={styles.listenLoungeDetail}>
+                  <span>{selectedLane.detailLabel}</span>
+                  {selectedLane.detail}
+                </p>
+              </div>
+            ) : (
+              <div className={styles.listenLoungeMediaCard}>
+                <div className={styles.listenLoungeFactGrid}>
+                  <div className={styles.listenLoungeFactBlock}>
+                    <p className={styles.listenLoungeFactLabel}>Live cue</p>
+                    <p className={styles.listenLoungeFactValue}>{LIVE_SET_SNAPSHOTS[3].crowdCue}</p>
+                  </div>
+                  <div className={styles.listenLoungeFactBlock}>
+                    <p className={styles.listenLoungeFactLabel}>Good follow-up</p>
+                    <p className={styles.listenLoungeFactValue}>{LIVE_SET_SNAPSHOTS[2].tracks[2].title}</p>
+                  </div>
+                </div>
+                <p className={styles.listenLoungeDetail}>
+                  <span>{selectedLane.detailLabel}</span>
+                  {selectedLane.detail}
+                </p>
+              </div>
+            )}
+
+            <div className={styles.listenLoungeActionRow}>
+              <a
+                href={selectedLane.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.listenLoungeActionLink}
+              >
+                {selectedLane.linkLabel}
+              </a>
+              <a
+                href="https://www.thecure.com/release/friday-im-in-love/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.listenLoungeActionLink}
+              >
+                Official release page
+              </a>
+            </div>
+          </motion.article>
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
 
 const FridayMixtapeNavigator = () => {
   const [activeSectionId, setActiveSectionId] = useState(QUICK_JUMP_LINKS[0].id);
@@ -3010,7 +3193,7 @@ export default function Home() {
         <SongInfo />
       </section>
 
-      <SpotifyPlayer />
+      <ListenLoungeSection />
       <FridayQueueQuizSection />
       <FridayQueueSection />
       <FridayFanFlyerSection />
