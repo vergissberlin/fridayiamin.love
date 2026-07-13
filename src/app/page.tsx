@@ -101,6 +101,12 @@ type LiveSetSnapshot = {
   headline: string;
   body: string;
   crowdCue: string;
+  setFeel: {
+    label: string;
+    value: number;
+    low: string;
+    high: string;
+  }[];
   source: string;
   href: string;
   tracks: {
@@ -304,6 +310,12 @@ const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
     body:
       "Early Wish-era sequencing often let jangly, openhearted songs cut through heavier material. In that kind of flow, 'Friday I'm in Love' feels less like a novelty pop turn and more like the exact flash of color the set was waiting for.",
     crowdCue: "A quick jump from dreamy attention into full-voice chorus release.",
+    setFeel: [
+      { label: "Chorus burst", value: 4, low: "Tucked in", high: "Big beacon" },
+      { label: "Setlist contrast", value: 4, low: "Blends in", high: "Hard pivot" },
+      { label: "Crowd release", value: 4, low: "Soft sway", high: "Full singalong" },
+      { label: "Tender glow", value: 2, low: "Pure rush", high: "Soft glow" },
+    ],
     source: "Wish release page + 1992 setlist patterns",
     href: "https://www.thecure.com/release/friday-im-in-love/",
     tracks: [
@@ -333,6 +345,12 @@ const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
     body:
       "Festival sets reward immediacy, and this single has it in seconds. Around darker standards and post-punk edges, it becomes the moment where casual listeners and devoted fans suddenly occupy the same melodic space.",
     crowdCue: "Arms up, phones out, and a chorus that reaches beyond the first few rows.",
+    setFeel: [
+      { label: "Chorus burst", value: 5, low: "Tucked in", high: "Big beacon" },
+      { label: "Setlist contrast", value: 3, low: "Blends in", high: "Hard pivot" },
+      { label: "Crowd release", value: 5, low: "Soft sway", high: "Full singalong" },
+      { label: "Tender glow", value: 2, low: "Pure rush", high: "Soft glow" },
+    ],
     source: "Setlist.fm live song stats",
     href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
     tracks: [
@@ -362,6 +380,12 @@ const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
     body:
       "When a show ranges across shadowy epics, early singles, and slow-burn emotional peaks, 'Friday I'm in Love' does special work. It resets the room without feeling lightweight, giving the audience one of the night's most collective smiles.",
     crowdCue: "A grin-heavy reset in the middle of a set that has already earned its catharsis.",
+    setFeel: [
+      { label: "Chorus burst", value: 4, low: "Tucked in", high: "Big beacon" },
+      { label: "Setlist contrast", value: 5, low: "Blends in", high: "Hard pivot" },
+      { label: "Crowd release", value: 5, low: "Soft sway", high: "Full singalong" },
+      { label: "Tender glow", value: 3, low: "Pure rush", high: "Soft glow" },
+    ],
     source: "2016 live stats and tour-era references",
     href: "https://www.setlist.fm/stats/the-cure-6bd6b266.html?year=2016",
     tracks: [
@@ -391,6 +415,12 @@ const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
     body:
       "Against the emotional scale of newer material, the single becomes a beacon rather than a throwback. It still sparks the singalong, but it also reads as proof that brightness has always belonged in The Cure story.",
     crowdCue: "An affectionate chorus moment that feels earned by everything around it.",
+    setFeel: [
+      { label: "Chorus burst", value: 3, low: "Tucked in", high: "Big beacon" },
+      { label: "Setlist contrast", value: 2, low: "Blends in", high: "Hard pivot" },
+      { label: "Crowd release", value: 4, low: "Soft sway", high: "Full singalong" },
+      { label: "Tender glow", value: 5, low: "Pure rush", high: "Soft glow" },
+    ],
     source: "Official tour archive",
     href: "https://www.thecure.com/tour/",
     tracks: [
@@ -2658,6 +2688,45 @@ const TourLiveMomentsSection = () => {
                 <p className={styles.tourSnapshotFactLabel}>Crowd cue</p>
                 <p className={styles.tourSnapshotFactValue}>{selectedSnapshot.crowdCue}</p>
               </div>
+
+              <section className={styles.tourSnapshotMeterBoard} aria-labelledby="tour-snapshot-meter-title">
+                <div className={styles.tourSnapshotMeterHeader}>
+                  <p id="tour-snapshot-meter-title" className={styles.tourSnapshotMeterTitle}>
+                    Set feel board
+                  </p>
+                  <p className={styles.tourSnapshotMeterIntro}>
+                    A quick read on how this era frames the song once it hits the set.
+                  </p>
+                </div>
+
+                <ul className={styles.tourSnapshotMeterList}>
+                  {selectedSnapshot.setFeel.map((meter) => (
+                    <li key={`${selectedSnapshot.id}-${meter.label}`} className={styles.tourSnapshotMeterItem}>
+                      <div className={styles.tourSnapshotMeterMeta}>
+                        <span className={styles.tourSnapshotMeterName}>{meter.label}</span>
+                        <span className={styles.tourSnapshotMeterValue}>{meter.value}/5</span>
+                      </div>
+                      <div
+                        className={styles.tourSnapshotMeterTrack}
+                        role="meter"
+                        aria-valuemin={1}
+                        aria-valuemax={5}
+                        aria-valuenow={meter.value}
+                        aria-label={`${meter.label}: ${meter.value} out of 5`}
+                      >
+                        <span
+                          className={styles.tourSnapshotMeterFill}
+                          style={{ width: `${(meter.value / 5) * 100}%` }}
+                        />
+                      </div>
+                      <div className={styles.tourSnapshotMeterScale} aria-hidden="true">
+                        <span>{meter.low}</span>
+                        <span>{meter.high}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
 
               <ol className={styles.tourSnapshotTrackList}>
                 {selectedSnapshot.tracks.map((track) => (
