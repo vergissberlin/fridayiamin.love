@@ -116,6 +116,17 @@ type LiveSetSnapshot = {
   }[];
 };
 
+type TourLiveMoment = {
+  snapshotId: LiveSetSnapshotId;
+  year: string;
+  title: string;
+  setting: string;
+  detail: string;
+  fanCue: string;
+  link: string;
+  source: string;
+};
+
 type QuickJumpLink = {
   id: string;
   track: string;
@@ -265,36 +276,48 @@ const QUICK_JUMP_LINKS: QuickJumpLink[] = [
   },
 ];
 
-const TOUR_LIVE_MOMENTS = [
+const TOUR_LIVE_MOMENTS: TourLiveMoment[] = [
   {
-    year: "1992",
-    title: "Wish era takes the song worldwide",
+    snapshotId: "wish-rush",
+    year: "1992-1993",
+    title: "Wish launch glow",
+    setting: "Album-launch theaters and arenas",
     detail:
-      "After its release as the lead single from Wish, the song quickly became a live high point and a bright counterweight to the band's darker classics.",
+      "Right after release, the song felt like a bright flash inside sets still surrounded by deeper Wish material. That contrast helped it read as part of the band's emotional range, not a detached pop novelty.",
+    fanCue: "The room lifts fast, then settles back into the broader emotional weather of Wish.",
     link: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love",
     source: "Wikipedia song overview",
   },
   {
-    year: "1992",
-    title: "Tim Pope video turns chaos into pop-goth iconography",
+    snapshotId: "festival-pop",
+    year: "2000s",
+    title: "Festival handshake",
+    setting: "Summer fields and broad crossover bills",
     detail:
-      "The colorful, playful video helped define the song's public image and made its joy feel inseparable from The Cure's eccentric visual world.",
-    link: "https://www.thecure.com/release/friday-im-in-love/",
-    source: "Official release page",
-  },
-  {
-    year: "2016",
-    title: "A staple of later-era setlists",
-    detail:
-      "Even deep into marathon live shows, the song remained one of the moments where arenas shifted from dreamy sway to full communal singalong.",
+      "On large festival stages, this becomes the instant where casual listeners and dedicated fans sing from the same place. Its melody does the welcoming without sanding down what makes The Cure special.",
+    fanCue: "Arms up early, chorus out beyond the barricade, and a field that suddenly feels smaller.",
     link: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
     source: "Setlist.fm song stats",
   },
   {
-    year: "2023",
-    title: "Songs of a Lost World tour keeps the Friday glow alive",
+    snapshotId: "marathon-singalong",
+    year: "2016",
+    title: "Marathon reset",
+    setting: "Three-hour arena marathons",
     detail:
-      "On recent tours, the track still lands as a burst of warmth inside expansive, emotional sets, proving how durable its optimism is for longtime fans.",
+      "By the later marathon years, the song had become a perfectly timed reset button. After shadowier stretches and long emotional arcs, it lets the whole arena grin together without breaking the set's seriousness.",
+    fanCue: "You can feel the collective exhale before the first chorus lands.",
+    link: "https://www.setlist.fm/stats/the-cure-6bd6b266.html?year=2016",
+    source: "2016 live stats",
+  },
+  {
+    snapshotId: "lost-world-glow",
+    year: "2023-present",
+    title: "Tender beacon",
+    setting: "Recent arena and festival runs",
+    detail:
+      "On recent tours, the song still sparks the singalong, but it also carries more tenderness than pure rush. It lands as proof that brightness has always belonged in the band's story, even inside heavier modern sets.",
+    fanCue: "The crowd sings it like a shared memory rather than a novelty break.",
     link: "https://www.thecure.com/tour/",
     source: "Official tour archive",
   },
@@ -2593,6 +2616,8 @@ const TourLiveMomentsSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<LiveSetSnapshotId>(LIVE_SET_SNAPSHOTS[0].id);
   const selectedSnapshot = LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
+  const selectedTourMoment =
+    TOUR_LIVE_MOMENTS.find((moment) => moment.snapshotId === selectedSnapshot.id) ?? TOUR_LIVE_MOMENTS[0];
 
   return (
     <section id="tour-live-moments" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="tour-live-title">
@@ -2607,32 +2632,82 @@ const TourLiveMomentsSection = () => {
       </motion.h2>
 
       <p className={styles.sectionIntro}>
-        A tiny timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
+        An interactive timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
         beloved live singalong moments.
       </p>
 
       <div className={styles.tourLiveLayout}>
-        <div className={styles.tourMomentsList}>
-          {TOUR_LIVE_MOMENTS.map((item, index) => (
+        <div className={styles.tourTrajectoryBoard}>
+          <div className={styles.tourTrajectoryHeader}>
+            <p className={styles.tourTrajectoryEyebrow}>Live Glow Timeline</p>
+            <h3 className={styles.tourTrajectoryTitle}>Trace how the song changes shape on stage.</h3>
+            <p className={styles.tourTrajectoryIntro}>
+              Select an era stop to follow the live story from Wish-era lift-off to present-day warmth. The
+              live set snapshot on the right updates with it.
+            </p>
+          </div>
+
+          <ul className={styles.tourTrajectoryRail} aria-label="Friday I'm in Love live era timeline">
+            {TOUR_LIVE_MOMENTS.map((item) => {
+              const isSelected = item.snapshotId === selectedSnapshot.id;
+
+              return (
+                <li key={item.snapshotId}>
+                  <button
+                    type="button"
+                    className={`${styles.tourTrajectoryStep} ${isSelected ? styles.tourTrajectoryStepActive : ""}`}
+                    onClick={() => setSelectedSnapshotId(item.snapshotId)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className={styles.tourTrajectoryStepDot} aria-hidden="true" />
+                    <span className={styles.tourTrajectoryStepYear}>{item.year}</span>
+                    <span className={styles.tourTrajectoryStepCopy}>
+                      <span className={styles.tourTrajectoryStepTitle}>{item.title}</span>
+                      <span className={styles.tourTrajectoryStepSetting}>{item.setting}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <AnimatePresence mode="wait" initial={false}>
             <motion.article
-              key={`${item.year}-${item.title}`}
-              className={`${styles.lyricBlock} ${styles.tourMomentCard}`}
-              initial={prefersReducedMotion ? undefined : { opacity: 0, x: index % 2 === 0 ? -36 : 36, rotate: index % 2 === 0 ? -1 : 1 }}
-              whileInView={{ opacity: 1, x: 0, rotate: 0 }}
-              viewport={{ once: true }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.45, delay: index * 0.08 }}
+              key={selectedTourMoment.snapshotId}
+              className={styles.tourTrajectoryDetail}
+              aria-live="polite"
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
             >
-              <p>
-                {item.year} — {item.title}
+              <p className={styles.tourTrajectoryDetailEyebrow}>
+                {selectedTourMoment.year} · {selectedSnapshot.label}
               </p>
-              <span className={styles.lyricNote}>{item.detail}</span>
-              <div style={{ marginTop: "0.9rem" }}>
-                <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.chordTabsExternalLink}>
-                  Source: {item.source}
-                </a>
-              </div>
+              <h4 className={styles.tourTrajectoryDetailTitle}>{selectedTourMoment.title}</h4>
+              <p className={styles.tourTrajectoryDetailBody}>{selectedTourMoment.detail}</p>
+
+              <dl className={styles.tourTrajectoryFacts}>
+                <div>
+                  <dt>Best setting</dt>
+                  <dd>{selectedTourMoment.setting}</dd>
+                </div>
+                <div>
+                  <dt>Fan cue</dt>
+                  <dd>{selectedTourMoment.fanCue}</dd>
+                </div>
+              </dl>
+
+              <a
+                href={selectedTourMoment.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.tourTrajectoryDetailLink}
+              >
+                Source: {selectedTourMoment.source}
+              </a>
             </motion.article>
-          ))}
+          </AnimatePresence>
         </div>
 
         <div className={styles.tourSnapshotShell}>
