@@ -146,6 +146,24 @@ type ListeningLane = {
   linkLabel: string;
 };
 
+type ReleaseFormatId = "seven-inch" | "twelve-inch" | "cd-single";
+
+type ReleaseFormat = {
+  id: ReleaseFormatId;
+  tabLabel: string;
+  format: string;
+  kicker: string;
+  body: string;
+  collectorNote: string;
+  href: string;
+  linkLabel: string;
+  tracks: {
+    title: string;
+    length: string;
+    note: string;
+  }[];
+};
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -273,6 +291,69 @@ const QUICK_JUMP_LINKS: QuickJumpLink[] = [
     track: "Track 10",
     title: "Field Guide",
     note: "Finish with links for official history, live stats, and collector context.",
+  },
+];
+
+const SONG_SNAPSHOT_FACTS = [
+  { label: "Released", value: "15 May 1992" },
+  { label: "Album", value: "Wish" },
+  { label: "Length", value: "3:38" },
+  { label: "Label", value: "Fiction / Elektra" },
+  { label: "Writers", value: "Bamonte, Gallup, Smith, Thompson, Williams" },
+  { label: "Peak glow", value: "UK #6, US Hot 100 #18, US Alt #1" },
+];
+
+const RELEASE_FORMATS: ReleaseFormat[] = [
+  {
+    id: "seven-inch",
+    tabLabel: "7-inch",
+    format: "7-inch single",
+    kicker: "Fastest route to the hook",
+    body:
+      "The most direct 1992 version keeps the spotlight tight: one bright A-side, one elegant B-side, and no extra detour before the chorus glow has done its work.",
+    collectorNote:
+      "A great fan entry point if you want the single in its simplest, radio-ready shape with 'Halo' tucked behind it.",
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love#Track_listing",
+    linkLabel: "See track listing",
+    tracks: [
+      { title: "Friday I'm in Love", length: "3:36", note: "The clean, immediate single version." },
+      { title: "Halo", length: "3:47", note: "A dreamy B-side that keeps the Wish-era atmosphere intact." },
+    ],
+  },
+  {
+    id: "twelve-inch",
+    tabLabel: "12-inch",
+    format: "12-inch single",
+    kicker: "More room for the after-hours version",
+    body:
+      "The 12-inch stretches the single into a slightly more club-adjacent object by leading with the 'Strangelove Mix' and pairing it with both companion tracks.",
+    collectorNote:
+      "Best for fans who like seeing how a sparkling pop single gets reframed for a longer, slightly more stylized late-night pass.",
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love#Track_listing",
+    linkLabel: "See track listing",
+    tracks: [
+      { title: "Friday I'm in Love (Strangelove Mix)", length: "5:29", note: "A longer, more stretched-out mix for extra neon drift." },
+      { title: "Halo", length: "3:47", note: "Still the graceful bridge back into Wish territory." },
+      { title: "Scared as You", length: "4:12", note: "Adds another B-side with a darker edge." },
+    ],
+  },
+  {
+    id: "cd-single",
+    tabLabel: "CD",
+    format: "CD single",
+    kicker: "The compact fan-completionist pick",
+    body:
+      "The CD edition gathers the main single, both B-sides, and the longer mix into one tidy document of how The Cure framed this release moment in 1992.",
+    collectorNote:
+      "If you want one format that tells the broadest small-scale story of the single, this is the most complete stop.",
+    href: "https://www.discogs.com/master/32005",
+    linkLabel: "Browse releases on Discogs",
+    tracks: [
+      { title: "Friday I'm in Love", length: "3:36", note: "The bright centerpiece." },
+      { title: "Halo", length: "3:47", note: "Softens the edges without losing momentum." },
+      { title: "Scared as You", length: "4:12", note: "Lets the single carry a little more shadow." },
+      { title: "Friday I'm in Love (Strangelove Mix)", length: "5:29", note: "A full extra lap around the Friday glow." },
+    ],
   },
 ];
 
@@ -1410,30 +1491,136 @@ const FridayCountdown = () => {
   );
 };
 
-const SongInfo = () => (
-  <div className={styles.songInfo}>
-    <ul>
-      <li>
-        <strong>Released:</strong> May 1992
-      </li>
-      <li>
-        <strong>Album:</strong> Wish
-      </li>
-      <li>
-        <strong>Genre:</strong> Alternative Rock, Jangle Pop
-      </li>
-      <li>
-        <strong>Writer:</strong> Robert Smith
-      </li>
-      <li>
-        <strong>Producer:</strong> David M. Allen, Robert Smith
-      </li>
-      <li>
-        <strong>Chart:</strong> UK #6, US Alt #2
-      </li>
-    </ul>
-  </div>
-);
+const SongSnapshotSection = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [selectedFormatId, setSelectedFormatId] = useState<ReleaseFormatId>(RELEASE_FORMATS[0].id);
+  const selectedFormat = RELEASE_FORMATS.find((format) => format.id === selectedFormatId) ?? RELEASE_FORMATS[0];
+
+  return (
+    <div className={styles.songSnapshotLayout}>
+      <div className={styles.songInfo}>
+        <div className={styles.songSnapshotFactsColumn}>
+          <p className={styles.songSnapshotEyebrow}>Core details</p>
+          <ul>
+            {SONG_SNAPSHOT_FACTS.map((fact) => (
+              <li key={fact.label}>
+                <strong>{fact.label}:</strong> {fact.value}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className={styles.songSnapshotStoryCard}>
+          <p className={styles.songSnapshotEyebrow}>Release-day quirk</p>
+          <h3 className={styles.songSnapshotStoryTitle}>A Friday single that really hit on a Friday.</h3>
+          <p className={styles.songSnapshotStoryBody}>
+            Part of the single&apos;s legend is that The Cure actually released some UK formats on a Friday,
+            which was unusual enough to affect the song&apos;s first chart week before the full format rollout
+            caught up.
+          </p>
+
+          <dl className={styles.songSnapshotStatGrid}>
+            <div>
+              <dt>UK peak</dt>
+              <dd>#6</dd>
+            </div>
+            <div>
+              <dt>US Alt</dt>
+              <dd>#1</dd>
+            </div>
+            <div>
+              <dt>B-sides</dt>
+              <dd>Halo, Scared as You</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div className={styles.releaseFormatGuide}>
+        <div className={styles.releaseFormatGuideHeader}>
+          <div>
+            <p className={styles.releaseFormatGuideEyebrow}>Release Format Guide</p>
+            <h3 className={styles.releaseFormatGuideTitle}>Pick the 1992 version of Friday you want to hold onto.</h3>
+          </div>
+
+          <p className={styles.releaseFormatGuideIntro}>
+            Same single, different fan textures: quick-hit vinyl, longer mix space, or the compact all-in-one CD route.
+          </p>
+        </div>
+
+        <div className={styles.releaseFormatGuideShell}>
+          <div className={styles.releaseFormatTabs} role="tablist" aria-label="Friday I'm in Love release formats">
+            {RELEASE_FORMATS.map((format) => (
+              <button
+                key={format.id}
+                type="button"
+                role="tab"
+                id={`release-format-tab-${format.id}`}
+                aria-selected={selectedFormat.id === format.id}
+                aria-controls={`release-format-panel-${format.id}`}
+                tabIndex={selectedFormat.id === format.id ? 0 : -1}
+                className={`${styles.releaseFormatTab} ${
+                  selectedFormat.id === format.id ? styles.releaseFormatTabActive : ""
+                }`}
+                onClick={() => setSelectedFormatId(format.id)}
+              >
+                <span className={styles.releaseFormatTabLabel}>{format.tabLabel}</span>
+                <span className={styles.releaseFormatTabMeta}>{format.kicker}</span>
+              </button>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.article
+              key={selectedFormat.id}
+              id={`release-format-panel-${selectedFormat.id}`}
+              role="tabpanel"
+              aria-labelledby={`release-format-tab-${selectedFormat.id}`}
+              className={styles.releaseFormatPanel}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+            >
+              <div className={styles.releaseFormatPanelHeader}>
+                <p className={styles.releaseFormatPanelKicker}>{selectedFormat.kicker}</p>
+                <h4 className={styles.releaseFormatPanelTitle}>{selectedFormat.format}</h4>
+                <p className={styles.releaseFormatPanelBody}>{selectedFormat.body}</p>
+              </div>
+
+              <ol className={styles.releaseFormatTrackList}>
+                {selectedFormat.tracks.map((track, index) => (
+                  <li key={`${selectedFormat.id}-${track.title}`} className={styles.releaseFormatTrackItem}>
+                    <span className={styles.releaseFormatTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
+                    <div className={styles.releaseFormatTrackCopy}>
+                      <p className={styles.releaseFormatTrackTitle}>
+                        {track.title}
+                        <span>{track.length}</span>
+                      </p>
+                      <p className={styles.releaseFormatTrackNote}>{track.note}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <div className={styles.releaseFormatFooter}>
+                <p className={styles.releaseFormatCollectorNote}>{selectedFormat.collectorNote}</p>
+                <a
+                  href={selectedFormat.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.releaseFormatLink}
+                >
+                  {selectedFormat.linkLabel}
+                </a>
+              </div>
+            </motion.article>
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ListenLoungeSection = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -3334,7 +3521,11 @@ export default function Home() {
         >
           Song Snapshot
         </motion.h2>
-        <SongInfo />
+        <p className={styles.sectionIntro}>
+          The single&apos;s essentials are only half the story. The formats tell the rest: how The Cure framed the
+          release, paced the B-sides, and let Friday sparkle in slightly different ways.
+        </p>
+        <SongSnapshotSection />
       </section>
 
       <ListenLoungeSection />

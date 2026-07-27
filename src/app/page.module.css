@@ -660,6 +660,314 @@
   margin-right: 0.35rem;
 }
 
+.songSnapshotLayout {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.songSnapshotFactsColumn,
+.songSnapshotStoryCard {
+  flex: 1 1 280px;
+}
+
+.songSnapshotEyebrow {
+  margin-bottom: 0.7rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.songSnapshotStoryCard {
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 45, 149, 0.16), rgba(0, 240, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.songSnapshotStoryTitle {
+  font-family: var(--font-marker);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  color: var(--pink-neon);
+  line-height: 1.05;
+}
+
+.songSnapshotStoryBody {
+  font-family: var(--font-handwritten);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.songSnapshotStatGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.songSnapshotStatGrid div {
+  min-height: 100%;
+  padding: 0.9rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.songSnapshotStatGrid dt {
+  font-family: var(--font-typewriter);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.songSnapshotStatGrid dd {
+  margin-top: 0.45rem;
+  font-family: var(--font-marker);
+  font-size: 1.1rem;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.releaseFormatGuide {
+  padding: 1.5rem;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(191, 0, 255, 0.18), rgba(0, 240, 255, 0.08)),
+    rgba(0, 0, 0, 0.56);
+  border: 1px solid rgba(255, 45, 149, 0.28);
+  box-shadow: 0 0 28px rgba(191, 0, 255, 0.16);
+}
+
+.releaseFormatGuideHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
+}
+
+.releaseFormatGuideEyebrow {
+  margin-bottom: 0.65rem;
+  font-family: var(--font-typewriter);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.releaseFormatGuideTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--yellow-neon);
+  line-height: 0.98;
+  text-shadow: 2px 2px 0 rgba(255, 45, 149, 0.7);
+}
+
+.releaseFormatGuideIntro {
+  font-family: var(--font-handwritten);
+  font-size: 1.3rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.releaseFormatGuideShell {
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.releaseFormatTabs {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.releaseFormatTab {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.releaseFormatTab:hover,
+.releaseFormatTab:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 240, 255, 0.55);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+}
+
+.releaseFormatTabActive {
+  border-color: rgba(255, 238, 0, 0.6);
+  background: linear-gradient(135deg, rgba(255, 238, 0, 0.16), rgba(255, 45, 149, 0.14));
+  box-shadow: 0 0 20px rgba(255, 238, 0, 0.12);
+}
+
+.releaseFormatTabLabel,
+.releaseFormatTabMeta {
+  display: block;
+}
+
+.releaseFormatTabLabel {
+  font-family: var(--font-marker);
+  font-size: 1.08rem;
+  color: var(--yellow-neon);
+}
+
+.releaseFormatTabMeta {
+  margin-top: 0.35rem;
+  font-family: var(--font-handwritten);
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.25;
+}
+
+.releaseFormatPanel {
+  display: grid;
+  gap: 1rem;
+  min-height: 100%;
+  padding: 1.25rem;
+  border-radius: 22px;
+  background: rgba(0, 0, 0, 0.44);
+  border: 1px solid rgba(0, 240, 255, 0.18);
+}
+
+.releaseFormatPanelHeader {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.releaseFormatPanelKicker {
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pink-neon);
+}
+
+.releaseFormatPanelTitle {
+  font-family: var(--font-marker);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: #fff;
+}
+
+.releaseFormatPanelBody,
+.releaseFormatCollectorNote {
+  font-family: var(--font-handwritten);
+  font-size: 1.22rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.releaseFormatTrackList {
+  display: grid;
+  gap: 0.8rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.releaseFormatTrackItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.releaseFormatTrackNumber {
+  font-family: var(--font-typewriter);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: var(--cyan-neon);
+}
+
+.releaseFormatTrackCopy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.releaseFormatTrackTitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-family: var(--font-marker);
+  font-size: 1.08rem;
+  color: #fff;
+}
+
+.releaseFormatTrackTitle span {
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.releaseFormatTrackNote {
+  font-family: var(--font-handwritten);
+  font-size: 1.08rem;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.releaseFormatFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  padding-top: 0.25rem;
+}
+
+.releaseFormatLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 238, 0, 0.45);
+  color: var(--yellow-neon);
+  text-decoration: none;
+  font-family: var(--font-typewriter);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.04);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.releaseFormatLink:hover,
+.releaseFormatLink:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.75);
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.14);
+}
+
 .infoItem {
   display: flex;
   flex-direction: column;
@@ -4788,7 +5096,31 @@
   }
   
   .songInfo {
+    padding: 1.25rem;
     gap: 1.5rem;
+  }
+
+  .songSnapshotStatGrid,
+  .releaseFormatGuideHeader,
+  .releaseFormatGuideShell {
+    grid-template-columns: 1fr;
+  }
+
+  .releaseFormatGuide {
+    padding: 1.25rem;
+  }
+
+  .releaseFormatPanel,
+  .songSnapshotStoryCard {
+    padding: 1rem;
+  }
+
+  .releaseFormatTrackItem {
+    padding: 0.85rem;
+  }
+
+  .releaseFormatFooter {
+    align-items: start;
   }
   
   .dayProgress {
