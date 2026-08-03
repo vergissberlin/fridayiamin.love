@@ -164,6 +164,16 @@ type ReleaseFormat = {
   }[];
 };
 
+type ReleaseFormatMatchQuestion = {
+  id: string;
+  prompt: string;
+  options: {
+    result: ReleaseFormatId;
+    title: string;
+    detail: string;
+  }[];
+};
+
 const LANGUAGE_OPTIONS: { code: LanguageCode; label: string }[] = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -353,6 +363,74 @@ const RELEASE_FORMATS: ReleaseFormat[] = [
       { title: "Halo", length: "3:47", note: "Softens the edges without losing momentum." },
       { title: "Scared as You", length: "4:12", note: "Lets the single carry a little more shadow." },
       { title: "Friday I'm in Love (Strangelove Mix)", length: "5:29", note: "A full extra lap around the Friday glow." },
+    ],
+  },
+];
+
+const RELEASE_FORMAT_RESULT_ORDER: ReleaseFormatId[] = ["seven-inch", "twelve-inch", "cd-single"];
+
+const RELEASE_FORMAT_MATCH_QUESTIONS: ReleaseFormatMatchQuestion[] = [
+  {
+    id: "entry-point",
+    prompt: "How should this copy of Friday arrive?",
+    options: [
+      {
+        result: "seven-inch",
+        title: "Quick, bright, and straight to the hook.",
+        detail: "I want the leanest release shape and one elegant B-side behind it.",
+      },
+      {
+        result: "twelve-inch",
+        title: "With more late-night stretch and remix air.",
+        detail: "The longer mix and a little extra room matter more than keeping it compact.",
+      },
+      {
+        result: "cd-single",
+        title: "As the most complete small-format snapshot.",
+        detail: "Give me the single, both B-sides, and the longer mix in one stop.",
+      },
+    ],
+  },
+  {
+    id: "fan-lane",
+    prompt: "Which fan instinct is strongest here?",
+    options: [
+      {
+        result: "seven-inch",
+        title: "I love the classic single object itself.",
+        detail: "A clean A-side and B-side pairing is the romance I am chasing.",
+      },
+      {
+        result: "twelve-inch",
+        title: "I want the version that feels a little more stylized.",
+        detail: "Extra runtime and a slightly moodier framing win me over.",
+      },
+      {
+        result: "cd-single",
+        title: "I want the broadest release story in one grab.",
+        detail: "Completionist energy beats format minimalism tonight.",
+      },
+    ],
+  },
+  {
+    id: "afterglow",
+    prompt: "What should still be true after the first listen?",
+    options: [
+      {
+        result: "seven-inch",
+        title: "The chorus landed fast and never got crowded.",
+        detail: "I want the pure pop flash preserved.",
+      },
+      {
+        result: "twelve-inch",
+        title: "The song had time to drift a little longer.",
+        detail: "I like Friday when it lingers under neon lights.",
+      },
+      {
+        result: "cd-single",
+        title: "I got the whole mini-era in one sitting.",
+        detail: "A fuller release document is the most satisfying route.",
+      },
     ],
   },
 ];
@@ -1326,6 +1404,24 @@ function getCoverMatchResult(answers: Partial<Record<string, CoverVersionId>>) {
   );
 }
 
+function getReleaseFormatResult(answers: Partial<Record<string, ReleaseFormatId>>) {
+  const scorecard: Record<ReleaseFormatId, number> = {
+    "seven-inch": 0,
+    "twelve-inch": 0,
+    "cd-single": 0,
+  };
+
+  Object.values(answers).forEach((answer) => {
+    if (answer) {
+      scorecard[answer] += 1;
+    }
+  });
+
+  return RELEASE_FORMAT_RESULT_ORDER.reduce((bestFormat, formatId) =>
+    scorecard[formatId] > scorecard[bestFormat] ? formatId : bestFormat,
+  );
+}
+
 function buildFridayFanFlyerText(
   queue: (typeof FRIDAY_CURE_QUEUES)[number],
   scene: VideoScene,
@@ -1494,7 +1590,27 @@ const FridayCountdown = () => {
 const SongSnapshotSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedFormatId, setSelectedFormatId] = useState<ReleaseFormatId>(RELEASE_FORMATS[0].id);
+  const [formatAnswers, setFormatAnswers] = useState<Partial<Record<string, ReleaseFormatId>>>({});
   const selectedFormat = RELEASE_FORMATS.find((format) => format.id === selectedFormatId) ?? RELEASE_FORMATS[0];
+  const answeredFormatQuestionCount = Object.keys(formatAnswers).length;
+  const isFormatMatchComplete = answeredFormatQuestionCount === RELEASE_FORMAT_MATCH_QUESTIONS.length;
+  const matchedFormatId = isFormatMatchComplete ? getReleaseFormatResult(formatAnswers) : null;
+  const matchedFormat = matchedFormatId
+    ? RELEASE_FORMATS.find((format) => format.id === matchedFormatId) ?? RELEASE_FORMATS[0]
+    : null;
+
+  const handleFormatAnswerSelect = (questionId: string, result: ReleaseFormatId) => {
+    const nextAnswers = {
+      ...formatAnswers,
+      [questionId]: result,
+    };
+
+    setFormatAnswers(nextAnswers);
+
+    if (Object.keys(nextAnswers).length === RELEASE_FORMAT_MATCH_QUESTIONS.length) {
+      setSelectedFormatId(getReleaseFormatResult(nextAnswers));
+    }
+  };
 
   return (
     <div className={styles.songSnapshotLayout}>
@@ -1546,6 +1662,104 @@ const SongSnapshotSection = () => {
           <p className={styles.releaseFormatGuideIntro}>
             Same single, different fan textures: quick-hit vinyl, longer mix space, or the compact all-in-one CD route.
           </p>
+        </div>
+
+        <div className={styles.releaseFormatMatchmaker} aria-labelledby="release-format-matchmaker-title">
+          <div className={styles.releaseFormatMatchmakerHeader}>
+            <p className={styles.releaseFormatMatchmakerEyebrow}>Need a fast pick?</p>
+            <h3 id="release-format-matchmaker-title" className={styles.releaseFormatMatchmakerTitle}>
+              Release Format Matchmaker
+            </h3>
+            <p className={styles.releaseFormatMatchmakerIntro}>
+              Answer three quick prompts and the guide below will jump to the format that best fits your Friday collector mood.
+            </p>
+          </div>
+
+          <div className={styles.releaseFormatMatchmakerLayout}>
+            <div className={styles.releaseFormatMatchmakerQuestions}>
+              <p className={styles.releaseFormatMatchmakerProgress}>
+                {answeredFormatQuestionCount === 0
+                  ? "Pick the cues that sound most like your ideal copy of the single."
+                  : `Answered ${answeredFormatQuestionCount} of ${RELEASE_FORMAT_MATCH_QUESTIONS.length} prompts.`}
+              </p>
+
+              {RELEASE_FORMAT_MATCH_QUESTIONS.map((question) => (
+                <fieldset key={question.id} className={styles.releaseFormatMatchQuestionCard}>
+                  <legend className={styles.releaseFormatMatchQuestionTitle}>{question.prompt}</legend>
+
+                  <div className={styles.releaseFormatMatchOptionList}>
+                    {question.options.map((option) => {
+                      const isSelected = formatAnswers[question.id] === option.result;
+
+                      return (
+                        <button
+                          key={`${question.id}-${option.result}`}
+                          type="button"
+                          className={`${styles.releaseFormatMatchOption} ${
+                            isSelected ? styles.releaseFormatMatchOptionActive : ""
+                          }`}
+                          onClick={() => handleFormatAnswerSelect(question.id, option.result)}
+                          aria-pressed={isSelected}
+                        >
+                          <span className={styles.releaseFormatMatchOptionTitle}>{option.title}</span>
+                          <span className={styles.releaseFormatMatchOptionDetail}>{option.detail}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.aside
+                key={matchedFormat?.id ?? "release-format-match-empty"}
+                className={styles.releaseFormatMatchResult}
+                aria-live="polite"
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              >
+                {matchedFormat ? (
+                  <>
+                    <p className={styles.releaseFormatMatchResultKicker}>Your format cue</p>
+                    <h4 className={styles.releaseFormatMatchResultTitle}>{matchedFormat.format}</h4>
+                    <p className={styles.releaseFormatMatchResultMeta}>{matchedFormat.kicker}</p>
+                    <p className={styles.releaseFormatMatchResultBody}>{matchedFormat.collectorNote}</p>
+                    <p className={styles.releaseFormatMatchResultHint}>
+                      The format guide below has already jumped to this pick, so you can stay here or compare it with the other versions.
+                    </p>
+                    <div className={styles.releaseFormatMatchResultActions}>
+                      <a
+                        href={matchedFormat.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.releaseFormatMatchResultLink}
+                      >
+                        {matchedFormat.linkLabel}
+                      </a>
+                      <button
+                        type="button"
+                        className={styles.releaseFormatMatchResetButton}
+                        onClick={() => setFormatAnswers({})}
+                      >
+                        Reset prompts
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className={styles.releaseFormatMatchResultKicker}>Format waiting room</p>
+                    <h4 className={styles.releaseFormatMatchResultTitle}>Your recommendation appears after the third pick.</h4>
+                    <p className={styles.releaseFormatMatchResultBody}>
+                      This quick matchmaker is for fans choosing between the classic single object, the longer mix lane, and the compact completionist route.
+                    </p>
+                  </>
+                )}
+              </motion.aside>
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className={styles.releaseFormatGuideShell}>

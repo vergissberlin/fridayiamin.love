@@ -784,6 +784,228 @@
   align-items: start;
 }
 
+.releaseFormatMatchmaker {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top left, rgba(255, 238, 0, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(0, 240, 255, 0.1), transparent 28%),
+    rgba(7, 10, 24, 0.62);
+}
+
+.releaseFormatMatchmakerHeader {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.releaseFormatMatchmakerEyebrow,
+.releaseFormatMatchResultKicker,
+.releaseFormatMatchQuestionTitle {
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.releaseFormatMatchmakerEyebrow {
+  color: var(--pink-neon);
+}
+
+.releaseFormatMatchmakerTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  line-height: 1.02;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(255, 45, 149, 0.4);
+}
+
+.releaseFormatMatchmakerIntro,
+.releaseFormatMatchmakerProgress,
+.releaseFormatMatchResultBody,
+.releaseFormatMatchResultHint,
+.releaseFormatMatchOptionDetail {
+  font-family: var(--font-handwritten);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.releaseFormatMatchmakerIntro {
+  max-width: 60ch;
+  font-size: clamp(1.08rem, 2.3vw, 1.28rem);
+  line-height: 1.5;
+}
+
+.releaseFormatMatchmakerLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.releaseFormatMatchmakerQuestions {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.releaseFormatMatchmakerProgress {
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.releaseFormatMatchQuestionCard {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.releaseFormatMatchQuestionTitle {
+  padding: 0 0.2rem;
+  color: var(--cyan-neon);
+}
+
+.releaseFormatMatchOptionList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.releaseFormatMatchOption {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-height: 100%;
+  padding: 0.9rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.releaseFormatMatchOption:hover,
+.releaseFormatMatchOption:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+}
+
+.releaseFormatMatchOption:focus-visible,
+.releaseFormatMatchResetButton:focus-visible,
+.releaseFormatMatchResultLink:focus-visible {
+  outline: 2px solid var(--yellow-neon);
+  outline-offset: 2px;
+}
+
+.releaseFormatMatchOptionActive {
+  border-color: rgba(255, 238, 0, 0.65);
+  background:
+    linear-gradient(145deg, rgba(255, 238, 0, 0.14), rgba(255, 45, 149, 0.12)),
+    rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.14);
+}
+
+.releaseFormatMatchOptionTitle {
+  font-family: var(--font-marker);
+  font-size: 1rem;
+  line-height: 1.25;
+  color: var(--yellow-neon);
+}
+
+.releaseFormatMatchOptionDetail {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.releaseFormatMatchResult {
+  position: sticky;
+  top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 45, 149, 0.28);
+  background:
+    radial-gradient(circle at top right, rgba(255, 45, 149, 0.14), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.12), transparent 32%),
+    rgba(8, 10, 24, 0.92);
+  box-shadow: 0 0 26px rgba(191, 0, 255, 0.14);
+}
+
+.releaseFormatMatchResultKicker {
+  color: var(--yellow-neon);
+}
+
+.releaseFormatMatchResultTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+  line-height: 1.04;
+  color: #fff;
+}
+
+.releaseFormatMatchResultMeta {
+  font-family: var(--font-marker);
+  font-size: 1rem;
+  color: var(--pink-neon);
+}
+
+.releaseFormatMatchResultBody,
+.releaseFormatMatchResultHint {
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.releaseFormatMatchResultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.releaseFormatMatchResultLink,
+.releaseFormatMatchResetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.releaseFormatMatchResultLink:hover,
+.releaseFormatMatchResultLink:focus-visible,
+.releaseFormatMatchResetButton:hover,
+.releaseFormatMatchResetButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.55);
+  color: var(--yellow-neon);
+  background: rgba(255, 238, 0, 0.08);
+}
+
 .releaseFormatTabs {
   display: grid;
   gap: 0.75rem;
@@ -5102,7 +5324,9 @@
 
   .songSnapshotStatGrid,
   .releaseFormatGuideHeader,
-  .releaseFormatGuideShell {
+  .releaseFormatGuideShell,
+  .releaseFormatMatchmakerLayout,
+  .releaseFormatMatchOptionList {
     grid-template-columns: 1fr;
   }
 
@@ -5111,8 +5335,15 @@
   }
 
   .releaseFormatPanel,
-  .songSnapshotStoryCard {
+  .songSnapshotStoryCard,
+  .releaseFormatMatchmaker,
+  .releaseFormatMatchQuestionCard,
+  .releaseFormatMatchResult {
     padding: 1rem;
+  }
+
+  .releaseFormatMatchResult {
+    position: static;
   }
 
   .releaseFormatTrackItem {
@@ -5252,6 +5483,9 @@
   }
 
   .coverMoodButton,
+  .releaseFormatMatchmaker,
+  .releaseFormatMatchQuestionCard,
+  .releaseFormatMatchResult,
   .coverMatchQuestionCard,
   .coverMatchResult,
   .coverPickerButton,
