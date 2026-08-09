@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.10.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.9.0...fridayiamin.love-v1.10.0) (2026-08-09)
+
+
+### Features
+
+* add cover version matchmaker ([9d852df](https://github.com/vergissberlin/fridayiamin.love/commit/9d852df86db71d403e7976f01d3097cc78ec2eac))
+* add cover versions mixtape ([ce48d9d](https://github.com/vergissberlin/fridayiamin.love/commit/ce48d9d9349da276cfc9ba7c8e70a09d0b2b32d2))
+* add field guide filters ([ee93156](https://github.com/vergissberlin/fridayiamin.love/commit/ee931568e71cdc7d3525eb0e60a14451749c32a2))
+* add friday fan flyer ([fde4cbd](https://github.com/vergissberlin/fridayiamin.love/commit/fde4cbd029fdd227b703e5d0410c3cca9e1d9af9))
+* add Friday Field Guide fan resources ([d235876](https://github.com/vergissberlin/fridayiamin.love/commit/d2358760a31dab597cacec4f6c8b789f85d187e3))
+* add listen lounge ([814c04a](https://github.com/vergissberlin/fridayiamin.love/commit/814c04ae2dbb48e75597a92c710db54e6c16918c))
+* add live glow timeline ([2bfb84e](https://github.com/vergissberlin/fridayiamin.love/commit/2bfb84efa9f0336d9041420a360488610143333f))
+* add live set feel board ([17ff624](https://github.com/vergissberlin/fridayiamin.love/commit/17ff62495bac80875d552fde8f38ef492ac1606e))
+* add live set snapshot explorer ([40c9386](https://github.com/vergissberlin/fridayiamin.love/commit/40c9386c35c5e1d15f886c7f951b8279bd142ed7))
+* add quick jump mixtape ([2ba2c98](https://github.com/vergissberlin/fridayiamin.love/commit/2ba2c98b195b0776341885aabad839a15c2a9dde))
+* add release format matchmaker ([0599d44](https://github.com/vergissberlin/fridayiamin.love/commit/0599d44bc9db3477fae3f23dff122e0df0d053f3))
+* add song snapshot release format guide ([7c1f6d0](https://github.com/vergissberlin/fridayiamin.love/commit/7c1f6d04c142d692ef0997e21f3ad45ed46a08c0))
+* add video scene decoder ([85023c0](https://github.com/vergissberlin/fridayiamin.love/commit/85023c0ef40494fe3d2c032bf4205c81e5e36fd0))
+* add weekday mood decoder ([1f3143b](https://github.com/vergissberlin/fridayiamin.love/commit/1f3143b1bd17ddc911b96e1ed39711c978903418))
+
+
+### Bug Fixes
+
+* **deps:** update dependency framer-motion to v13 ([ba3a16f](https://github.com/vergissberlin/fridayiamin.love/commit/ba3a16f71b9a11b269c2c3392f7dca6f4df4d85b))
+* **deps:** update nextjs monorepo to v16.2.6 ([f5a190f](https://github.com/vergissberlin/fridayiamin.love/commit/f5a190f402604a8d7540d74daf1caca4dc1bcedc))
+* **deps:** update nextjs monorepo to v16.2.6 ([761c2ee](https://github.com/vergissberlin/fridayiamin.love/commit/761c2ee4f14a0aed4f5693fbdee3da8caa75ad59))
+* **deps:** update react monorepo ([cfba6cf](https://github.com/vergissberlin/fridayiamin.love/commit/cfba6cfb13189b83a492f8d637fdcd84527883e3))
+
 ## [1.9.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.8.1...fridayiamin.love-v1.9.0) (2026-04-28)
 
 
