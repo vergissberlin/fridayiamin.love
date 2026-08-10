@@ -164,6 +164,20 @@ type ReleaseFormat = {
   }[];
 };
 
+type SingleCompanionId = "halo" | "scared-as-you" | "strangelove-mix";
+
+type SingleCompanion = {
+  id: SingleCompanionId;
+  title: string;
+  tag: string;
+  hook: string;
+  body: string;
+  bestFor: string;
+  formatIds: ReleaseFormatId[];
+  href: string;
+  linkLabel: string;
+};
+
 type ReleaseFormatMatchQuestion = {
   id: string;
   prompt: string;
@@ -364,6 +378,45 @@ const RELEASE_FORMATS: ReleaseFormat[] = [
       { title: "Scared as You", length: "4:12", note: "Lets the single carry a little more shadow." },
       { title: "Friday I'm in Love (Strangelove Mix)", length: "5:29", note: "A full extra lap around the Friday glow." },
     ],
+  },
+];
+
+const SINGLE_COMPANIONS: SingleCompanion[] = [
+  {
+    id: "halo",
+    title: "Halo",
+    tag: "Dream-lit B-side",
+    hook: "The soft-focus comedown that keeps Wish-era romance floating after the chorus flash.",
+    body:
+      "If the single is the instant when the room turns neon, 'Halo' is the slower walk back through that glow. It stays gentle without losing the emotional lift that makes this era of The Cure feel so open-hearted.",
+    bestFor: "Fans who want tenderness, shimmer, and a little extra air around the song.",
+    formatIds: ["seven-inch", "twelve-inch", "cd-single"],
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love#Track_listing",
+    linkLabel: "Read the track listing",
+  },
+  {
+    id: "scared-as-you",
+    title: "Scared as You",
+    tag: "Shadow-side B-side",
+    hook: "A darker companion cut that lets the single carry a little nervous pulse behind the pop sparkle.",
+    body:
+      "'Scared as You' reminds you that The Cure never framed 'Friday I'm in Love' as weightless candy. It adds a more guarded emotional edge, which makes the single feel broader and more unmistakably Cure-shaped.",
+    bestFor: "Fans who like their Friday joy with some after-hours tension still humming underneath.",
+    formatIds: ["twelve-inch", "cd-single"],
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love#Track_listing",
+    linkLabel: "Read the track listing",
+  },
+  {
+    id: "strangelove-mix",
+    title: "Strangelove Mix",
+    tag: "Extended neon detour",
+    hook: "The longer mix stretches the single into a more late-night shape without losing its grin.",
+    body:
+      "This version turns the song from a quick flash into more of a glide. It is still recognizably 'Friday I'm in Love,' but the extra runtime gives the groove more space to drift and wink before the night lets go.",
+    bestFor: "Fans who want the single to linger a little longer under club-adjacent lights.",
+    formatIds: ["twelve-inch", "cd-single"],
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love#Track_listing",
+    linkLabel: "Read the track listing",
   },
 ];
 
@@ -1590,6 +1643,7 @@ const FridayCountdown = () => {
 const SongSnapshotSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedFormatId, setSelectedFormatId] = useState<ReleaseFormatId>(RELEASE_FORMATS[0].id);
+  const [selectedCompanionId, setSelectedCompanionId] = useState<SingleCompanionId>(SINGLE_COMPANIONS[0].id);
   const [formatAnswers, setFormatAnswers] = useState<Partial<Record<string, ReleaseFormatId>>>({});
   const selectedFormat = RELEASE_FORMATS.find((format) => format.id === selectedFormatId) ?? RELEASE_FORMATS[0];
   const answeredFormatQuestionCount = Object.keys(formatAnswers).length;
@@ -1598,6 +1652,9 @@ const SongSnapshotSection = () => {
   const matchedFormat = matchedFormatId
     ? RELEASE_FORMATS.find((format) => format.id === matchedFormatId) ?? RELEASE_FORMATS[0]
     : null;
+  const availableCompanions = SINGLE_COMPANIONS.filter((companion) => companion.formatIds.includes(selectedFormat.id));
+  const selectedCompanion =
+    availableCompanions.find((companion) => companion.id === selectedCompanionId) ?? availableCompanions[0];
 
   const handleFormatAnswerSelect = (questionId: string, result: ReleaseFormatId) => {
     const nextAnswers = {
@@ -1649,6 +1706,107 @@ const SongSnapshotSection = () => {
               <dd>Halo, Scared as You</dd>
             </div>
           </dl>
+        </div>
+
+        <div className={styles.songSnapshotCompanionCard} aria-labelledby="single-companion-board-title">
+          <div className={styles.songSnapshotCompanionHeader}>
+            <p className={styles.songSnapshotEyebrow}>Single Companion Board</p>
+            <h3 id="single-companion-board-title" className={styles.songSnapshotCompanionTitle}>
+              Hear what sits beside Friday on the {selectedFormat.format}.
+            </h3>
+            <p className={styles.songSnapshotCompanionIntro}>
+              Switch formats below and this spotlight stays in sync, so you can see whether the single leans toward
+              soft afterglow, darker tension, or the longer Strangelove glide.
+            </p>
+          </div>
+
+          <div className={styles.songSnapshotCompanionLayout}>
+            <div className={styles.songSnapshotCompanionList} role="tablist" aria-label="Single companion tracks">
+              {availableCompanions.map((companion) => {
+                const isSelected = selectedCompanion.id === companion.id;
+
+                return (
+                  <button
+                    key={companion.id}
+                    type="button"
+                    role="tab"
+                    id={`single-companion-tab-${companion.id}`}
+                    aria-selected={isSelected}
+                    aria-controls={`single-companion-panel-${companion.id}`}
+                    tabIndex={isSelected ? 0 : -1}
+                    className={`${styles.songSnapshotCompanionButton} ${
+                      isSelected ? styles.songSnapshotCompanionButtonActive : ""
+                    }`}
+                    onClick={() => setSelectedCompanionId(companion.id)}
+                  >
+                    <span className={styles.songSnapshotCompanionButtonTitle}>{companion.title}</span>
+                    <span className={styles.songSnapshotCompanionButtonTag}>{companion.tag}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.aside
+                key={`${selectedFormat.id}-${selectedCompanion.id}`}
+                id={`single-companion-panel-${selectedCompanion.id}`}
+                role="tabpanel"
+                aria-labelledby={`single-companion-tab-${selectedCompanion.id}`}
+                className={styles.songSnapshotCompanionPanel}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+              >
+                <p className={styles.songSnapshotCompanionKicker}>{selectedCompanion.tag}</p>
+                <h4 className={styles.songSnapshotCompanionPanelTitle}>{selectedCompanion.title}</h4>
+                <p className={styles.songSnapshotCompanionHook}>{selectedCompanion.hook}</p>
+                <p className={styles.songSnapshotCompanionBody}>{selectedCompanion.body}</p>
+
+                <dl className={styles.songSnapshotCompanionFacts}>
+                  <div>
+                    <dt>Best for</dt>
+                    <dd>{selectedCompanion.bestFor}</dd>
+                  </div>
+                  <div>
+                    <dt>Current format cue</dt>
+                    <dd>
+                      {availableCompanions.length === 1
+                        ? "This format keeps things lean with one companion route."
+                        : `This format opens ${availableCompanions.length} companion routes around the single.`}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className={styles.songSnapshotCompanionFormats} aria-label="Formats carrying this companion track">
+                  {RELEASE_FORMATS.map((format) => {
+                    const isAvailable = selectedCompanion.formatIds.includes(format.id);
+                    const isCurrentFormat = selectedFormat.id === format.id;
+
+                    return (
+                      <span
+                        key={`${selectedCompanion.id}-${format.id}`}
+                        className={`${styles.songSnapshotCompanionFormatChip} ${
+                          isAvailable ? styles.songSnapshotCompanionFormatChipAvailable : ""
+                        } ${isCurrentFormat ? styles.songSnapshotCompanionFormatChipCurrent : ""}`}
+                      >
+                        {format.tabLabel}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <a
+                  href={selectedCompanion.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.songSnapshotCompanionLink}
+                >
+                  {selectedCompanion.linkLabel}
+                </a>
+              </motion.aside>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

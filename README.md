@@ -24,6 +24,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - `Song Snapshot Release Format Guide + Matchmaker`: an interactive `Song Snapshot` upgrade that pairs the core single facts with a fan-friendly 7-inch / 12-inch / CD format picker, track notes, release-day context, and a three-prompt format recommendation tool.
 - `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
 - `Cure News Reel`: a manually controllable headline carousel with previous/next buttons, autoplay pause, and reduced-motion-friendly behavior.
+- `Single Companion Board`: a synced spotlight inside `Song Snapshot` that follows the selected single format and explains how `Halo`, `Scared as You`, and the `Strangelove Mix` reshape the Friday release story.
 - `Cover Versions Mixtape`: a five-stop guide to notable reinterpretations of `Friday I'm in Love`, with vibe-based picking and quick external search links for each version.
 - `Cover Version Matchmaker`: a three-prompt recommendation tool inside the mixtape section that syncs the spotlight to the cover version matching the visitor's Friday mood.
 - `Video Scene Decoder`: an interactive guide to four visual moods from the Tim Pope video, with fan-facing interpretation notes and palette cues.
