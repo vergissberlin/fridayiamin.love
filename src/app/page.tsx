@@ -134,6 +134,15 @@ type QuickJumpLink = {
   note: string;
 };
 
+type WeekdayForecast = {
+  dayLabel: string;
+  weather: string;
+  headline: string;
+  body: string;
+  cueLabel: string;
+  cueHref: string;
+};
+
 type ListeningLane = {
   id: ListeningLaneId;
   label: string;
@@ -1309,6 +1318,82 @@ const LISTENING_LANES: ListeningLane[] = [
   },
 ];
 
+const DEFAULT_WEEKDAY_FORECAST: WeekdayForecast = {
+  dayLabel: "Any Day",
+  weather: "Fan weather check",
+  headline: "The single still knows how to turn the week toward color.",
+  body:
+    "Use this card as a fast way back into the site whenever you need a little Friday lift, whether you want the studio hook, the video chaos, or the wider Cure rabbit hole.",
+  cueLabel: "Open Listen Lounge",
+  cueHref: "#listen-friday",
+};
+
+const WEEKDAY_FORECASTS: WeekdayForecast[] = [
+  {
+    dayLabel: "Sunday",
+    weather: "Afterglow planning",
+    headline: "Sunday is for letting the glow settle and deciding how next Friday should feel.",
+    body:
+      "Take the softer landing seriously: this is the best moment to choose your next rabbit hole before the week speeds back up.",
+    cueLabel: "Browse the Friday Field Guide",
+    cueHref: "#fan-resources",
+  },
+  {
+    dayLabel: "Monday",
+    weather: "Blue Monday shrug",
+    headline: "The song already gave Monday permission to be a little blue.",
+    body:
+      "Instead of fighting the mood, lean into the line that opens the whole story and watch how The Cure turn drag into anticipation.",
+    cueLabel: "Decode the Monday lyric moment",
+    cueHref: "#lyrics-meaning",
+  },
+  {
+    dayLabel: "Tuesday",
+    weather: "Grey-room reset",
+    headline: "Tuesday can stay grey; the trick is keeping one bright route in view.",
+    body:
+      "If the week feels flat, borrow a gentler Cure queue and let the night open up a little earlier than planned.",
+    cueLabel: "Jump to the Friday Cure Queue",
+    cueHref: "#friday-cure-queue",
+  },
+  {
+    dayLabel: "Wednesday",
+    weather: "Midweek blur",
+    headline: "When the calendar starts smearing together, go for the most playful collage energy.",
+    body:
+      "A visual detour can work better than pure efficiency here. Break the blur with pattern clashes, paint bursts, and a little Cure weirdness.",
+    cueLabel: "Open the Video Scene Decoder",
+    cueHref: "#video-scene-decoder",
+  },
+  {
+    dayLabel: "Thursday",
+    weather: "Shrug energy",
+    headline: "Thursday only needs one move: stop caring and start lining up the chorus.",
+    body:
+      "This is the day for the quickest route back to the hook, so keep the setup simple and let the single do the release work.",
+    cueLabel: "Start in the Listen Lounge",
+    cueHref: "#listen-friday",
+  },
+  {
+    dayLabel: "Friday",
+    weather: "Full release",
+    headline: "Today belongs to the title line.",
+    body:
+      "Pick the version that feels biggest right now: clean studio jangle, Tim Pope collage chaos, or a crowd-wide live grin. The whole site is ready for all three.",
+    cueLabel: "Play the official video",
+    cueHref: "https://www.youtube.com/watch?v=mGgMZpGYiy8",
+  },
+  {
+    dayLabel: "Saturday",
+    weather: "Crowd-memory glow",
+    headline: "Saturday is for the afterimage of last night's singalong.",
+    body:
+      "Stay with the warmth a little longer and trace how the song keeps landing live across different Cure eras and crowds.",
+    cueLabel: "Follow the Tour & Live Moments",
+    cueHref: "#tour-live-moments",
+  },
+];
+
 const FRIDAY_QUIZ_RESULT_ORDER: FridayQueueMood[] = ["lift-off", "twilight", "glitter", "afterglow"];
 
 const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
@@ -1637,6 +1722,58 @@ const FridayCountdown = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const WeekdayForecastCard = () => {
+  const prefersReducedMotion = useReducedMotion();
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const tick = () => setNow(new Date());
+    tick();
+    const intervalId = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const activeForecast = now ? WEEKDAY_FORECASTS[now.getDay()] ?? DEFAULT_WEEKDAY_FORECAST : DEFAULT_WEEKDAY_FORECAST;
+  const isExternalLink = activeForecast.cueHref.startsWith("http");
+
+  return (
+    <motion.aside
+      className={styles.fridayForecast}
+      data-day={activeForecast.dayLabel.toLowerCase()}
+      aria-live="polite"
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut", delay: 0.15 }}
+    >
+      <div className={styles.fridayForecastHeader}>
+        <div>
+          <p className={styles.fridayForecastEyebrow}>Friday Forecast</p>
+          <h2 className={styles.fridayForecastTitle}>{activeForecast.headline}</h2>
+        </div>
+
+        <p className={styles.fridayForecastDay}>{activeForecast.dayLabel}</p>
+      </div>
+
+      <div className={styles.fridayForecastBody}>
+        <p className={styles.fridayForecastWeather}>{activeForecast.weather}</p>
+        <p className={styles.fridayForecastCopy}>{activeForecast.body}</p>
+      </div>
+
+      <div className={styles.fridayForecastFooter}>
+        <p className={styles.fridayForecastPrompt}>Best next stop</p>
+        <a
+          href={activeForecast.cueHref}
+          className={styles.fridayForecastLink}
+          target={isExternalLink ? "_blank" : undefined}
+          rel={isExternalLink ? "noopener noreferrer" : undefined}
+        >
+          {activeForecast.cueLabel}
+        </a>
+      </div>
+    </motion.aside>
   );
 };
 
@@ -3871,6 +4008,7 @@ export default function Home() {
 
           <DayProgress />
           <FridayCountdown />
+          <WeekdayForecastCard />
         </motion.div>
 
         <PatternShapes />

@@ -20,6 +20,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Site Highlights
 
 - `Quick Jump Mixtape`: a sticky, section-aware navigation deck near the top of the page so visitors can skip between the site's major `Friday I'm in Love` sections without losing their place.
+- `Friday Forecast`: a day-aware hero card that updates its fan copy and recommended next stop based on the current weekday, so the site feels different on Monday, Friday, or the weekend.
 - `Listen Lounge`: a three-lane listening entry point that lets visitors start with the studio single, the official Tim Pope video, or a live-history route before moving deeper into the page.
 - `Song Snapshot Release Format Guide + Matchmaker`: an interactive `Song Snapshot` upgrade that pairs the core single facts with a fan-friendly 7-inch / 12-inch / CD format picker, track notes, release-day context, and a three-prompt format recommendation tool.
 - `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
