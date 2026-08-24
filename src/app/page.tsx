@@ -116,6 +116,8 @@ type LiveSetSnapshot = {
   }[];
 };
 
+type LiveSetFeelMeter = LiveSetSnapshot["setFeel"][number];
+
 type TourLiveMoment = {
   snapshotId: LiveSetSnapshotId;
   year: string;
@@ -1558,6 +1560,52 @@ function getReleaseFormatResult(answers: Partial<Record<string, ReleaseFormatId>
   return RELEASE_FORMAT_RESULT_ORDER.reduce((bestFormat, formatId) =>
     scorecard[formatId] > scorecard[bestFormat] ? formatId : bestFormat,
   );
+}
+
+function buildTourContrastRows(currentSnapshot: LiveSetSnapshot, comparisonSnapshot: LiveSetSnapshot) {
+  return currentSnapshot.setFeel.map((meter) => {
+    const comparisonMeter: LiveSetFeelMeter =
+      comparisonSnapshot.setFeel.find((item) => item.label === meter.label) ?? meter;
+    const delta = meter.value - comparisonMeter.value;
+
+    return {
+      label: meter.label,
+      currentValue: meter.value,
+      comparisonValue: comparisonMeter.value,
+      low: meter.low,
+      high: meter.high,
+      delta,
+      note:
+        delta === 0
+          ? "This part of the live feel lands almost the same in both eras."
+          : delta > 0
+            ? `This era pushes harder toward ${meter.high.toLowerCase()}.`
+            : `This era sits closer to ${meter.low.toLowerCase()}.`,
+    };
+  });
+}
+
+function getTourContrastSummary(
+  currentSnapshot: LiveSetSnapshot,
+  comparisonSnapshot: LiveSetSnapshot,
+  rows: ReturnType<typeof buildTourContrastRows>,
+) {
+  if (currentSnapshot.id === comparisonSnapshot.id) {
+    return `You are comparing ${currentSnapshot.label} with itself, so this board becomes a clean baseline for its own live balance.`;
+  }
+
+  const strongestShift = rows.reduce((strongest, row) =>
+    Math.abs(row.delta) > Math.abs(strongest.delta) ? row : strongest,
+  );
+
+  if (strongestShift.delta === 0) {
+    return `${currentSnapshot.label} and ${comparisonSnapshot.label} land with nearly the same balance across this set-feel board.`;
+  }
+
+  const directionCue = strongestShift.delta > 0 ? strongestShift.high.toLowerCase() : strongestShift.low.toLowerCase();
+  const stepCount = Math.abs(strongestShift.delta);
+
+  return `${currentSnapshot.label} pushes ${strongestShift.label.toLowerCase()} ${stepCount} step${stepCount === 1 ? "" : "s"} closer to ${directionCue} than ${comparisonSnapshot.label}.`;
 }
 
 function buildFridayFanFlyerText(
@@ -3311,9 +3359,16 @@ const VideoSceneDecoderSection = () => {
 const TourLiveMomentsSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<LiveSetSnapshotId>(LIVE_SET_SNAPSHOTS[0].id);
+  const [comparisonSnapshotId, setComparisonSnapshotId] = useState<LiveSetSnapshotId>(
+    LIVE_SET_SNAPSHOTS[LIVE_SET_SNAPSHOTS.length - 1].id,
+  );
   const selectedSnapshot = LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
+  const comparisonSnapshot =
+    LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === comparisonSnapshotId) ?? LIVE_SET_SNAPSHOTS[LIVE_SET_SNAPSHOTS.length - 1];
   const selectedTourMoment =
     TOUR_LIVE_MOMENTS.find((moment) => moment.snapshotId === selectedSnapshot.id) ?? TOUR_LIVE_MOMENTS[0];
+  const tourContrastRows = buildTourContrastRows(selectedSnapshot, comparisonSnapshot);
+  const tourContrastSummary = getTourContrastSummary(selectedSnapshot, comparisonSnapshot, tourContrastRows);
 
   return (
     <section id="tour-live-moments" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="tour-live-title">
@@ -3496,6 +3551,84 @@ const TourLiveMomentsSection = () => {
                       </div>
                     </li>
                   ))}
+                </ul>
+              </section>
+
+              <section className={styles.tourContrastBoard} aria-labelledby="tour-contrast-board-title">
+                <div className={styles.tourContrastHeader}>
+                  <p className={styles.tourContrastEyebrow}>Era Contrast Board</p>
+                  <h4 id="tour-contrast-board-title" className={styles.tourContrastTitle}>
+                    Compare this live stop with another Cure era.
+                  </h4>
+                  <p className={styles.tourContrastIntro}>
+                    Keep the current snapshot on top, then pick a second era to see where the live feel turns brighter,
+                    harder, or more tender.
+                  </p>
+                </div>
+
+                <div className={styles.tourContrastPicker} role="group" aria-label="Choose a live era to compare against">
+                  {LIVE_SET_SNAPSHOTS.map((snapshot) => {
+                    const isSelected = snapshot.id === comparisonSnapshot.id;
+
+                    return (
+                      <button
+                        key={`tour-contrast-${snapshot.id}`}
+                        type="button"
+                        className={`${styles.tourContrastButton} ${isSelected ? styles.tourContrastButtonActive : ""}`}
+                        onClick={() => setComparisonSnapshotId(snapshot.id)}
+                        aria-pressed={isSelected}
+                      >
+                        <span className={styles.tourContrastButtonLabel}>{snapshot.label}</span>
+                        <span className={styles.tourContrastButtonMeta}>{snapshot.years}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className={styles.tourContrastSummary}>
+                  <p className={styles.tourContrastSummaryLabel}>
+                    {selectedSnapshot.label} vs {comparisonSnapshot.label}
+                  </p>
+                  <p className={styles.tourContrastSummaryBody}>{tourContrastSummary}</p>
+                </div>
+
+                <ul className={styles.tourContrastList}>
+                  {tourContrastRows.map((row) => {
+                    const deltaLabel = row.delta > 0 ? `+${row.delta}` : `${row.delta}`;
+                    const deltaDirection = row.delta > 0 ? "up" : row.delta < 0 ? "down" : "even";
+
+                    return (
+                      <li key={`${selectedSnapshot.id}-${comparisonSnapshot.id}-${row.label}`} className={styles.tourContrastItem}>
+                        <div className={styles.tourContrastItemHeader}>
+                          <p className={styles.tourContrastMetric}>{row.label}</p>
+                          <span className={styles.tourContrastDelta} data-direction={deltaDirection}>
+                            {deltaLabel}
+                          </span>
+                        </div>
+
+                        <div className={styles.tourContrastValueRow}>
+                          <span>{selectedSnapshot.label}</span>
+                          <span>{row.currentValue}/5</span>
+                        </div>
+                        <div className={styles.tourContrastTrack} aria-hidden="true">
+                          <span className={styles.tourContrastFill} style={{ width: `${(row.currentValue / 5) * 100}%` }} />
+                        </div>
+
+                        <div className={styles.tourContrastValueRow}>
+                          <span>{comparisonSnapshot.label}</span>
+                          <span>{row.comparisonValue}/5</span>
+                        </div>
+                        <div className={`${styles.tourContrastTrack} ${styles.tourContrastTrackComparison}`} aria-hidden="true">
+                          <span
+                            className={`${styles.tourContrastFill} ${styles.tourContrastFillComparison}`}
+                            style={{ width: `${(row.comparisonValue / 5) * 100}%` }}
+                          />
+                        </div>
+
+                        <p className={styles.tourContrastNote}>{row.note}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
 

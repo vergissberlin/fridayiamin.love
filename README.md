@@ -30,7 +30,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - `Cover Version Matchmaker`: a three-prompt recommendation tool inside the mixtape section that syncs the spotlight to the cover version matching the visitor's Friday mood.
 - `Video Scene Decoder`: an interactive guide to four visual moods from the Tim Pope video, with fan-facing interpretation notes and palette cues.
 - `Live Glow Timeline`: an interactive era rail inside `Tour & Live Moments` that traces how the song's live role shifts from Wish-era lift-off to present-day warmth and syncs with the live snapshot panel.
-- `Live Set Snapshot`: an era picker inside `Tour & Live Moments` that sketches how `Friday I'm in Love` shifts across Wish-era, festival, marathon-show, and recent-tour live flows, now with a compact `set feel` board for comparing crowd release, contrast, and tenderness.
+- `Live Set Snapshot`: an era picker inside `Tour & Live Moments` that sketches how `Friday I'm in Love` shifts across Wish-era, festival, marathon-show, and recent-tour live flows, now with both a compact `set feel` board and an `Era Contrast Board` for side-by-side comparison of crowd release, contrast, and tenderness across two live stops.
 - `Friday Field Guide`: a curated fan-resources wall with route filters and a spotlight card so visitors can jump straight to official history, video, live data, collectors' details, or chart context.
 - `Build Your Friday Cure Queue`: an interactive mood selector that recommends adjacent The Cure songs to follow up `Friday I'm in Love`, with short fan-facing notes and source links.
 - `Friday Fan Flyer`: a one-card route builder that mixes queue mood, video texture, and live-era energy into a copyable Friday plan with quick links.
