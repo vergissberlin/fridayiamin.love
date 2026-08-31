@@ -145,6 +145,13 @@ type WeekdayForecast = {
   cueHref: string;
 };
 
+type LyricPhrasebookEntry = {
+  spotlight: string;
+  moodWords: string[];
+  fanCue: string;
+  focusMomentId: LyricMomentId;
+};
+
 type ListeningLane = {
   id: ListeningLaneId;
   label: string;
@@ -215,6 +222,51 @@ const LYRIC_SUMMARIES: Record<LanguageCode, string> = {
   de: "Eine Hymne auf die Freude und Vorfreude des Freitags, im Kontrast zur Eintönigkeit der Woche und der Euphorie der Liebe.",
   it: "Una celebrazione della gioia e dell'attesa che porta il venerdì, in contrasto con la monotonia della settimana e l'euforia dell'amore.",
   ja: "金曜日がもたらす喜びと期待を歌い、平日の退屈さと恋の高揚感を対比しています。",
+};
+
+const LYRIC_PHRASEBOOK: Record<LanguageCode, LyricPhrasebookEntry> = {
+  en: {
+    spotlight: "English makes the chorus feel like a fast, shared sigh of relief.",
+    moodWords: ["joy", "relief", "spark"],
+    fanCue:
+      "The title lands with a clipped, chant-ready rhythm, so the emotion feels immediate and communal instead of over-explained.",
+    focusMomentId: "friday-release",
+  },
+  es: {
+    spotlight: "Spanish keeps the glow warm by leaning hard on joy after routine.",
+    moodWords: ["alegria", "alivio", "chispa"],
+    fanCue:
+      "The contrast with the working week stays front and center, which makes the song read as earned release rather than simple sugar rush.",
+    focusMomentId: "midweek-grey",
+  },
+  fr: {
+    spotlight: "French gives the song a tender, romantic lift without losing the Friday burst.",
+    moodWords: ["joie", "elan", "tendresse"],
+    fanCue:
+      "The phrasing keeps the euphoria soft at the edges, so the song feels affectionate as much as celebratory.",
+    focusMomentId: "friday-release",
+  },
+  de: {
+    spotlight: "German sharpens the structure: dull week first, bright release second.",
+    moodWords: ["vorfreude", "leichtigkeit", "glanz"],
+    fanCue:
+      "That stronger sense of contrast makes the song's pivot feel especially clean, with the shrug before Friday doing extra work.",
+    focusMomentId: "thursday-shrug",
+  },
+  it: {
+    spotlight: "Italian makes the whole mood feel cinematic, buoyant, and openly romantic.",
+    moodWords: ["gioia", "slancio", "luce"],
+    fanCue:
+      "The summary leans into warmth and anticipation, so the chorus reads like a smile arriving right on cue.",
+    focusMomentId: "friday-release",
+  },
+  ja: {
+    spotlight: "Japanese makes the song read as a crisp shift from weekday flatness into uplift.",
+    moodWords: ["喜び", "解放感", "きらめき"],
+    fanCue:
+      "The contrast between weekday dullness and love's sudden lift feels especially clear, which helps the song's structure snap into focus quickly.",
+    focusMomentId: "monday-blue",
+  },
 };
 
 const LYRIC_MOMENTS: LyricMoment[] = [
@@ -3995,6 +4047,11 @@ const LyricsMeaningSection = () => {
   const [selectedLyricMomentId, setSelectedLyricMomentId] = useState<LyricMomentId>(LYRIC_MOMENTS[0].id);
   const selectedLyricMoment =
     LYRIC_MOMENTS.find((moment) => moment.id === selectedLyricMomentId) ?? LYRIC_MOMENTS[0];
+  const selectedLanguageLabel =
+    LANGUAGE_OPTIONS.find((option) => option.code === selectedLanguage)?.label ?? LANGUAGE_OPTIONS[0].label;
+  const selectedPhrasebook = LYRIC_PHRASEBOOK[selectedLanguage];
+  const phrasebookFocusMoment =
+    LYRIC_MOMENTS.find((moment) => moment.id === selectedPhrasebook.focusMomentId) ?? LYRIC_MOMENTS[0];
 
   return (
     <section id="lyrics-meaning" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="lyrics-meaning-title">
@@ -4023,9 +4080,58 @@ const LyricsMeaningSection = () => {
           ))}
         </div>
 
-        <div className={styles.lyricSummaryCard}>
-          <p className={styles.lyricSummaryText}>Quick meaning summary</p>
-          <p className={styles.lyricSummaryBody}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
+        <div className={styles.lyricsHeaderCards}>
+          <div className={styles.lyricSummaryCard}>
+            <p className={styles.lyricSummaryText}>Quick meaning summary</p>
+            <p className={styles.lyricSummaryBody}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.section
+              key={selectedLanguage}
+              className={styles.lyricPhrasebookCard}
+              aria-labelledby="lyric-phrasebook-title"
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+            >
+              <div className={styles.lyricPhrasebookHeader}>
+                <div>
+                  <p className={styles.lyricPhrasebookEyebrow}>Friday Phrasebook</p>
+                  <h3 id="lyric-phrasebook-title" className={styles.lyricPhrasebookTitle}>
+                    {selectedPhrasebook.spotlight}
+                  </h3>
+                </div>
+
+                <p className={styles.lyricPhrasebookLanguage}>{selectedLanguageLabel}</p>
+              </div>
+
+              <ul className={styles.lyricPhrasebookTags} aria-label={`${selectedLanguageLabel} Friday mood words`}>
+                {selectedPhrasebook.moodWords.map((word) => (
+                  <li key={`${selectedLanguage}-${word}`} className={styles.lyricPhrasebookTag}>
+                    {word}
+                  </li>
+                ))}
+              </ul>
+
+              <p className={styles.lyricPhrasebookBody}>{selectedPhrasebook.fanCue}</p>
+
+              <div className={styles.lyricPhrasebookFooter}>
+                <p className={styles.lyricPhrasebookFocus}>
+                  Best lyric stop: <strong>{phrasebookFocusMoment.tabLabel}</strong> - {phrasebookFocusMoment.line}
+                </p>
+
+                <button
+                  type="button"
+                  className={styles.lyricPhrasebookButton}
+                  onClick={() => setSelectedLyricMomentId(phrasebookFocusMoment.id)}
+                >
+                  Jump to the {phrasebookFocusMoment.tabLabel} moment
+                </button>
+              </div>
+            </motion.section>
+          </AnimatePresence>
         </div>
       </div>
 

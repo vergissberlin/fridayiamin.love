@@ -1609,6 +1609,13 @@
   gap: 1rem;
 }
 
+.lyricsHeaderCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
 .languageSelector {
   display: flex;
   flex-wrap: wrap;
@@ -1707,6 +1714,9 @@
 }
 
 .lyricSummaryCard {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
   padding: 2rem;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 15px;
@@ -1742,6 +1752,142 @@
   font-size: clamp(1.2rem, 2.5vw, 1.6rem);
   line-height: 1.85;
   opacity: 0.98;
+}
+
+.lyricPhrasebookCard {
+  display: grid;
+  gap: 0.95rem;
+  align-content: start;
+  padding: 1.45rem;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  background:
+    radial-gradient(circle at top left, rgba(0, 240, 255, 0.14), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(255, 238, 0, 0.1), transparent 30%),
+    rgba(7, 10, 24, 0.88);
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.1);
+}
+
+.lyricPhrasebookHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.lyricPhrasebookEyebrow,
+.lyricPhrasebookFocus {
+  font-family: var(--font-typewriter);
+}
+
+.lyricPhrasebookEyebrow {
+  margin-bottom: 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.lyricPhrasebookTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2.05rem);
+  line-height: 1.02;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 240, 255, 0.25);
+}
+
+.lyricPhrasebookLanguage {
+  flex-shrink: 0;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--pink-neon);
+  font-family: var(--font-marker);
+  font-size: 0.95rem;
+}
+
+.lyricPhrasebookTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lyricPhrasebookTag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 238, 0, 0.28);
+  background: rgba(255, 238, 0, 0.08);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lyricPhrasebookBody {
+  font-family: var(--font-handwritten);
+  font-size: clamp(1.08rem, 2.3vw, 1.28rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lyricPhrasebookFooter {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.lyricPhrasebookFocus {
+  font-size: 0.76rem;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.lyricPhrasebookFocus strong {
+  color: var(--cyan-neon);
+}
+
+.lyricPhrasebookButton {
+  appearance: none;
+  width: fit-content;
+  min-height: 2.8rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  background: rgba(0, 240, 255, 0.08);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.lyricPhrasebookButton:hover,
+.lyricPhrasebookButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.64);
+  background: rgba(255, 238, 0, 0.1);
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.12);
+}
+
+.lyricPhrasebookButton:focus-visible {
+  outline: 2px solid var(--yellow-neon);
+  outline-offset: 2px;
 }
 
 .lyricDecoder {
@@ -5984,8 +6130,13 @@
   }
 
   .lyricsStage,
-  .lyricMomentList {
+  .lyricMomentList,
+  .lyricsHeaderCards {
     grid-template-columns: 1fr;
+  }
+
+  .lyricPhrasebookHeader {
+    flex-direction: column;
   }
 
   .lyricDetailPanel {
@@ -6103,8 +6254,14 @@
   }
 
   .lyricMomentButton,
-  .lyricDetailPanel {
+  .lyricDetailPanel,
+  .lyricPhrasebookCard,
+  .lyricSummaryCard {
     padding-inline: 0.95rem;
+  }
+
+  .lyricPhrasebookButton {
+    width: 100%;
   }
 
   .coverMoodButton,
