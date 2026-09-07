@@ -14,6 +14,13 @@ type LanguageCode = "en" | "es" | "fr" | "de" | "it" | "ja";
 
 type LyricMomentId = "monday-blue" | "midweek-grey" | "thursday-shrug" | "friday-release";
 
+type LyricMoodMeter = {
+  label: string;
+  value: number;
+  low: string;
+  high: string;
+};
+
 type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
 type FanResourceCategoryId = "all" | "official" | "video" | "live" | "collectors" | "charts";
@@ -44,6 +51,11 @@ type LyricMoment = {
   body: string;
   collageCue: string;
   fanNote: string;
+  routeTitle: string;
+  routeBody: string;
+  routeHref: string;
+  routeLabel: string;
+  routeMeters: LyricMoodMeter[];
 };
 
 type FridayQuizQuestion = {
@@ -280,6 +292,16 @@ const LYRIC_MOMENTS: LyricMoment[] = [
       "That quick shrug matters. The lyric gives the week a little emotional weight first, so the eventual Friday rush feels earned rather than weightless.",
     collageCue: "Smudged office-grey paper with one neon pink sticker refusing to stay quiet.",
     fanNote: "The Cure let gloom appear for a second, then sidestep it with style.",
+    routeTitle: "Start with the clean studio jangle before the week gets any louder.",
+    routeBody:
+      "If this line is your way into the song, take the most direct route back to the single itself. The Listen Lounge gives Monday a fast reset without forcing instant confetti energy.",
+    routeHref: "#listen-friday",
+    routeLabel: "Reset in the Listen Lounge",
+    routeMeters: [
+      { label: "Weekday drag", value: 5, low: "Light", high: "Heavy" },
+      { label: "Anticipation", value: 2, low: "Distant", high: "Close" },
+      { label: "Color burst", value: 1, low: "Muted", high: "Neon" },
+    ],
   },
   {
     id: "midweek-grey",
@@ -291,6 +313,16 @@ const LYRIC_MOMENTS: LyricMoment[] = [
       "Bundling Tuesday and Wednesday together makes them feel almost interchangeable. That little monotony trick sharpens the chorus by turning Friday into a real break in the pattern.",
     collageCue: "Photocopied calendar squares fading into each other under cyan marker streaks.",
     fanNote: "It is one of the song's smartest moves: the weekdays feel repetitive, not tragic.",
+    routeTitle: "Use the blur as a cue to choose your next Cure lane on purpose.",
+    routeBody:
+      "This middle stretch works best with a queue that breaks sameness. The site's mood-based song routes are a good follow-up when you want Friday energy to arrive before the calendar cooperates.",
+    routeHref: "#friday-cure-queue",
+    routeLabel: "Build a Friday Cure Queue",
+    routeMeters: [
+      { label: "Weekday drag", value: 4, low: "Light", high: "Heavy" },
+      { label: "Anticipation", value: 3, low: "Distant", high: "Close" },
+      { label: "Color burst", value: 2, low: "Muted", high: "Neon" },
+    ],
   },
   {
     id: "thursday-shrug",
@@ -302,6 +334,16 @@ const LYRIC_MOMENTS: LyricMoment[] = [
       "Instead of building pressure with grand misery, the lyric simply drops Thursday with a sly dismissal. That playful impatience keeps the song buoyant and makes the turn into Friday feel cheeky.",
     collageCue: "A ripped-out flyer corner tossed off the page with yellow tape still attached.",
     fanNote: "The line lands because it sounds amused, not cruel or self-serious.",
+    routeTitle: "Lean into the mischievous visual side before the full release hits.",
+    routeBody:
+      "Thursday is where the song starts grinning. The video decoder is the best next stop if you want pattern-clash, handmade weirdness, and that teasing almost-Friday momentum.",
+    routeHref: "#video-scene-decoder",
+    routeLabel: "Open the Video Scene Decoder",
+    routeMeters: [
+      { label: "Weekday drag", value: 2, low: "Light", high: "Heavy" },
+      { label: "Anticipation", value: 4, low: "Distant", high: "Close" },
+      { label: "Color burst", value: 4, low: "Muted", high: "Neon" },
+    ],
   },
   {
     id: "friday-release",
@@ -313,6 +355,16 @@ const LYRIC_MOMENTS: LyricMoment[] = [
       "After the dull run-up, the title line opens the whole song. Friday becomes both a day and a feeling: the instant when routine breaks and affection floods the room.",
     collageCue: "Confetti-yellow lettering bursting over pink-and-purple poster layers.",
     fanNote: "This is why the chorus works live: everyone already knows exactly when the color arrives.",
+    routeTitle: "Follow the chorus into the part of the story where the whole crowd joins in.",
+    routeBody:
+      "Once the title lands, the live section makes the most sense. It shows how the song turns from private relief into communal release across arenas, festivals, and modern tours.",
+    routeHref: "#tour-live-moments",
+    routeLabel: "Trace the Tour & Live Moments",
+    routeMeters: [
+      { label: "Weekday drag", value: 1, low: "Light", high: "Heavy" },
+      { label: "Anticipation", value: 5, low: "Distant", high: "Close" },
+      { label: "Color burst", value: 5, low: "Muted", high: "Neon" },
+    ],
   },
 ];
 
@@ -4192,6 +4244,43 @@ const LyricsMeaningSection = () => {
                   <dd>{selectedLyricMoment.fanNote}</dd>
                 </div>
               </dl>
+
+              <section className={styles.lyricRouteCard} aria-labelledby={`lyric-route-title-${selectedLyricMoment.id}`}>
+                <div className={styles.lyricRouteHeader}>
+                  <p className={styles.lyricRouteEyebrow}>Lyric Mood Route</p>
+                  <h4 id={`lyric-route-title-${selectedLyricMoment.id}`} className={styles.lyricRouteTitle}>
+                    {selectedLyricMoment.routeTitle}
+                  </h4>
+                </div>
+
+                <p className={styles.lyricRouteBody}>{selectedLyricMoment.routeBody}</p>
+
+                <ul className={styles.lyricRouteMeterList} aria-label={`${selectedLyricMoment.tabLabel} mood meters`}>
+                  {selectedLyricMoment.routeMeters.map((meter) => (
+                    <li key={`${selectedLyricMoment.id}-${meter.label}`} className={styles.lyricRouteMeterItem}>
+                      <div className={styles.lyricRouteMeterLabelRow}>
+                        <span className={styles.lyricRouteMeterLabel}>{meter.label}</span>
+                        <span className={styles.lyricRouteMeterValue}>{meter.value}/5</span>
+                      </div>
+                      <div
+                        className={styles.lyricRouteMeterTrack}
+                        role="img"
+                        aria-label={`${meter.label}: ${meter.value} out of 5, from ${meter.low} to ${meter.high}`}
+                      >
+                        <span className={styles.lyricRouteMeterFill} style={{ width: `${meter.value * 20}%` }} />
+                      </div>
+                      <p className={styles.lyricRouteMeterRange}>
+                        <span>{meter.low}</span>
+                        <span>{meter.high}</span>
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+
+                <a href={selectedLyricMoment.routeHref} className={styles.lyricRouteLink}>
+                  {selectedLyricMoment.routeLabel}
+                </a>
+              </section>
             </motion.aside>
           </AnimatePresence>
         </div>
