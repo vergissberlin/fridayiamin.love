@@ -1111,6 +1111,188 @@
   background: rgba(255, 238, 0, 0.08);
 }
 
+.songSnapshotTimeline {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1.2rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top left, rgba(255, 238, 0, 0.1), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 45, 149, 0.12), transparent 32%),
+    rgba(7, 10, 24, 0.8);
+  box-shadow: 0 0 24px rgba(255, 45, 149, 0.1);
+}
+
+.songSnapshotTimelineHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.songSnapshotTimelineTitle {
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0, 240, 255, 0.28);
+}
+
+.songSnapshotTimelineIntro,
+.songSnapshotTimelineBody,
+.songSnapshotTimelineNote {
+  font-family: var(--font-handwritten);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.songSnapshotTimelineIntro {
+  font-size: 1.2rem;
+  line-height: 1.45;
+}
+
+.songSnapshotTimelineShell {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.songSnapshotTimelineTabs {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.songSnapshotTimelineTab {
+  appearance: none;
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.songSnapshotTimelineTab:hover,
+.songSnapshotTimelineTab:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 240, 255, 0.52);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+}
+
+.songSnapshotTimelineTab:focus-visible,
+.songSnapshotTimelineLink:focus-visible {
+  outline: 2px solid var(--yellow-neon);
+  outline-offset: 2px;
+}
+
+.songSnapshotTimelineTabActive {
+  border-color: rgba(255, 238, 0, 0.62);
+  background: linear-gradient(135deg, rgba(255, 238, 0, 0.14), rgba(255, 45, 149, 0.14));
+  box-shadow: 0 0 20px rgba(255, 238, 0, 0.1);
+}
+
+.songSnapshotTimelineTabPhase,
+.songSnapshotTimelineKicker {
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.songSnapshotTimelineTabPhase {
+  color: var(--cyan-neon);
+}
+
+.songSnapshotTimelineTabLabel {
+  font-family: var(--font-marker);
+  font-size: 1.02rem;
+  color: var(--yellow-neon);
+}
+
+.songSnapshotTimelinePanel {
+  display: grid;
+  gap: 0.8rem;
+  min-height: 100%;
+  padding: 1.2rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(0, 240, 255, 0.12), transparent 30%),
+    rgba(0, 0, 0, 0.4);
+}
+
+.songSnapshotTimelineKicker {
+  color: var(--pink-neon);
+}
+
+.songSnapshotTimelineHeadline {
+  font-family: var(--font-marker);
+  font-size: clamp(1.45rem, 3vw, 2.05rem);
+  line-height: 1.15;
+  color: #fff;
+}
+
+.songSnapshotTimelineBody,
+.songSnapshotTimelineNote {
+  font-size: 1.16rem;
+  line-height: 1.5;
+}
+
+.songSnapshotTimelineNote {
+  padding-left: 0.9rem;
+  border-left: 3px solid rgba(255, 238, 0, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.songSnapshotTimelineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding-top: 0.15rem;
+}
+
+.songSnapshotTimelineLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.songSnapshotTimelineLink:hover,
+.songSnapshotTimelineLink:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.58);
+  color: var(--yellow-neon);
+  background: rgba(255, 238, 0, 0.08);
+}
+
 .releaseFormatGuide {
   padding: 1.5rem;
   border-radius: 24px;
@@ -2923,6 +3105,11 @@
 }
 
 @media (max-width: 840px) {
+  .songSnapshotTimelineHeader,
+  .songSnapshotTimelineShell {
+    grid-template-columns: 1fr;
+  }
+
   .listenLoungeLaneGrid {
     grid-template-columns: 1fr;
   }
@@ -2946,6 +3133,10 @@
 }
 
 @media (max-width: 560px) {
+  .songSnapshotTimelineLink {
+    width: 100%;
+  }
+
   .spotifySection {
     padding-top: 3.75rem;
   }

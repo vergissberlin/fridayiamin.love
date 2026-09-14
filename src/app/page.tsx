@@ -178,6 +178,8 @@ type ListeningLane = {
 
 type ReleaseFormatId = "seven-inch" | "twelve-inch" | "cd-single";
 
+type ReleaseMilestoneId = "wish-frame" | "friday-drop" | "chart-glow" | "live-beacon";
+
 type ReleaseFormat = {
   id: ReleaseFormatId;
   tabLabel: string;
@@ -192,6 +194,19 @@ type ReleaseFormat = {
     length: string;
     note: string;
   }[];
+};
+
+type ReleaseMilestone = {
+  id: ReleaseMilestoneId;
+  phase: string;
+  tabLabel: string;
+  headline: string;
+  body: string;
+  fanNote: string;
+  source: string;
+  href: string;
+  cueLabel: string;
+  cueHref: string;
 };
 
 type SingleCompanionId = "halo" | "scared-as-you" | "strangelove-mix";
@@ -440,6 +455,65 @@ const SONG_SNAPSHOT_FACTS = [
   { label: "Label", value: "Fiction / Elektra" },
   { label: "Writers", value: "Bamonte, Gallup, Smith, Thompson, Williams" },
   { label: "Peak glow", value: "UK #6, US Hot 100 #18, US Alt #1" },
+];
+
+const RELEASE_MILESTONES: ReleaseMilestone[] = [
+  {
+    id: "wish-frame",
+    phase: "Spring 1992",
+    tabLabel: "Wish frame",
+    headline: "Before Friday became a single event, it lived inside Wish's bigger emotional weather.",
+    body:
+      "Inside Wish, the song reads less like a detached sugar rush and more like the album's cleanest flash of daylight. That wider context is part of why the single still feels unmistakably Cure instead of generic pop uplift.",
+    fanNote:
+      "Fans who love the contrast between brightness and shadow usually hear the single more clearly once the album frame is back in view.",
+    source: "Wish album overview",
+    href: "https://en.wikipedia.org/wiki/Wish_(The_Cure_album)",
+    cueLabel: "Start in the Listen Lounge",
+    cueHref: "#listen-friday",
+  },
+  {
+    id: "friday-drop",
+    phase: "15 May 1992",
+    tabLabel: "Friday drop",
+    headline: "The title gained extra lore because some UK formats really did arrive on a Friday.",
+    body:
+      "That release-day quirk gave the single a little calendar-perfect myth from the start. The song was already a Friday anthem; the rollout let fans feel the joke and the joy land together.",
+    fanNote:
+      "It is a tiny piece of release trivia, but exactly the kind of poetry that makes a pop single feel charmed rather than merely well-timed.",
+    source: "Friday I'm in Love overview",
+    href: "https://en.wikipedia.org/wiki/Friday_I%27m_in_Love",
+    cueLabel: "Compare the single formats",
+    cueHref: "#song-snapshot",
+  },
+  {
+    id: "chart-glow",
+    phase: "June 1992",
+    tabLabel: "Chart glow",
+    headline: "The crossover moment proved The Cure could go huge without sanding off the band identity.",
+    body:
+      "Strong chart runs in the UK and US turned the song into one of the band's most welcoming entry points. Even at peak accessibility, the handmade video, bittersweet context, and Robert Smith's delivery kept the track gloriously specific.",
+    fanNote:
+      "This is the stop that explains why the song became many listeners' first Cure memory and still stayed beloved by longtime fans.",
+    source: "Official Charts week of the UK peak",
+    href: "https://www.officialcharts.com/charts/singles-chart/19920606/7501/",
+    cueLabel: "Browse the Friday Field Guide",
+    cueHref: "#fan-resources",
+  },
+  {
+    id: "live-beacon",
+    phase: "1992-present",
+    tabLabel: "Live beacon",
+    headline: "Over time, the single stopped being an outlier and became a guaranteed crowd-release beacon.",
+    body:
+      "Decades of setlists turned the chorus into a communal checkpoint inside Cure shows. Whether the set leans shadowy, romantic, or expansive, this is the moment thousands of voices usually arrive at the same grin.",
+    fanNote:
+      "Its long afterlife on stage is the clearest proof that brightness was never separate from The Cure story. It was always one of the story's strongest colors.",
+    source: "Setlist.fm live song stats",
+    href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
+    cueLabel: "Trace the live timeline",
+    cueHref: "#tour-live-moments",
+  },
 ];
 
 const RELEASE_FORMATS: ReleaseFormat[] = [
@@ -1933,8 +2007,11 @@ const SongSnapshotSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedFormatId, setSelectedFormatId] = useState<ReleaseFormatId>(RELEASE_FORMATS[0].id);
   const [selectedCompanionId, setSelectedCompanionId] = useState<SingleCompanionId>(SINGLE_COMPANIONS[0].id);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<ReleaseMilestoneId>("friday-drop");
   const [formatAnswers, setFormatAnswers] = useState<Partial<Record<string, ReleaseFormatId>>>({});
   const selectedFormat = RELEASE_FORMATS.find((format) => format.id === selectedFormatId) ?? RELEASE_FORMATS[0];
+  const selectedMilestone =
+    RELEASE_MILESTONES.find((milestone) => milestone.id === selectedMilestoneId) ?? RELEASE_MILESTONES[1];
   const answeredFormatQuestionCount = Object.keys(formatAnswers).length;
   const isFormatMatchComplete = answeredFormatQuestionCount === RELEASE_FORMAT_MATCH_QUESTIONS.length;
   const matchedFormatId = isFormatMatchComplete ? getReleaseFormatResult(formatAnswers) : null;
@@ -2100,6 +2177,78 @@ const SongSnapshotSection = () => {
       </div>
 
       <div className={styles.releaseFormatGuide}>
+        <div className={styles.songSnapshotTimeline} aria-labelledby="song-snapshot-timeline-title">
+          <div className={styles.songSnapshotTimelineHeader}>
+            <div>
+              <p className={styles.releaseFormatGuideEyebrow}>Release Glow Trail</p>
+              <h3 id="song-snapshot-timeline-title" className={styles.songSnapshotTimelineTitle}>
+                Follow how Friday moved from album moment to fan shorthand.
+              </h3>
+            </div>
+
+            <p className={styles.songSnapshotTimelineIntro}>
+              This quick trail keeps the single anchored in its real 1992 story: album context, clever timing,
+              crossover reach, and the long live afterglow.
+            </p>
+          </div>
+
+          <div className={styles.songSnapshotTimelineShell}>
+            <div className={styles.songSnapshotTimelineTabs} role="tablist" aria-label="Friday I'm in Love release milestones">
+              {RELEASE_MILESTONES.map((milestone) => (
+                <button
+                  key={milestone.id}
+                  type="button"
+                  role="tab"
+                  id={`release-milestone-tab-${milestone.id}`}
+                  aria-selected={selectedMilestone.id === milestone.id}
+                  aria-controls={`release-milestone-panel-${milestone.id}`}
+                  tabIndex={selectedMilestone.id === milestone.id ? 0 : -1}
+                  className={`${styles.songSnapshotTimelineTab} ${
+                    selectedMilestone.id === milestone.id ? styles.songSnapshotTimelineTabActive : ""
+                  }`}
+                  onClick={() => setSelectedMilestoneId(milestone.id)}
+                >
+                  <span className={styles.songSnapshotTimelineTabPhase}>{milestone.phase}</span>
+                  <span className={styles.songSnapshotTimelineTabLabel}>{milestone.tabLabel}</span>
+                </button>
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.article
+                key={selectedMilestone.id}
+                id={`release-milestone-panel-${selectedMilestone.id}`}
+                role="tabpanel"
+                aria-labelledby={`release-milestone-tab-${selectedMilestone.id}`}
+                className={styles.songSnapshotTimelinePanel}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+              >
+                <p className={styles.songSnapshotTimelineKicker}>{selectedMilestone.phase}</p>
+                <h4 className={styles.songSnapshotTimelineHeadline}>{selectedMilestone.headline}</h4>
+                <p className={styles.songSnapshotTimelineBody}>{selectedMilestone.body}</p>
+                <p className={styles.songSnapshotTimelineNote}>{selectedMilestone.fanNote}</p>
+
+                <div className={styles.songSnapshotTimelineActions}>
+                  <a
+                    href={selectedMilestone.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.songSnapshotTimelineLink}
+                  >
+                    Source: {selectedMilestone.source}
+                  </a>
+                  <a href={selectedMilestone.cueHref} className={styles.songSnapshotTimelineLink}>
+                    {selectedMilestone.cueLabel}
+                  </a>
+                </div>
+              </motion.article>
+            </AnimatePresence>
+          </div>
+        </div>
+
         <div className={styles.releaseFormatGuideHeader}>
           <div>
             <p className={styles.releaseFormatGuideEyebrow}>Release Format Guide</p>
