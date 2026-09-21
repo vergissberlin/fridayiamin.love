@@ -2003,6 +2003,37 @@ const WeekdayForecastCard = () => {
   );
 };
 
+const LateNightReadingModeCard = ({
+  isReadingMode,
+  onToggle,
+}: {
+  isReadingMode: boolean;
+  onToggle: () => void;
+}) => (
+  <aside className={styles.readingModeCard} aria-labelledby="reading-mode-title">
+    <div className={styles.readingModeCopy}>
+      <p className={styles.readingModeEyebrow}>Late-Night Reading Mode</p>
+      <h2 id="reading-mode-title" className={styles.readingModeTitle}>
+        {isReadingMode ? "The collage settles into a quieter glow." : "Dial the neon down when you want the long reads to breathe."}
+      </h2>
+      <p className={styles.readingModeBody}>
+        {isReadingMode
+          ? "Motion-heavy accents ease back, floating lyrics step aside, and the fan notes get a calmer contrast pass."
+          : "Keep the same Friday story, but switch the page into a calmer, more legible mode for lyrics, history, and fan notes."}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      className={styles.readingModeButton}
+      aria-pressed={isReadingMode}
+      onClick={onToggle}
+    >
+      {isReadingMode ? "Return to full collage" : "Settle the collage"}
+    </button>
+  </aside>
+);
+
 const SongSnapshotSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedFormatId, setSelectedFormatId] = useState<ReleaseFormatId>(RELEASE_FORMATS[0].id);
@@ -4444,9 +4475,10 @@ export default function Home() {
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.8]);
   const y = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
+  const [isReadingMode, setIsReadingMode] = useState(false);
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${isReadingMode ? styles.readingMode : ""}`}>
       <motion.section className={styles.hero} ref={containerRef}>
         <div className={styles.backgroundLayers}>
           <div className={styles.gradientOrb1} />
@@ -4486,13 +4518,15 @@ export default function Home() {
           <DayProgress />
           <FridayCountdown />
           <WeekdayForecastCard />
+          <LateNightReadingModeCard
+            isReadingMode={isReadingMode}
+            onToggle={() => setIsReadingMode((currentMode) => !currentMode)}
+          />
         </motion.div>
 
-        <PatternShapes />
+        {!isReadingMode && <PatternShapes />}
         <GothicSilhouette />
-        {LYRICS.map((line, index) => (
-          <FloatingLyric key={line} text={line} index={index} />
-        ))}
+        {!isReadingMode && LYRICS.map((line, index) => <FloatingLyric key={line} text={line} index={index} />)}
       </motion.section>
 
       <FridayMixtapeNavigator />
