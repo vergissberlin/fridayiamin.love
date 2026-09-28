@@ -68,6 +68,16 @@ type FridayQuizQuestion = {
   }[];
 };
 
+type ListeningLaneMatchQuestion = {
+  id: string;
+  prompt: string;
+  options: {
+    result: ListeningLaneId;
+    title: string;
+    detail: string;
+  }[];
+};
+
 type CoverMatchQuestion = {
   id: string;
   prompt: string;
@@ -1498,6 +1508,74 @@ const LISTENING_LANES: ListeningLane[] = [
   },
 ];
 
+const LISTENING_LANE_RESULT_ORDER: ListeningLaneId[] = ["stream", "video", "live"];
+
+const LISTENING_LANE_MATCH_QUESTIONS: ListeningLaneMatchQuestion[] = [
+  {
+    id: "reset-shape",
+    prompt: "What kind of Friday reset should arrive first?",
+    options: [
+      {
+        result: "stream",
+        title: "The chorus, immediately.",
+        detail: "Start with the clean single and let the hook do the work fast.",
+      },
+      {
+        result: "video",
+        title: "The colors before the hook.",
+        detail: "I want paint, pattern, and Tim Pope's visual grin leading the way.",
+      },
+      {
+        result: "live",
+        title: "The crowd-memory version.",
+        detail: "Show me the route where the title turns into a shared singalong.",
+      },
+    ],
+  },
+  {
+    id: "fan-detail",
+    prompt: "Which detail matters most right now?",
+    options: [
+      {
+        result: "stream",
+        title: "Bright guitars and no detours.",
+        detail: "Keep it direct, jangly, and close to the radio-sized rush.",
+      },
+      {
+        result: "video",
+        title: "Handmade chaos.",
+        detail: "The visual clutter is part of why the song still feels unmistakably Cure.",
+      },
+      {
+        result: "live",
+        title: "Communal lift.",
+        detail: "I want the version that sounds best with thousands of other voices around it.",
+      },
+    ],
+  },
+  {
+    id: "after-click",
+    prompt: "After the first click, what should the mood become?",
+    options: [
+      {
+        result: "stream",
+        title: "Snapped back into motion.",
+        detail: "Get me moving before the week can argue back.",
+      },
+      {
+        result: "video",
+        title: "Dropped into full collage mode.",
+        detail: "I want Friday to arrive with shape clashes, color, and mischief.",
+      },
+      {
+        result: "live",
+        title: "Connected to the larger Cure crowd.",
+        detail: "Let the song open outward into tour history and audience memory.",
+      },
+    ],
+  },
+];
+
 const DEFAULT_WEEKDAY_FORECAST: WeekdayForecast = {
   dayLabel: "Any Day",
   weather: "Fan weather check",
@@ -1737,6 +1815,24 @@ function getReleaseFormatResult(answers: Partial<Record<string, ReleaseFormatId>
 
   return RELEASE_FORMAT_RESULT_ORDER.reduce((bestFormat, formatId) =>
     scorecard[formatId] > scorecard[bestFormat] ? formatId : bestFormat,
+  );
+}
+
+function getListeningLaneResult(answers: Partial<Record<string, ListeningLaneId>>) {
+  const scorecard: Record<ListeningLaneId, number> = {
+    stream: 0,
+    video: 0,
+    live: 0,
+  };
+
+  Object.values(answers).forEach((answer) => {
+    if (answer) {
+      scorecard[answer] += 1;
+    }
+  });
+
+  return LISTENING_LANE_RESULT_ORDER.reduce((bestLane, laneId) =>
+    scorecard[laneId] > scorecard[bestLane] ? laneId : bestLane,
   );
 }
 
@@ -2466,7 +2562,25 @@ const SongSnapshotSection = () => {
 const ListenLoungeSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedLaneId, setSelectedLaneId] = useState<ListeningLaneId>("stream");
+  const [laneAnswers, setLaneAnswers] = useState<Partial<Record<string, ListeningLaneId>>>({});
   const selectedLane = LISTENING_LANES.find((lane) => lane.id === selectedLaneId) ?? LISTENING_LANES[0];
+  const answeredLaneQuestionCount = Object.keys(laneAnswers).length;
+  const isLaneMatchComplete = answeredLaneQuestionCount === LISTENING_LANE_MATCH_QUESTIONS.length;
+  const matchedLaneId = isLaneMatchComplete ? getListeningLaneResult(laneAnswers) : null;
+  const matchedLane = matchedLaneId ? LISTENING_LANES.find((lane) => lane.id === matchedLaneId) ?? LISTENING_LANES[0] : null;
+
+  const handleLaneAnswerSelect = (questionId: string, result: ListeningLaneId) => {
+    const nextAnswers = {
+      ...laneAnswers,
+      [questionId]: result,
+    };
+
+    setLaneAnswers(nextAnswers);
+
+    if (Object.keys(nextAnswers).length === LISTENING_LANE_MATCH_QUESTIONS.length) {
+      setSelectedLaneId(getListeningLaneResult(nextAnswers));
+    }
+  };
 
   return (
     <section
@@ -2490,6 +2604,98 @@ const ListenLoungeSection = () => {
       </p>
 
       <div className={styles.listenLoungeShell}>
+        <div className={styles.listenLoungeMatchmaker} aria-labelledby="listen-lounge-matchmaker-title">
+          <div className={styles.listenLoungeMatchmakerHeader}>
+            <div>
+              <p className={styles.listenLoungeMatchmakerEyebrow}>Listen Lounge Route Matchmaker</p>
+              <h3 id="listen-lounge-matchmaker-title" className={styles.listenLoungeMatchmakerTitle}>
+                Need a starting point before you press play?
+              </h3>
+            </div>
+
+            <p className={styles.listenLoungeMatchmakerStatus}>
+              {answeredLaneQuestionCount} of {LISTENING_LANE_MATCH_QUESTIONS.length} cues picked
+            </p>
+          </div>
+
+          <p className={styles.listenLoungeMatchmakerBody}>
+            Pick three cues and the lounge will recommend the best first stop, then switch the lane board to
+            match.
+          </p>
+
+          <div className={styles.listenLoungeMatchmakerGrid}>
+            <div className={styles.listenLoungeMatchmakerQuestions}>
+              {LISTENING_LANE_MATCH_QUESTIONS.map((question) => (
+                <fieldset key={question.id} className={styles.listenLoungeMatchmakerQuestion}>
+                  <legend className={styles.listenLoungeMatchmakerLegend}>{question.prompt}</legend>
+
+                  <div className={styles.listenLoungeMatchmakerOptions}>
+                    {question.options.map((option) => {
+                      const isSelected = laneAnswers[question.id] === option.result;
+
+                      return (
+                        <button
+                          key={`${question.id}-${option.result}`}
+                          type="button"
+                          className={`${styles.listenLoungeMatchmakerOption} ${
+                            isSelected ? styles.listenLoungeMatchmakerOptionActive : ""
+                          }`}
+                          onClick={() => handleLaneAnswerSelect(question.id, option.result)}
+                          aria-pressed={isSelected}
+                        >
+                          <span className={styles.listenLoungeMatchmakerOptionTitle}>{option.title}</span>
+                          <span className={styles.listenLoungeMatchmakerOptionDetail}>{option.detail}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.aside
+                key={matchedLane?.id ?? "listen-lounge-match-empty"}
+                className={styles.listenLoungeMatchmakerResult}
+                aria-live="polite"
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              >
+                {matchedLane ? (
+                  <>
+                    <p className={styles.listenLoungeMatchmakerResultKicker}>Your first stop</p>
+                    <h4 className={styles.listenLoungeMatchmakerResultTitle}>{matchedLane.label}</h4>
+                    <p className={styles.listenLoungeMatchmakerResultMeta}>{matchedLane.eyebrow}</p>
+                    <p className={styles.listenLoungeMatchmakerResultBody}>{matchedLane.detail}</p>
+                    <p className={styles.listenLoungeMatchmakerResultHint}>
+                      The lane board below has already switched to this route, so you can open it now or compare
+                      the other ways into Friday.
+                    </p>
+                    <button
+                      type="button"
+                      className={styles.listenLoungeMatchmakerResetButton}
+                      onClick={() => setLaneAnswers({})}
+                    >
+                      Reset cues
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className={styles.listenLoungeMatchmakerResultKicker}>Route waiting room</p>
+                    <h4 className={styles.listenLoungeMatchmakerResultTitle}>Your recommendation appears after the third pick.</h4>
+                    <p className={styles.listenLoungeMatchmakerResultBody}>
+                      Use this if you are deciding between the pure single hit, the full Tim Pope collage, or the
+                      crowd-sized live route.
+                    </p>
+                  </>
+                )}
+              </motion.aside>
+            </AnimatePresence>
+          </div>
+        </div>
+
         <div className={styles.listenLoungeLaneGrid} role="group" aria-label="Choose a Friday I'm in Love listening lane">
           {LISTENING_LANES.map((lane) => {
             const isSelected = selectedLane.id === lane.id;

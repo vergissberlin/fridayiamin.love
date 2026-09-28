@@ -23,6 +23,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - `Friday Forecast`: a day-aware hero card that updates its fan copy and recommended next stop based on the current weekday, so the site feels different on Monday, Friday, or the weekend.
 - `Late-Night Reading Mode`: a hero-level toggle that quiets the collage, reduces visual noise, and boosts long-form readability for fans who want a calmer pass through the lyrics, history, and guide sections.
 - `Listen Lounge`: a three-lane listening entry point that lets visitors start with the studio single, the official Tim Pope video, or a live-history route before moving deeper into the page.
+- `Listen Lounge Route Matchmaker`: a three-question picker inside `Listen Lounge` that recommends the best first stop between `Studio`, `Video`, and `Live`, then syncs the lounge panel to that route.
 - `Song Snapshot Release Format Guide + Matchmaker`: an interactive `Song Snapshot` upgrade that pairs the core single facts with a fan-friendly 7-inch / 12-inch / CD format picker, track notes, release-day context, and a three-prompt format recommendation tool.
 - `Song Snapshot Release Glow Trail`: a compact interactive milestone board inside `Song Snapshot` that traces the single from its `Wish` album frame to its Friday release quirk, chart crossover, and durable live afterlife.
 - `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
