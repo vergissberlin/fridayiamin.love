@@ -27,7 +27,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.2.6",
     "midi-writer-js": "^3.2.1",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "vitest": "^4.0.0"
   }
 }
