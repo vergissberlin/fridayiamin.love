@@ -37,7 +37,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - `Friday Field Guide`: a curated fan-resources wall with route filters and a spotlight card so visitors can jump straight to official history, video, live data, collectors' details, or chart context.
 - `Build Your Friday Cure Queue`: an interactive mood selector that recommends adjacent The Cure songs to follow up `Friday I'm in Love`, with short fan-facing notes and source links.
 - `Friday Fan Flyer`: a one-card route builder that mixes queue mood, video texture, and live-era energy into a copyable Friday plan with quick links.
-- `Weekday Mood Decoder + Friday Phrasebook + Lyric Mood Route`: an interactive `Lyrics & Meaning` enhancement that lets visitors tap each quoted line to unpack the song's shift from weekday blur into Friday release, compare multilingual mood words, and follow a synced mood-route card with quick next-stop links and vibe meters for each lyric moment.
+- `Weekday Mood Decoder + Friday Phrasebook + Friday Postcard Builder + Lyric Mood Route`: an interactive `Lyrics & Meaning` enhancement that lets visitors tap each quoted line to unpack the song's shift from weekday blur into Friday release, compare multilingual mood words, generate a fan-safe postcard caption from the active lyric moment, and follow a synced mood-route card with quick next-stop links and vibe meters for each lyric moment.
 - `Guitar Tabs & Chords`: a playable chord progression section with chord diagrams, MIDI practice playback, and downloadable `.mid` files for fan practice.
 - `Behind the Scenes` and `Tour & Live Moments`: compact fan-friendly context cards covering the song's visual identity, live legacy, and place in The Cure's catalog.
 

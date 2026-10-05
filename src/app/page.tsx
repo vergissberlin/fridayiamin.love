@@ -174,6 +174,15 @@ type LyricPhrasebookEntry = {
   focusMomentId: LyricMomentId;
 };
 
+type LyricPostcardTone = "text" | "caption" | "invite";
+
+type LyricPostcardVariant = {
+  id: LyricPostcardTone;
+  label: string;
+  eyebrow: string;
+  description: string;
+};
+
 type ListeningLane = {
   id: ListeningLaneId;
   label: string;
@@ -390,6 +399,27 @@ const LYRIC_MOMENTS: LyricMoment[] = [
       { label: "Anticipation", value: 5, low: "Distant", high: "Close" },
       { label: "Color burst", value: 5, low: "Muted", high: "Neon" },
     ],
+  },
+];
+
+const LYRIC_POSTCARD_VARIANTS: LyricPostcardVariant[] = [
+  {
+    id: "text",
+    label: "Text a friend",
+    eyebrow: "Direct glow",
+    description: "Short, warm, and ready to send before the chorus even hits.",
+  },
+  {
+    id: "caption",
+    label: "Post caption",
+    eyebrow: "Collage caption",
+    description: "A fan-safe little line for a feed, story, or Friday photo dump.",
+  },
+  {
+    id: "invite",
+    label: "Friday invite",
+    eyebrow: "Night plan",
+    description: "Frame the mood like a tiny invitation into your Cure-shaped Friday.",
   },
 ];
 
@@ -1896,6 +1926,60 @@ function buildFridayFanFlyerText(
     `Live cue: ${snapshot.crowdCue}`,
     `Keep reading: ${snapshot.href}`,
   ].join("\n");
+}
+
+function buildLyricPostcard(
+  moment: LyricMoment,
+  phrasebook: LyricPhrasebookEntry,
+  languageLabel: string,
+  tone: LyricPostcardTone,
+) {
+  const moodWords = phrasebook.moodWords.join(" / ");
+
+  if (tone === "caption") {
+    return {
+      title: `${moment.tabLabel} to Friday, in ${languageLabel}`,
+      body: `${moment.mood}. ${phrasebook.spotlight} ${moment.fanNote}`,
+      footer: `Mood words: ${moodWords}.`,
+      copyText: [
+        `Friday Postcard | ${languageLabel} | Post caption`,
+        `${moment.tabLabel} to Friday`,
+        `${moment.mood}. ${phrasebook.spotlight}`,
+        `Mood words: ${phrasebook.moodWords.join(", ")}`,
+        `Next stop: ${moment.routeLabel}`,
+      ].join("\n"),
+    };
+  }
+
+  if (tone === "invite") {
+    return {
+      title: `Start in ${moment.tabLabel}, land in release`,
+      body: `${moment.headline} ${phrasebook.fanCue} Let ${moment.routeLabel.toLowerCase()} be the next stop.`,
+      footer: `Built from the ${languageLabel} phrasebook and the ${moment.tabLabel} mood stop.`,
+      copyText: [
+        `Friday Postcard | ${languageLabel} | Friday invite`,
+        `Start in ${moment.tabLabel}, land in release.`,
+        moment.headline,
+        phrasebook.fanCue,
+        `Mood words: ${phrasebook.moodWords.join(", ")}`,
+        `Route: ${moment.routeLabel} ${moment.routeHref}`,
+      ].join("\n"),
+    };
+  }
+
+  return {
+    title: `${moment.tabLabel} mood check`,
+    body: `${moment.headline} ${phrasebook.fanCue}`,
+    footer: `Keep ${moodWords} in view, then take the ${moment.routeLabel.toLowerCase()}.`,
+    copyText: [
+      `Friday Postcard | ${languageLabel} | Text a friend`,
+      `${moment.tabLabel} mood check`,
+      moment.headline,
+      phrasebook.fanCue,
+      `Mood words: ${phrasebook.moodWords.join(", ")}`,
+      `Next stop: ${moment.routeLabel}`,
+    ].join("\n"),
+  };
 }
 
 const GothicSilhouette = () => (
@@ -4483,6 +4567,9 @@ const LyricsMeaningSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>("en");
   const [selectedLyricMomentId, setSelectedLyricMomentId] = useState<LyricMomentId>(LYRIC_MOMENTS[0].id);
+  const [selectedPostcardTone, setSelectedPostcardTone] = useState<LyricPostcardTone>("text");
+  const [copiedPostcardKey, setCopiedPostcardKey] = useState<string | null>(null);
+  const [postcardCopyFailed, setPostcardCopyFailed] = useState(false);
   const selectedLyricMoment =
     LYRIC_MOMENTS.find((moment) => moment.id === selectedLyricMomentId) ?? LYRIC_MOMENTS[0];
   const selectedLanguageLabel =
@@ -4490,6 +4577,27 @@ const LyricsMeaningSection = () => {
   const selectedPhrasebook = LYRIC_PHRASEBOOK[selectedLanguage];
   const phrasebookFocusMoment =
     LYRIC_MOMENTS.find((moment) => moment.id === selectedPhrasebook.focusMomentId) ?? LYRIC_MOMENTS[0];
+  const selectedPostcardVariant =
+    LYRIC_POSTCARD_VARIANTS.find((variant) => variant.id === selectedPostcardTone) ?? LYRIC_POSTCARD_VARIANTS[0];
+  const postcardKey = `${selectedLanguage}-${selectedLyricMoment.id}-${selectedPostcardTone}`;
+  const postcard = buildLyricPostcard(selectedLyricMoment, selectedPhrasebook, selectedLanguageLabel, selectedPostcardTone);
+  const postcardCopyStatus =
+    copiedPostcardKey === postcardKey
+      ? postcardCopyFailed
+        ? "Copy did not work here, but the postcard preview is still ready to use."
+        : "Friday postcard copied."
+      : "Copy this Friday postcard for later.";
+
+  const handlePostcardCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(postcard.copyText);
+      setCopiedPostcardKey(postcardKey);
+      setPostcardCopyFailed(false);
+    } catch {
+      setCopiedPostcardKey(postcardKey);
+      setPostcardCopyFailed(true);
+    }
+  };
 
   return (
     <section id="lyrics-meaning" className={`${styles.infoSection} ${styles.jumpTargetSection}`} aria-labelledby="lyrics-meaning-title">
@@ -4570,6 +4678,90 @@ const LyricsMeaningSection = () => {
               </div>
             </motion.section>
           </AnimatePresence>
+        </div>
+
+        <div className={styles.lyricPostcardBuilder} aria-labelledby="lyric-postcard-title">
+          <div className={styles.lyricPostcardBuilderHeader}>
+            <div>
+              <p className={styles.lyricPostcardEyebrow}>Friday Postcard Builder</p>
+              <h3 id="lyric-postcard-title" className={styles.lyricPostcardTitle}>
+                Turn the current lyric mood into a fan-safe caption card.
+              </h3>
+            </div>
+
+            <p className={styles.lyricPostcardIntro}>
+              This preview follows the lyric moment you have selected below plus the language summary above, so the postcard shifts with your read of the song.
+            </p>
+          </div>
+
+          <div className={styles.lyricPostcardLayout}>
+            <div className={styles.lyricPostcardToneList} role="group" aria-label="Choose a Friday postcard style">
+              {LYRIC_POSTCARD_VARIANTS.map((variant) => {
+                const isSelected = selectedPostcardTone === variant.id;
+
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    className={`${styles.lyricPostcardToneButton} ${
+                      isSelected ? styles.lyricPostcardToneButtonActive : ""
+                    }`}
+                    onClick={() => setSelectedPostcardTone(variant.id)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className={styles.lyricPostcardToneEyebrow}>{variant.eyebrow}</span>
+                    <span className={styles.lyricPostcardToneLabel}>{variant.label}</span>
+                    <span className={styles.lyricPostcardToneDescription}>{variant.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.aside
+                key={postcardKey}
+                className={styles.lyricPostcardPreview}
+                aria-live="polite"
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18, rotate: -1 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18, rotate: 1 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              >
+                <p className={styles.lyricPostcardPreviewEyebrow}>{selectedPostcardVariant.label}</p>
+
+                <div className={styles.lyricPostcardStickerRow} aria-label="Current Friday postcard cues">
+                  <span className={styles.lyricPostcardSticker}>{selectedLanguageLabel}</span>
+                  <span className={styles.lyricPostcardSticker}>{selectedLyricMoment.tabLabel}</span>
+                  <span className={styles.lyricPostcardSticker}>{selectedLyricMoment.mood}</span>
+                </div>
+
+                <h4 className={styles.lyricPostcardPreviewTitle}>{postcard.title}</h4>
+                <p className={styles.lyricPostcardPreviewBody}>{postcard.body}</p>
+                <p className={styles.lyricPostcardPreviewFooter}>{postcard.footer}</p>
+
+                <ul className={styles.lyricPostcardWordList} aria-label={`${selectedLanguageLabel} postcard mood words`}>
+                  {selectedPhrasebook.moodWords.map((word) => (
+                    <li key={`${selectedLyricMoment.id}-${selectedPostcardTone}-${word}`} className={styles.lyricPostcardWord}>
+                      {word}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className={styles.lyricPostcardActions}>
+                  <a href={selectedLyricMoment.routeHref} className={styles.lyricPostcardLink}>
+                    {selectedLyricMoment.routeLabel}
+                  </a>
+                  <button type="button" className={styles.lyricPostcardCopyButton} onClick={handlePostcardCopy}>
+                    Copy postcard text
+                  </button>
+                </div>
+
+                <p className={styles.lyricPostcardCopyStatus} aria-live="polite">
+                  {postcardCopyStatus}
+                </p>
+              </motion.aside>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 

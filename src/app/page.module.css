@@ -809,6 +809,8 @@
 .readingMode .tourSnapshotPanelTitle,
 .readingMode .videoDecoderHeadline,
 .readingMode .lyricDetailTitle,
+.readingMode .lyricPostcardTitle,
+.readingMode .lyricPostcardPreviewTitle,
 .readingMode .coverSpotlightTitle,
 .readingMode .listenLoungeHeadline {
   text-shadow: none;
@@ -822,6 +824,7 @@
 .readingMode .listenLoungeBody,
 .readingMode .tourSnapshotBody,
 .readingMode .lyricDetailBody,
+.readingMode .lyricPostcardPreviewBody,
 .readingMode .coverSpotlightBody,
 .readingMode .fanResourceSpotlightBody,
 .readingMode .fanFlyerPreviewBody {
@@ -840,6 +843,8 @@
 .readingMode .fanFlyerFieldset,
 .readingMode .lyricSummaryCard,
 .readingMode .lyricPhrasebookCard,
+.readingMode .lyricPostcardBuilder,
+.readingMode .lyricPostcardPreview,
 .readingMode .lyricDetailPanel,
 .readingMode .lyricRouteCard,
 .readingMode .videoDecoderPanel,
@@ -2245,6 +2250,258 @@
 .lyricPhrasebookButton:focus-visible {
   outline: 2px solid var(--yellow-neon);
   outline-offset: 2px;
+}
+
+.lyricPostcardBuilder {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at top right, rgba(255, 45, 149, 0.12), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.14), transparent 34%),
+    rgba(8, 10, 24, 0.86);
+  box-shadow: 0 0 24px rgba(255, 45, 149, 0.1);
+}
+
+.lyricPostcardBuilderHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.lyricPostcardEyebrow,
+.lyricPostcardToneEyebrow,
+.lyricPostcardPreviewEyebrow,
+.lyricPostcardCopyStatus {
+  font-family: var(--font-typewriter);
+}
+
+.lyricPostcardEyebrow {
+  margin-bottom: 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--yellow-neon);
+}
+
+.lyricPostcardTitle {
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.02;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(255, 45, 149, 0.38);
+}
+
+.lyricPostcardIntro,
+.lyricPostcardToneDescription,
+.lyricPostcardPreviewBody,
+.lyricPostcardPreviewFooter {
+  font-family: var(--font-handwritten);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.lyricPostcardIntro {
+  font-size: 1.16rem;
+  line-height: 1.5;
+}
+
+.lyricPostcardLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.lyricPostcardToneList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.lyricPostcardToneButton {
+  appearance: none;
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.lyricPostcardToneButton:hover,
+.lyricPostcardToneButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(0, 240, 255, 0.46);
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+}
+
+.lyricPostcardToneButton:focus-visible,
+.lyricPostcardLink:focus-visible,
+.lyricPostcardCopyButton:focus-visible {
+  outline: 2px solid var(--yellow-neon);
+  outline-offset: 2px;
+}
+
+.lyricPostcardToneButtonActive {
+  border-color: rgba(255, 238, 0, 0.58);
+  background: linear-gradient(135deg, rgba(255, 238, 0, 0.12), rgba(255, 45, 149, 0.14));
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.12);
+}
+
+.lyricPostcardToneEyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan-neon);
+}
+
+.lyricPostcardToneLabel {
+  font-family: var(--font-marker);
+  font-size: 1.06rem;
+  color: var(--yellow-neon);
+}
+
+.lyricPostcardToneDescription {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.lyricPostcardPreview {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.2rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 45, 149, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(255, 238, 0, 0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(255, 45, 149, 0.12), transparent 34%),
+    rgba(0, 0, 0, 0.34);
+}
+
+.lyricPostcardPreviewEyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pink-neon);
+}
+
+.lyricPostcardStickerRow,
+.lyricPostcardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.lyricPostcardSticker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lyricPostcardPreviewTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.6vw, 2.25rem);
+  line-height: 1.04;
+  color: #fff;
+}
+
+.lyricPostcardPreviewBody {
+  font-size: clamp(1.1rem, 2.5vw, 1.28rem);
+  line-height: 1.55;
+}
+
+.lyricPostcardPreviewFooter {
+  padding-left: 0.85rem;
+  border-left: 3px solid rgba(0, 240, 255, 0.34);
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.lyricPostcardWordList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lyricPostcardWord {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 238, 0, 0.28);
+  background: rgba(255, 238, 0, 0.08);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lyricPostcardLink,
+.lyricPostcardCopyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-family: var(--font-typewriter);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.lyricPostcardLink:hover,
+.lyricPostcardLink:focus-visible,
+.lyricPostcardCopyButton:hover,
+.lyricPostcardCopyButton:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 238, 0, 0.6);
+  color: var(--yellow-neon);
+  background: rgba(255, 238, 0, 0.08);
+}
+
+.lyricPostcardCopyStatus {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .lyricDecoder {
@@ -6889,7 +7146,9 @@
 
   .lyricsStage,
   .lyricMomentList,
-  .lyricsHeaderCards {
+  .lyricsHeaderCards,
+  .lyricPostcardBuilderHeader,
+  .lyricPostcardLayout {
     grid-template-columns: 1fr;
   }
 
@@ -7019,13 +7278,22 @@
   .lyricMomentButton,
   .lyricDetailPanel,
   .lyricPhrasebookCard,
-  .lyricSummaryCard {
+  .lyricSummaryCard,
+  .lyricPostcardBuilder,
+  .lyricPostcardPreview,
+  .lyricPostcardToneButton {
     padding-inline: 0.95rem;
   }
 
   .lyricPhrasebookButton,
-  .lyricRouteLink {
+  .lyricRouteLink,
+  .lyricPostcardLink,
+  .lyricPostcardCopyButton {
     width: 100%;
+  }
+
+  .lyricPostcardActions {
+    display: grid;
   }
 
   .coverMoodButton,
