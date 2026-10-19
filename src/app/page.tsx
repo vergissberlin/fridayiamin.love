@@ -25,6 +25,10 @@ type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
 type FanResourceCategoryId = "all" | "official" | "video" | "live" | "collectors" | "charts";
 
+type FanResourceRouteTimeId = "quick" | "linger" | "deep";
+
+type FanResourceRouteCategoryId = Exclude<FanResourceCategoryId, "all">;
+
 type CoverVersionId = "david-gray" | "himalaya-records" | "billy-rubin-trio" | "nena" | "choir-choir-choir";
 
 type VideoSceneId = "paint-burst" | "polka-chaos" | "poster-romance" | "confetti-closeup";
@@ -34,7 +38,7 @@ type LiveSetSnapshotId = "wish-rush" | "festival-pop" | "marathon-singalong" | "
 type ListeningLaneId = "stream" | "video" | "live";
 
 type FanResource = {
-  category: Exclude<FanResourceCategoryId, "all">;
+  category: FanResourceRouteCategoryId;
   title: string;
   source: string;
   href: string;
@@ -1131,6 +1135,44 @@ const FAN_RESOURCE_FILTERS: {
   },
 ];
 
+const FAN_RESOURCE_ROUTE_TIMES: {
+  id: FanResourceRouteTimeId;
+  label: string;
+  eyebrow: string;
+  description: string;
+  stopCount: number;
+}[] = [
+  {
+    id: "quick",
+    label: "Quick spark",
+    eyebrow: "10-minute route",
+    description: "Start with one anchor link, then take one smart detour before your Friday keeps moving.",
+    stopCount: 2,
+  },
+  {
+    id: "linger",
+    label: "Linger a little",
+    eyebrow: "20-minute route",
+    description: "Give the song one core stop, one mood shift, and one deeper rabbit-hole branch.",
+    stopCount: 3,
+  },
+  {
+    id: "deep",
+    label: "Deep dive",
+    eyebrow: "40-minute route",
+    description: "Follow the full collage: context first, then visuals, live history, and collector texture.",
+    stopCount: 4,
+  },
+];
+
+const FAN_RESOURCE_ROUTE_CATEGORY_ORDER: Record<FanResourceRouteCategoryId, FanResourceRouteCategoryId[]> = {
+  official: ["official", "video", "live", "charts", "collectors"],
+  video: ["video", "official", "live", "charts", "collectors"],
+  live: ["live", "official", "video", "charts", "collectors"],
+  collectors: ["collectors", "official", "charts", "video", "live"],
+  charts: ["charts", "official", "live", "video", "collectors"],
+};
+
 const COVER_VERSIONS: CoverVersion[] = [
   {
     id: "david-gray",
@@ -1979,6 +2021,32 @@ function buildLyricPostcard(
       `Mood words: ${phrasebook.moodWords.join(", ")}`,
       `Next stop: ${moment.routeLabel}`,
     ].join("\n"),
+  };
+}
+
+function buildFanResourceRoute(
+  categoryId: FanResourceRouteCategoryId,
+  timeId: FanResourceRouteTimeId,
+) {
+  const routeTime = FAN_RESOURCE_ROUTE_TIMES.find((time) => time.id === timeId) ?? FAN_RESOURCE_ROUTE_TIMES[0];
+  const routeLane = FAN_RESOURCE_FILTERS.find((filter) => filter.id === categoryId) ?? FAN_RESOURCE_FILTERS[1];
+  const orderedCategories = FAN_RESOURCE_ROUTE_CATEGORY_ORDER[categoryId];
+
+  const orderedStops = orderedCategories.flatMap((category) =>
+    FAN_RESOURCES.filter((resource) => resource.category === category),
+  );
+  const stops = orderedStops.slice(0, routeTime.stopCount);
+  const finalStop = stops[stops.length - 1] ?? orderedStops[0];
+
+  return {
+    time: routeTime,
+    lane: routeLane,
+    stops,
+    title: `${routeTime.label} · ${routeLane.label}`,
+    summary: `${routeLane.description} ${routeTime.description}`,
+    note: finalStop
+      ? `Finish on ${finalStop.title} if you want the route to end on ${finalStop.source.toLowerCase()} context.`
+      : routeTime.description,
   };
 }
 
@@ -4463,12 +4531,18 @@ const CoverVersionsSection = () => {
 const FanResourcesSection = () => {
   const prefersReducedMotion = useReducedMotion();
   const [selectedCategory, setSelectedCategory] = useState<FanResourceCategoryId>("all");
+  const [routeCategoryId, setRouteCategoryId] = useState<FanResourceRouteCategoryId>("official");
+  const [routeTimeId, setRouteTimeId] = useState<FanResourceRouteTimeId>("linger");
   const activeFilter = FAN_RESOURCE_FILTERS.find((filter) => filter.id === selectedCategory) ?? FAN_RESOURCE_FILTERS[0];
+  const routeFilters = FAN_RESOURCE_FILTERS.filter(
+    (filter): filter is (typeof FAN_RESOURCE_FILTERS)[number] & { id: FanResourceRouteCategoryId } => filter.id !== "all",
+  );
   const filteredResources =
     selectedCategory === "all"
       ? FAN_RESOURCES
       : FAN_RESOURCES.filter((resource) => resource.category === selectedCategory);
   const spotlightResource = filteredResources[0] ?? FAN_RESOURCES[0];
+  const fanResourceRoute = buildFanResourceRoute(routeCategoryId, routeTimeId);
 
   return (
     <section id="fan-resources" className={`${styles.fanResourcesSection} ${styles.jumpTargetSection}`} aria-labelledby="fan-resources-title">
@@ -4486,6 +4560,117 @@ const FanResourcesSection = () => {
         A compact link wall for the next part of your Friday rabbit hole: official pages, live-history stops,
         and collector-friendly context.
       </p>
+
+      <div className={styles.fanResourceRoutePlanner} aria-labelledby="fan-resource-route-planner-title">
+        <div className={styles.fanResourceRoutePlannerHeader}>
+          <p className={styles.fanResourceRoutePlannerEyebrow}>New in the field guide</p>
+          <h3 id="fan-resource-route-planner-title" className={styles.fanResourceRoutePlannerTitle}>
+            Friday rabbit-hole route planner
+          </h3>
+          <p className={styles.fanResourceRoutePlannerIntro}>
+            Pick how long you want to stay and which lane should lead. The guide builds a short external-link
+            path so you can move through The Cure context on purpose instead of opening tabs at random.
+          </p>
+        </div>
+
+        <div className={styles.fanResourceRoutePlannerLayout}>
+          <div className={styles.fanResourceRoutePlannerControls}>
+            <fieldset className={styles.fanResourceRouteGroup}>
+              <legend className={styles.fanResourceRouteGroupTitle}>How much Friday time do you have?</legend>
+
+              <div className={styles.fanResourceRouteButtonGrid}>
+                {FAN_RESOURCE_ROUTE_TIMES.map((time) => {
+                  const isSelected = time.id === routeTimeId;
+
+                  return (
+                    <button
+                      key={time.id}
+                      type="button"
+                      className={`${styles.fanResourceRouteButton} ${isSelected ? styles.fanResourceRouteButtonActive : ""}`}
+                      onClick={() => setRouteTimeId(time.id)}
+                      aria-pressed={isSelected}
+                    >
+                      <span className={styles.fanResourceRouteButtonEyebrow}>{time.eyebrow}</span>
+                      <span className={styles.fanResourceRouteButtonLabel}>{time.label}</span>
+                      <span className={styles.fanResourceRouteButtonDetail}>{time.description}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <fieldset className={styles.fanResourceRouteGroup}>
+              <legend className={styles.fanResourceRouteGroupTitle}>Which lane should open the route?</legend>
+
+              <div className={styles.fanResourceRouteButtonGrid}>
+                {routeFilters.map((filter) => {
+                  const isSelected = filter.id === routeCategoryId;
+
+                  return (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className={`${styles.fanResourceRouteButton} ${isSelected ? styles.fanResourceRouteButtonActive : ""}`}
+                      onClick={() => setRouteCategoryId(filter.id)}
+                      aria-pressed={isSelected}
+                    >
+                      <span className={styles.fanResourceRouteButtonEyebrow}>{filter.eyebrow}</span>
+                      <span className={styles.fanResourceRouteButtonLabel}>{filter.label}</span>
+                      <span className={styles.fanResourceRouteButtonDetail}>{filter.description}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.aside
+              key={`${routeCategoryId}-${routeTimeId}`}
+              className={styles.fanResourceRouteResult}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              aria-live="polite"
+            >
+              <p className={styles.fanResourceRouteResultEyebrow}>{fanResourceRoute.time.eyebrow}</p>
+              <h4 className={styles.fanResourceRouteResultTitle}>{fanResourceRoute.title}</h4>
+              <p className={styles.fanResourceRouteResultBody}>{fanResourceRoute.summary}</p>
+
+              <ol className={styles.fanResourceRouteStopList}>
+                {fanResourceRoute.stops.map((resource, index) => (
+                  <li key={`${fanResourceRoute.title}-${resource.title}`} className={styles.fanResourceRouteStopItem}>
+                    <span className={styles.fanResourceRouteStopNumber}>0{index + 1}</span>
+                    <div className={styles.fanResourceRouteStopCopy}>
+                      <p className={styles.fanResourceRouteStopMeta}>{resource.source}</p>
+                      <a
+                        href={resource.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.fanResourceRouteStopLink}
+                      >
+                        {resource.title}
+                      </a>
+                      <p className={styles.fanResourceRouteStopNote}>{resource.whyVisit}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <p className={styles.fanResourceRouteResultNote}>{fanResourceRoute.note}</p>
+
+              <button
+                type="button"
+                className={styles.fanResourceRouteSyncButton}
+                onClick={() => setSelectedCategory(routeCategoryId)}
+              >
+                Show this lane below
+              </button>
+            </motion.aside>
+          </AnimatePresence>
+        </div>
+      </div>
 
       <div className={styles.fanResourceControls}>
         <div className={styles.fanResourceFilterGroup} role="group" aria-label="Filter Friday field guide links">
