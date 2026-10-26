@@ -10,14 +10,16 @@
     "typecheck": "tsc --noEmit",
     "generate:midi": "node scripts/generate-friday-chord-midis.mjs",
     "test": "vitest run",
-    "test:ai-feature-gen": "node --test .github/scripts/ai-feature-gen-runner.test.mjs .github/scripts/ai-feature-commit.test.mjs"
+    "test:ai-feature-gen": "node --test .github/scripts/ai-feature-gen-runner.test.mjs .github/scripts/ai-feature-commit.test.mjs",
+    "test:maintenance": "node --test .github/scripts/daily-maintenance.test.mjs .github/scripts/validate-maintenance-pr.test.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:ai-feature-gen && pnpm test:maintenance && pnpm build"
   },
   "dependencies": {
     "@tonejs/midi": "^2.0.28",
-    "framer-motion": "^14.0.0",
-    "next": "16.2.6",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "framer-motion": "^14.6.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "tone": "^15.1.22"
   },
   "devDependencies": {
@@ -25,9 +27,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "9.39.5",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.4.3",
     "midi-writer-js": "^3.2.1",
     "typescript": "^6.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.1.12"
   }
 }

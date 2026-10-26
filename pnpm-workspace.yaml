@@ -3,3 +3,6 @@ allowBuilds:
   midi-writer-js: true
   sharp: true
   unrs-resolver: true
+# Babel's optional peer tree otherwise retains an audited vulnerable resolution.
+overrides:
+  browserslist: ^4.28.7
