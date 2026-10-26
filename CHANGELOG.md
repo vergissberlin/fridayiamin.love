@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.11.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.10.0...fridayiamin.love-v1.11.0) (2026-10-26)
+
+
+### Features
+
+* add a friday field guide route planner ([f44253b](https://github.com/vergissberlin/fridayiamin.love/commit/f44253b177e8794762264647945b6337992ddd89))
+* add field guide pocket route card ([a93cad9](https://github.com/vergissberlin/fridayiamin.love/commit/a93cad96d414fc2d4894e657c515fd5db09eab8e))
+* add friday postcard builder ([7f96b11](https://github.com/vergissberlin/fridayiamin.love/commit/7f96b1177eb9c506386e0bdb5e98b7f6bdac5d75))
+* add late-night reading mode ([86c4c16](https://github.com/vergissberlin/fridayiamin.love/commit/86c4c167ee344fdeafb8f2e7ea22a367b7b7ca48))
+* add listen lounge route matchmaker ([84d289b](https://github.com/vergissberlin/fridayiamin.love/commit/84d289ba8b4d26810f148b9fe69559dd2b96851c))
+* add live era contrast board ([c3da2b2](https://github.com/vergissberlin/fridayiamin.love/commit/c3da2b28dc367009b3164107cfe557cf97eb21ea))
+* add lyric mood routes ([1eb8115](https://github.com/vergissberlin/fridayiamin.love/commit/1eb81151bd6e7c3ceb261851216c5ddfa33f71b3))
+* add lyrics phrasebook ([547fb59](https://github.com/vergissberlin/fridayiamin.love/commit/547fb598cb73aa306812c40ea469479b3297067d))
+* add single companion board ([1119270](https://github.com/vergissberlin/fridayiamin.love/commit/1119270fbe3a6e6ffc4a63f84b6c3ed4a530d4fd))
+* add song snapshot release glow trail ([27f2594](https://github.com/vergissberlin/fridayiamin.love/commit/27f25947b4ce00f56d2eb25e3b162aa0d009b671))
+* add weekday friday forecast ([74edc52](https://github.com/vergissberlin/fridayiamin.love/commit/74edc525e825867c1f3d048b163e06390528b26f))
+* run daily AI maintenance through tested pull requests ([edb7e2d](https://github.com/vergissberlin/fridayiamin.love/commit/edb7e2d158152e4ce1f346477e63b351a0131fa4))
+
+
+### Bug Fixes
+
+* **deps:** update Framer Motion and Vitest ([db3ba1d](https://github.com/vergissberlin/fridayiamin.love/commit/db3ba1db60bbc499ec9b4f02c0cbf26dc171940c))
+
 ## [1.10.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.9.0...fridayiamin.love-v1.10.0) (2026-08-09)
 
 
