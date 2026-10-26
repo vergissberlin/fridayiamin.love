@@ -2050,6 +2050,25 @@ function buildFanResourceRoute(
   };
 }
 
+function buildFanResourceRoutePocketCard(route: ReturnType<typeof buildFanResourceRoute>) {
+  const stopSummary = route.stops.map((resource) => `${resource.title} (${resource.source})`).join(" -> ");
+
+  return {
+    title: `${route.time.label} pocket route`,
+    body: `Open with ${route.lane.label.toLowerCase()}, then move through ${route.stops.length} focused stop${route.stops.length === 1 ? "" : "s"}.`,
+    footer: route.note,
+    copyText: [
+      `Friday Field Guide | ${route.title}`,
+      route.summary,
+      "",
+      ...route.stops.map((resource, index) => `${String(index + 1).padStart(2, "0")}. ${resource.title} - ${resource.href}`),
+      "",
+      `Stop list: ${stopSummary}`,
+      route.note,
+    ].join("\n"),
+  };
+}
+
 const GothicSilhouette = () => (
   <div className={styles.gothicSilhouette} aria-hidden="true">
     <svg viewBox="0 0 400 60" width="100%" height="60" fill="currentColor">
@@ -4533,6 +4552,8 @@ const FanResourcesSection = () => {
   const [selectedCategory, setSelectedCategory] = useState<FanResourceCategoryId>("all");
   const [routeCategoryId, setRouteCategoryId] = useState<FanResourceRouteCategoryId>("official");
   const [routeTimeId, setRouteTimeId] = useState<FanResourceRouteTimeId>("linger");
+  const [copiedRouteKey, setCopiedRouteKey] = useState<string | null>(null);
+  const [routeCopyFailed, setRouteCopyFailed] = useState(false);
   const activeFilter = FAN_RESOURCE_FILTERS.find((filter) => filter.id === selectedCategory) ?? FAN_RESOURCE_FILTERS[0];
   const routeFilters = FAN_RESOURCE_FILTERS.filter(
     (filter): filter is (typeof FAN_RESOURCE_FILTERS)[number] & { id: FanResourceRouteCategoryId } => filter.id !== "all",
@@ -4543,6 +4564,25 @@ const FanResourcesSection = () => {
       : FAN_RESOURCES.filter((resource) => resource.category === selectedCategory);
   const spotlightResource = filteredResources[0] ?? FAN_RESOURCES[0];
   const fanResourceRoute = buildFanResourceRoute(routeCategoryId, routeTimeId);
+  const routePocketCard = buildFanResourceRoutePocketCard(fanResourceRoute);
+  const routeCopyKey = `${routeCategoryId}-${routeTimeId}`;
+  const routeCopyStatus =
+    copiedRouteKey === routeCopyKey
+      ? routeCopyFailed
+        ? "Copy did not work here, but the route card below stays visible for manual use."
+        : "Pocket route copied."
+      : "Copy this route card for later.";
+
+  const handleRouteCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(routePocketCard.copyText);
+      setCopiedRouteKey(routeCopyKey);
+      setRouteCopyFailed(false);
+    } catch {
+      setCopiedRouteKey(routeCopyKey);
+      setRouteCopyFailed(true);
+    }
+  };
 
   return (
     <section id="fan-resources" className={`${styles.fanResourcesSection} ${styles.jumpTargetSection}`} aria-labelledby="fan-resources-title">
@@ -4659,6 +4699,33 @@ const FanResourcesSection = () => {
               </ol>
 
               <p className={styles.fanResourceRouteResultNote}>{fanResourceRoute.note}</p>
+
+              <div className={styles.fanResourceRoutePocketCard} aria-labelledby="fan-resource-pocket-route-title">
+                <p className={styles.fanResourceRoutePocketEyebrow}>Pocket route card</p>
+                <h5 id="fan-resource-pocket-route-title" className={styles.fanResourceRoutePocketTitle}>
+                  {routePocketCard.title}
+                </h5>
+                <p className={styles.fanResourceRoutePocketBody}>{routePocketCard.body}</p>
+
+                <div className={styles.fanResourceRoutePocketTags} aria-label="Route card stops">
+                  {fanResourceRoute.stops.map((resource) => (
+                    <span key={`${fanResourceRoute.title}-${resource.title}-tag`} className={styles.fanResourceRoutePocketTag}>
+                      {resource.source}
+                    </span>
+                  ))}
+                </div>
+
+                <p className={styles.fanResourceRoutePocketFooter}>{routePocketCard.footer}</p>
+
+                <div className={styles.fanResourceRoutePocketActions}>
+                  <button type="button" className={styles.fanResourceRouteCopyButton} onClick={handleRouteCopy}>
+                    Copy route card
+                  </button>
+                  <p className={styles.fanResourceRouteCopyStatus} aria-live="polite">
+                    {routeCopyStatus}
+                  </p>
+                </div>
+              </div>
 
               <button
                 type="button"
