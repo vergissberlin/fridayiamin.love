@@ -1,88 +1,100 @@
 # fridayiamin.love
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+A fan site celebrating The Cure's "Friday I'm in Love", with a neon, 90s
+alternative-rock collage aesthetic. This is also an experiment in autonomous AI
+maintenance: small, sourced improvements arrive through tested pull requests.
 
-## Getting Started
+## Development
 
-First, run the development server:
+The site uses Next.js 16, React 19, TypeScript, Framer Motion, CSS Modules,
+Tone.js, and Vitest. CI uses Node.js 22 and pnpm 11.25.0.
 
-```bash
-
+```sh
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [localhost:3000](http://localhost:3000). The main page is
+`src/app/page.tsx`, with section styles in `src/app/page.module.css`.
+`src/app/layout.tsx` loads Chicle, Caveat, Special Elite, Permanent Marker, and
+Righteous through `next/font`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Site Highlights
-
-- `Quick Jump Mixtape`: a sticky, section-aware navigation deck near the top of the page so visitors can skip between the site's major `Friday I'm in Love` sections without losing their place.
-- `Friday Forecast`: a day-aware hero card that updates its fan copy and recommended next stop based on the current weekday, so the site feels different on Monday, Friday, or the weekend.
-- `Late-Night Reading Mode`: a hero-level toggle that quiets the collage, reduces visual noise, and boosts long-form readability for fans who want a calmer pass through the lyrics, history, and guide sections.
-- `Listen Lounge`: a three-lane listening entry point that lets visitors start with the studio single, the official Tim Pope video, or a live-history route before moving deeper into the page.
-- `Listen Lounge Route Matchmaker`: a three-question picker inside `Listen Lounge` that recommends the best first stop between `Studio`, `Video`, and `Live`, then syncs the lounge panel to that route.
-- `Song Snapshot Release Format Guide + Matchmaker`: an interactive `Song Snapshot` upgrade that pairs the core single facts with a fan-friendly 7-inch / 12-inch / CD format picker, track notes, release-day context, and a three-prompt format recommendation tool.
-- `Song Snapshot Release Glow Trail`: a compact interactive milestone board inside `Song Snapshot` that traces the single from its `Wish` album frame to its Friday release quirk, chart crossover, and durable live afterlife.
-- `Which Friday Cure Queue Are You?`: a four-question personality quiz that matches visitors to one of the site's Cure listening routes and links directly into the queue section.
-- `Cure News Reel`: a manually controllable headline carousel with previous/next buttons, autoplay pause, and reduced-motion-friendly behavior.
-- `Single Companion Board`: a synced spotlight inside `Song Snapshot` that follows the selected single format and explains how `Halo`, `Scared as You`, and the `Strangelove Mix` reshape the Friday release story.
-- `Cover Versions Mixtape`: a five-stop guide to notable reinterpretations of `Friday I'm in Love`, with vibe-based picking and quick external search links for each version.
-- `Cover Version Matchmaker`: a three-prompt recommendation tool inside the mixtape section that syncs the spotlight to the cover version matching the visitor's Friday mood.
-- `Video Scene Decoder`: an interactive guide to four visual moods from the Tim Pope video, with fan-facing interpretation notes and palette cues.
-- `Live Glow Timeline`: an interactive era rail inside `Tour & Live Moments` that traces how the song's live role shifts from Wish-era lift-off to present-day warmth and syncs with the live snapshot panel.
-- `Live Set Snapshot`: an era picker inside `Tour & Live Moments` that sketches how `Friday I'm in Love` shifts across Wish-era, festival, marathon-show, and recent-tour live flows, now with both a compact `set feel` board and an `Era Contrast Board` for side-by-side comparison of crowd release, contrast, and tenderness across two live stops.
-- `Friday Field Guide`: a curated fan-resources wall with route filters, a spotlight card, and a `Friday rabbit-hole route planner` that builds quick, linger, or deep-dive link paths through official history, video, live data, collectors' details, or chart context, now with a copyable `pocket route card` for taking the selected plan elsewhere.
-- `Build Your Friday Cure Queue`: an interactive mood selector that recommends adjacent The Cure songs to follow up `Friday I'm in Love`, with short fan-facing notes and source links.
-- `Friday Fan Flyer`: a one-card route builder that mixes queue mood, video texture, and live-era energy into a copyable Friday plan with quick links.
-- `Weekday Mood Decoder + Friday Phrasebook + Friday Postcard Builder + Lyric Mood Route`: an interactive `Lyrics & Meaning` enhancement that lets visitors tap each quoted line to unpack the song's shift from weekday blur into Friday release, compare multilingual mood words, generate a fan-safe postcard caption from the active lyric moment, and follow a synced mood-route card with quick next-stop links and vibe meters for each lyric moment.
-- `Guitar Tabs & Chords`: a playable chord progression section with chord diagrams, MIDI practice playback, and downloadable `.mid` files for fan practice.
-- `Behind the Scenes` and `Tour & Live Moments`: compact fan-friendly context cards covering the song's visual identity, live legacy, and place in The Cure's catalog.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Nightly AI Feature Pipeline
-
-This repository includes a scheduled GitHub Actions workflow at `.github/workflows/ai-feature-gen.yml`.
-
-- **Schedule**: every day at `20:00 UTC` (`21:00` Europe/Berlin during CET).
-- **Cron note**: GitHub Actions cron uses UTC.
-- **Purpose**: generate and apply one fan-focused feature improvement around The Cure and "Friday I'm in Love" (for example Spotify embed, fan links, MIDI or guitar tabs section).
-- **Providers**: `openai`, `copilot`, `opencode`.
-- **Default provider**: scheduled runs use `openai`; manual `workflow_dispatch` runs can pick the provider input.
-- **Validation gates**: `pnpm lint`, `pnpm typecheck`, and `pnpm build` must pass before any commit is created.
-- **Push behavior**: if changes exist and checks pass, the workflow commits using a Conventional Commit message and pushes to `main`.
-
-### Permissions and Authentication
-
-- Workflow permission `contents: write` is required to commit and push.
-- `GITHUB_TOKEN` is used for repository write access and GitHub Models (`provider=copilot`).
-- `OPENAI_API_KEY` is required for `provider=openai`.
-- `OPENCODE_CLI_CMD` (Repository Secret or Variable) is required for `provider=opencode`. It should contain the full command to run the opencode CLI and print the model output to stdout.
-
-Example `OPENCODE_CLI_CMD`:
-
-```bash
-opencode run --input /tmp/feature-request.json
+```sh
+pnpm check                              # lint, types, tests, production build
+pnpm audit --prod --audit-level=high     # production dependency security check
+pnpm generate:midi                      # regenerate practice MIDI files
 ```
 
-### Disable, Pause, or Roll Back
+Individual checks are available in `package.json`. `pnpm build` exports the
+static site to `out/`; this project does not require a Next.js production server.
 
-- **Pause nightly runs**: disable the workflow in GitHub Actions UI, or remove/comment the `schedule` trigger.
-- **Manual test**: use `workflow_dispatch` from the Actions tab.
-- **Roll back changes**: revert the generated commit on `main` like any standard commit rollback.
+## Site highlights
+
+- A Friday countdown, weekday forecast, section navigation, and calmer reading mode.
+- Song and release history, single-format comparisons, and listening entry points.
+- Listening and cover-version matchmakers, a Cure queue quiz, and fan route cards.
+- Lyric interpretations and multilingual mood notes without full-song reproduction.
+- Playable guitar chord progressions, chord diagrams, and downloadable practice MIDI.
+- Video-scene interpretation, live-era comparisons, and curated fan resources.
+
+## Daily AI maintenance
+
+[The daily workflow](.github/workflows/daily-maintenance.yml) runs at **20:00 UTC
+every day**: 21:00 in Berlin during winter time and 22:00 during summer time.
+GitHub schedules can be delayed. It can also be started manually in Actions.
+
+There is one shared
+[maintenance policy](.github/opencode/feature-dev-prompt.md), with short repository
+conventions in [AGENTS.md](AGENTS.md). UI changes also use the short
+[Friday UI skill](.opencode/skills/friday-ui/SKILL.md). The previous parallel feature generators
+are retired; their scripts and regression tests remain for now.
+
+Each run:
+
+1. Continues an unfinished pull request first, using failed check output to repair
+   it before starting another feature.
+2. Otherwise researches public official news, tour announcements, accessible
+   official social posts, and relevant fan resources. Claims need source links;
+   publication/event dates are kept separate from the date they were checked.
+   Inaccessible sources are reported rather than guessed.
+3. Chooses one small improvement with the greatest value: new features such as
+   dark mode, an additional UI language, or new pages with shared navigation;
+   current content, security,
+   accessibility, performance, or meaningful test coverage. New code behavior
+   needs tests; content-only updates need source verification.
+4. Runs the checks and production dependency audit, with up to three attempts to
+   repair failures in the same run.
+5. Creates or updates the pull request on `ai/daily-maintenance`, with a description
+   of the problem, changes, sources, tests, and any remaining failures.
+6. [Independently checks the pull request](.github/workflows/ai-pr-checks.yml) and
+   merges only the exact commit that passed validation, then triggers deployment.
+   A failed pull request stays open for the next daily repair.
+
+The agent can change application code, content, documentation, ordinary scripts,
+and dependency versions. It cannot change its own workflow, automation,
+instructions, check commands, test configuration, or release setup. The trusted
+runner handles commits and pull requests; the agent does not push to `main`.
+
+### GitHub setup
+
+- Reuse the repository's existing `OPENAI_API_KEY` secret. It is supplied only to
+  the AI generation step and must never appear in logs or pull requests.
+- `OPENCODE_MODEL` selects the OpenAI model without editing the workflow. The
+  default is [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol).
+  Availability still depends on the API project associated with the key.
+- Enable Actions and allow GitHub Actions to create pull requests in repository
+  settings. Repository branch rules still apply to automatic merging.
+- The workflow token needs repository, pull-request, and Actions permissions for
+  the documented workflow. Never place tokens in prompts or committed files.
+- Release Please uses the existing `RELEASE_PLEASE_TOKEN` secret.
+
+Pause the experiment by disabling **Daily AI maintenance** in GitHub Actions.
+Use its manual trigger to retry a run. To undo a merged change, revert its merge
+commit through a normal pull request.
+
+## Releases and deployment
+
+Conventional Commits on `main` feed Release Please, which creates a release pull
+request and changelog. Successful automatic maintenance merges explicitly trigger the GitHub Pages
+workflow, which builds and deploys `out/`. Publishing a release also triggers
+deployment; deployment can be started manually as well.
