@@ -1,0 +1,75 @@
+name: Daily AI maintenance
+
+on:
+  schedule:
+    - cron: "0 20 * * *" # 21:00 Berlin in winter, 22:00 in summer.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-ai-maintenance
+  cancel-in-progress: false
+
+jobs:
+  maintain:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      statuses: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+      - name: Preserve trusted automation before switching to the maintenance branch
+        run: |
+          cp .github/scripts/daily-maintenance.mjs "$RUNNER_TEMP/daily-maintenance.mjs"
+          cp .github/opencode/feature-dev-prompt.md "$RUNNER_TEMP/maintenance-prompt.md"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Install pinned coding agent
+        run: npm install --global opencode-ai@1.19.4
+      - name: Resume the existing pull request or prepare a small new change
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node "$RUNNER_TEMP/daily-maintenance.mjs" prepare
+      - name: Research, improve, test, and repair up to three times
+        id: improve
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'gpt-6.1-sol' }}
+          FRIDAY_MAINTENANCE_PROMPT: ${{ runner.temp }}/maintenance-prompt.md
+          OPENCODE_CONFIG_CONTENT: '{"permission":{"external_directory":"deny"}}'
+        run: node "$RUNNER_TEMP/daily-maintenance.mjs" improve
+      - name: Publish a descriptive pull request, including unsuccessful validation
+        id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node "$RUNNER_TEMP/daily-maintenance.mjs" publish
+      # Bot-created PRs do not trigger pull_request workflows with GITHUB_TOKEN.
+      # Explicit dispatch guarantees independent validation without a PAT.
+      - name: Independently validate the pull request before any merge
+        if: steps.publish.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.publish.outputs.pr_number }}
+        run: gh workflow run ai-pr-checks.yml --ref main -f "pr_number=$PR_NUMBER"
+      - name: Report unresolved failures
+        if: steps.improve.outputs.eligible == 'false'
+        run: |
+          echo 'The pull request remains open. The next daily run will repair it before new work.' >> "$GITHUB_STEP_SUMMARY"
+          exit 1

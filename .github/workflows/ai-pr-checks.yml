@@ -1,0 +1,160 @@
+name: Validate pull request
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Maintenance pull request to validate and merge
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      pr_number: ${{ steps.pr.outputs.pr_number }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      base_sha: ${{ steps.pr.outputs.base_sha }}
+      is_maintenance: ${{ steps.pr.outputs.is_maintenance }}
+      allow_merge: ${{ steps.pr.outputs.allow_merge }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve the pull request from trusted automation
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync } from "node:child_process";
+          import { appendFileSync, readFileSync } from "node:fs";
+          if (process.env.GITHUB_EVENT_NAME === "workflow_dispatch") {
+            execFileSync(process.execPath, [".github/scripts/validate-maintenance-pr.mjs", "resolve"], { stdio: "inherit" });
+          } else {
+            // Bootstrap ordinary PR checks without requiring this new script on main.
+            const { pull_request: pr } = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            if (pr?.state !== "open" || pr.draft || pr.base?.ref !== "main" ||
+                !/^[1-9]\d*$/.test(String(pr.number)) ||
+                !/^[a-f0-9]{40}$/.test(pr.head?.sha ?? "") ||
+                !/^[a-f0-9]{40}$/.test(pr.base?.sha ?? "")) {
+              throw new Error("Expected an open pull request targeting main with valid commit SHAs.");
+            }
+            const maintenance = pr.head.repo?.full_name === process.env.GITHUB_REPOSITORY &&
+              pr.head.ref === "ai/daily-maintenance";
+            const outputs = {
+              pr_number: pr.number, head_sha: pr.head.sha, base_sha: pr.base.sha,
+              is_maintenance: maintenance, allow_merge: false,
+            };
+            for (const [name, value] of Object.entries(outputs)) {
+              appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${value}\n`);
+            }
+          }
+          NODE
+
+  checks:
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Read trusted maintenance policy
+        if: needs.resolve.outputs.is_maintenance == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Preserve trusted validator
+        if: needs.resolve.outputs.is_maintenance == 'true'
+        run: cp .github/scripts/validate-maintenance-pr.mjs "$RUNNER_TEMP/validate-maintenance-pr.mjs"
+      - name: Checkout the exact candidate commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Enforce maintenance scope and test integrity
+        if: needs.resolve.outputs.is_maintenance == 'true'
+        env:
+          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
+        run: node "$RUNNER_TEMP/validate-maintenance-pr.mjs" scope
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint, types, behavior tests, automation tests, production build
+        run: pnpm check
+      - name: Check production dependencies for high-severity vulnerabilities
+        run: pnpm audit --prod --audit-level high
+
+  report:
+    needs: [resolve, checks]
+    if: always() && needs.resolve.outputs.allow_merge == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Attach validation result to the tested commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
+          CHECK_RESULT: ${{ needs.checks.result }}
+        run: node .github/scripts/validate-maintenance-pr.mjs report
+
+  merge:
+    needs: [resolve, checks, report]
+    if: needs.resolve.outputs.allow_merge == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Merge only the tested revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
+          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
+        run: node .github/scripts/validate-maintenance-pr.mjs merge
