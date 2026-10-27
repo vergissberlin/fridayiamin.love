@@ -1015,22 +1015,22 @@ const VIDEO_SCENES: VideoScene[] = [
 
 const NEWS_ITEMS = [
   {
-    date: "2024-05-24",
-    source: "NME",
-    text: "Robert Smith hints at new The Cure album in 2024 interviews.",
-    link: "https://www.nme.com/news/music/the-cure-robert-smith-new-album-update-2024-3650493",
+    date: "2026-09-18",
+    source: "The Cure · Official news",
+    text: "The Cure announced a ‘Boys Don’t Cry’ music box, with artwork by Andy Vella and proceeds supporting Doctors Without Borders.",
+    link: "https://www.thecure.com/news/2026/09/boys-dont-cry-the-music-box/",
   },
   {
-    date: "2024-04-10",
-    source: "The Cure",
-    text: "The Cure announce additional summer festival dates across Europe.",
-    link: "https://www.thecure.com/news/",
+    date: "2026-08-30",
+    source: "The Cure · Official news",
+    text: "The band announced a worldwide livestream for its Rock en Seine headline set on August 30, closing its 31-show festival summer. This is a past event.",
+    link: "https://www.thecure.com/news/2026/08/rock-en-seine-live-stream/",
   },
   {
-    date: "2024-02-02",
-    source: "Pitchfork",
-    text: "Robert Smith speaks out for fair ticket pricing on latest tour.",
-    link: "https://pitchfork.com/news/the-cure-robert-smith-ticket-fairness/",
+    date: "Checked 2026-10-27",
+    source: "The Cure · Official shows",
+    text: "No upcoming shows were listed on the official shows page when checked on October 27, 2026. Follow the source for the latest tour announcements.",
+    link: "https://www.thecure.com/shows/",
   },
 ];
 
@@ -3533,7 +3533,7 @@ const NewsTicker = () => {
           <div>
             <p className={styles.newsTickerLabel}>Cure News Reel</p>
             <h2 id="news-reel-title" className={styles.newsTickerTitle}>
-              Fresh headlines, with your own tempo.
+              Official updates, with your own tempo.
             </h2>
           </div>
 
