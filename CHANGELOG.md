@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.12.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.11.0...fridayiamin.love-v1.12.0) (2026-10-30)
+
+
+### Features
+
+* improve fan site through daily maintenance ([#103](https://github.com/vergissberlin/fridayiamin.love/issues/103)) ([d3e4bc8](https://github.com/vergissberlin/fridayiamin.love/commit/d3e4bc80575e3c3c6ecec8b936d4173754dac5af))
+* improve fan site through daily maintenance ([#105](https://github.com/vergissberlin/fridayiamin.love/issues/105)) ([3f0e165](https://github.com/vergissberlin/fridayiamin.love/commit/3f0e1656f53ef4ad2f06daf93a48efccae556055))
+* improve fan site through daily maintenance ([#106](https://github.com/vergissberlin/fridayiamin.love/issues/106)) ([054b5f3](https://github.com/vergissberlin/fridayiamin.love/commit/054b5f37a5f960c48e431096cc0f6625a8438cae))
+* improve fan site through daily maintenance ([#107](https://github.com/vergissberlin/fridayiamin.love/issues/107)) ([7a79553](https://github.com/vergissberlin/fridayiamin.love/commit/7a7955397dfacf28899280f89cb8914637647313))
+
 ## [1.11.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.10.0...fridayiamin.love-v1.11.0) (2026-10-26)
 
 
