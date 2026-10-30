@@ -10,6 +10,11 @@ import {
   useState,
 } from "react";
 import type * as ToneNS from "tone";
+import {
+  buildMidiPlaybackEvents,
+  configureMidiPlaybackLoop,
+  type NoteEventValue,
+} from "@/lib/chord-midi-playback";
 import styles from "@/app/page.module.css";
 
 export const CHORD_PROGRESSION_MIDI_IDS = ["verse", "chorus", "bridge"] as const;
@@ -25,13 +30,6 @@ function progressionLabel(id: ChordProgressionMidiId): string {
   if (id === "chorus") return "Chorus";
   return "Bridge";
 }
-
-type NoteEventValue = {
-  name: string;
-  duration: number;
-  velocity: number;
-  chordIndex: number;
-};
 
 type ChordMidiPlayerProps = {
   progressionId: ChordProgressionMidiId;
@@ -51,8 +49,7 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
     const toneRef = useRef<typeof ToneNS | null>(null);
     const synthRef = useRef<ToneNS.PolySynth | null>(null);
     const partRef = useRef<ToneNS.Part | null>(null);
-    const endBeatsRef = useRef(0);
-    const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const cancelEndTimerRef = useRef<(() => void) | null>(null);
     const progressionRef = useRef(progressionId);
     const onActiveChordIndexRef = useRef(onActiveChordIndex);
     onActiveChordIndexRef.current = onActiveChordIndex;
@@ -63,7 +60,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
     const playbackEventsRef = useRef<[number, NoteEventValue][]>([]);
     const chordStartsSecRef = useRef<number[]>([]);
     const midiDurationSecRef = useRef(0);
-    const bpmRef = useRef(138);
     const playbackOffsetSecRef = useRef(0);
 
     const lastHighlightChordRef = useRef<number | null>(null);
@@ -71,10 +67,8 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
     progressionRef.current = progressionId;
 
     const clearStopTimer = useCallback(() => {
-      if (stopTimerRef.current != null) {
-        clearTimeout(stopTimerRef.current);
-        stopTimerRef.current = null;
-      }
+      cancelEndTimerRef.current?.();
+      cancelEndTimerRef.current = null;
     }, []);
 
     const clearChordHighlight = useCallback(() => {
@@ -87,7 +81,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
       chordStartsSecRef.current = [];
       midiDurationSecRef.current = 0;
       playbackOffsetSecRef.current = 0;
-      endBeatsRef.current = 0;
     }, []);
 
     const teardown = useCallback(() => {
@@ -119,20 +112,21 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
 
     useEffect(() => () => teardown(), [teardown]);
 
+    const updatePlaybackLoop = useCallback(() => {
+      clearStopTimer();
+      if (!toneRef.current) return;
+      cancelEndTimerRef.current = configureMidiPlaybackLoop(
+        toneRef.current.Transport,
+        loopRef.current,
+        playbackOffsetSecRef.current,
+        midiDurationSecRef.current,
+        teardown,
+      );
+    }, [clearStopTimer, teardown]);
+
     useEffect(() => {
-      if (!playing || !toneRef.current) return;
-      const Tone = toneRef.current;
-      const end = endBeatsRef.current;
-      const offsetSec = playbackOffsetSecRef.current;
-      const offsetBeats = offsetSec * (bpmRef.current / 60);
-      if (loop) {
-        Tone.Transport.loop = true;
-        Tone.Transport.loopStart = offsetBeats;
-        Tone.Transport.loopEnd = end;
-      } else {
-        Tone.Transport.loop = false;
-      }
-    }, [loop, playing]);
+      if (playing) updatePlaybackLoop();
+    }, [loop, playing, updatePlaybackLoop]);
 
     const makePart = useCallback((Tone: typeof ToneNS, synth: ToneNS.PolySynth, events: [number, NoteEventValue][]) => {
       lastHighlightChordRef.current = null;
@@ -149,19 +143,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
       }, events);
     }, []);
 
-    const scheduleEndIfNoLoop = useCallback(
-      (offsetSec: number) => {
-        clearStopTimer();
-        if (loopRef.current) return;
-        const remainingSec = midiDurationSecRef.current - offsetSec;
-        if (remainingSec <= 0) return;
-        stopTimerRef.current = setTimeout(() => {
-          teardown();
-        }, Math.ceil(remainingSec * 1000) + 200);
-      },
-      [clearStopTimer, teardown],
-    );
-
     const beginPlayback = useCallback(
       (fromChordIndex: number) => {
         const Tone = toneRef.current;
@@ -174,8 +155,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
         const idx = Math.min(Math.max(0, fromChordIndex), maxIdx);
         const offsetSec = starts.length ? starts[idx]! : 0;
         playbackOffsetSecRef.current = offsetSec;
-        const offsetBeats = offsetSec * (bpmRef.current / 60);
-        const endBeats = endBeatsRef.current;
 
         try {
           Tone.getDraw().cancel(0);
@@ -188,23 +167,15 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
         partRef.current?.dispose();
         partRef.current = makePart(Tone, synth, events);
 
-        if (loopRef.current) {
-          Tone.Transport.loop = true;
-          Tone.Transport.loopStart = offsetBeats;
-          Tone.Transport.loopEnd = endBeats;
-        } else {
-          Tone.Transport.loop = false;
-        }
-
         lastHighlightChordRef.current = idx - 1;
         Tone.Transport.seconds = offsetSec;
+        updatePlaybackLoop();
         partRef.current.start(0);
         Tone.Transport.start();
         setPlaying(true);
         onActiveChordIndexRef.current?.(idx);
-        scheduleEndIfNoLoop(offsetSec);
       },
-      [makePart, scheduleEndIfNoLoop],
+      [makePart, updatePlaybackLoop],
     );
 
     const loadMidiAndStart = useCallback(
@@ -228,7 +199,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           const url = `/midi/${progressionId}.mid`;
           const midi = await Midi.fromUrl(url);
           const bpm = midi.header.tempos[0]?.bpm ?? 138;
-          bpmRef.current = bpm;
           Tone.Transport.bpm.value = bpm;
 
           const synth = new Tone.PolySynth(Tone.Synth, {
@@ -238,39 +208,11 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           synth.volume.value = -10;
           synthRef.current = synth;
 
-          const uniqueStarts = new Set<number>();
-          for (const track of midi.tracks) {
-            for (const note of track.notes) {
-              uniqueStarts.add(note.time);
-            }
-          }
-          const sortedStarts = [...uniqueStarts].sort((a, b) => a - b);
-          const timeSecToChordIndex = new Map(sortedStarts.map((t, i) => [t, i]));
-
-          const events: [number, NoteEventValue][] = [];
-          for (const track of midi.tracks) {
-            for (const note of track.notes) {
-              const chordIndex = timeSecToChordIndex.get(note.time);
-              if (chordIndex === undefined) continue;
-              events.push([
-                note.time * (bpm / 60),
-                {
-                  name: note.name,
-                  duration: note.duration,
-                  velocity: note.velocity,
-                  chordIndex,
-                },
-              ]);
-            }
-          }
-          events.sort((a, b) => a[0] - b[0]);
+          const { events, starts: sortedStarts } = buildMidiPlaybackEvents(midi.tracks);
 
           playbackEventsRef.current = events;
           chordStartsSecRef.current = sortedStarts;
           midiDurationSecRef.current = midi.duration;
-
-          const endBeats = midi.duration * (bpm / 60);
-          endBeatsRef.current = endBeats;
 
           const clampedStart = Math.min(Math.max(0, fromChordIndex), Math.max(0, sortedStarts.length - 1));
           beginPlayback(sortedStarts.length ? clampedStart : 0);
