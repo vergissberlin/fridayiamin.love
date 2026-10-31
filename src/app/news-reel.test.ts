@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import Home from "./page";
 
 vi.mock("@/lib/friday-countdown", () => import("../lib/friday-countdown"));
+vi.mock("@/lib/tab-keyboard", () => import("../lib/tab-keyboard"));
 vi.mock("@/components/chord-midi-player", () => ({
   ChordMidiPlayer: () => null,
   CHORD_PROGRESSION_MIDI_IDS: ["verse", "chorus", "bridge"],

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getNextFridayCountdown } from "@/lib/friday-countdown";
+import { handleHorizontalTabKey } from "@/lib/tab-keyboard";
 import {
   ChordMidiPlayer,
   CHORD_PROGRESSION_MIDI_IDS,
@@ -3107,19 +3108,28 @@ const FridayQueueSection = () => {
 
       <div className={styles.queueShell}>
         <div className={styles.queueTabs} role="tablist" aria-label="Friday Cure queue moods">
-          {FRIDAY_CURE_QUEUES.map((queue) => (
+          {FRIDAY_CURE_QUEUES.map((queue, index) => (
             <button
               key={queue.mood}
               type="button"
               role="tab"
               id={`queue-tab-${queue.mood}`}
               aria-selected={selectedMood === queue.mood}
-              aria-controls={`queue-panel-${queue.mood}`}
+              aria-controls="queue-panel"
+              tabIndex={selectedMood === queue.mood ? 0 : -1}
               data-mood={queue.mood}
               className={`${styles.queueTabButton} ${
                 selectedMood === queue.mood ? styles.queueTabButtonActive : ""
               }`}
               onClick={() => setSelectedMood(queue.mood)}
+              onKeyDown={(event) => {
+                const tabs = Array.from(
+                  event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+                );
+                handleHorizontalTabKey(event, index, tabs, (nextIndex) => {
+                  setSelectedMood(FRIDAY_CURE_QUEUES[nextIndex].mood);
+                });
+              }}
             >
               <span className={styles.queueTabLabel}>{queue.label}</span>
               <span className={styles.queueTabTime}>{queue.time}</span>
@@ -3127,49 +3137,46 @@ const FridayQueueSection = () => {
           ))}
         </div>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.section
-            key={selectedQueue.mood}
-            id={`queue-panel-${selectedQueue.mood}`}
-            role="tabpanel"
-            aria-labelledby={`queue-tab-${selectedQueue.mood}`}
-            className={styles.queuePanel}
-            data-mood={selectedQueue.mood}
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
-          >
-            <div className={styles.queuePanelHeader}>
-              <p className={styles.queuePanelKicker}>{selectedQueue.kicker}</p>
-              <h3 className={styles.queuePanelHeadline}>{selectedQueue.headline}</h3>
-              <p className={styles.queuePanelDescription}>{selectedQueue.description}</p>
-            </div>
+        <motion.section
+          id="queue-panel"
+          role="tabpanel"
+          tabIndex={0}
+          aria-labelledby={`queue-tab-${selectedQueue.mood}`}
+          className={styles.queuePanel}
+          data-mood={selectedQueue.mood}
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
+        >
+          <div className={styles.queuePanelHeader}>
+            <p className={styles.queuePanelKicker}>{selectedQueue.kicker}</p>
+            <h3 className={styles.queuePanelHeadline}>{selectedQueue.headline}</h3>
+            <p className={styles.queuePanelDescription}>{selectedQueue.description}</p>
+          </div>
 
-            <ol className={styles.queueTrackList}>
-              {selectedQueue.tracks.map((track, index) => (
-                <li key={track.title} className={styles.queueTrackItem}>
-                  <span className={styles.queueTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
-                  <div className={styles.queueTrackCopy}>
-                    <p className={styles.queueTrackHeading}>
-                      {track.title}
-                      <span>{track.era}</span>
-                    </p>
-                    <p className={styles.queueTrackNote}>{track.note}</p>
-                  </div>
-                  <a
-                    href={track.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.queueTrackLink}
-                  >
-                    Search on Spotify
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </motion.section>
-        </AnimatePresence>
+          <ol className={styles.queueTrackList}>
+            {selectedQueue.tracks.map((track, index) => (
+              <li key={track.title} className={styles.queueTrackItem}>
+                <span className={styles.queueTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
+                <div className={styles.queueTrackCopy}>
+                  <p className={styles.queueTrackHeading}>
+                    {track.title}
+                    <span>{track.era}</span>
+                  </p>
+                  <p className={styles.queueTrackNote}>{track.note}</p>
+                </div>
+                <a
+                  href={track.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.queueTrackLink}
+                >
+                  Search on Spotify
+                </a>
+              </li>
+            ))}
+          </ol>
+        </motion.section>
       </div>
     </section>
   );
