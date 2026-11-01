@@ -1,64 +1,51 @@
-# Daily maintenance — 2026-10-31
+# Daily maintenance — 2026-11-01
 
 ## Pull request description
 
-Fix keyboard access in the existing Friday Cure Queue. Its mood controls exposed
-tab roles but lacked arrow-key navigation, placed all four tabs in the page's
-Tab sequence, and pointed inactive tabs at nonexistent panels.
+Add missing behavior coverage for the existing “Which Friday Cure Queue Are You?”
+mood quiz. Its scoring and tie-breaking were embedded in the page without tests.
+Extract the existing scorer and shared mood type into `src/lib/friday-quiz.ts`,
+and keep the page wired to that implementation. Results still use the most
+selected mood, with ties resolved in this fixed order: lift-off, twilight,
+glitter, afterglow. The page still waits for all four answers before showing a
+result.
 
-The queue now has one tab stop. Left/Right select and focus the adjacent mood
-with wrapping; Home/End jump to the first/last mood. Tab reaches the content
-panel, then its Spotify links; Shift+Tab returns to the selected mood. Vertical
-arrows and modified browser shortcuts retain their native behavior. All tabs
-reference one stable, correctly labelled panel with a visible focus outline.
-Mood changes update that panel immediately, avoiding the previous exit-animation
-delay during automatic keyboard activation. The initial entrance still respects
-reduced motion.
-
-Chosen after inspecting a clean working tree and recent MIDI, dependency, and
-countdown maintenance summaries. No failing CI diagnostics were supplied. The
-official news/shows still match the recent refresh, making this concrete
-accessibility gap a useful small improvement.
+Chosen after reviewing a clean working tree and recent keyboard-access, MIDI
+playback, and dependency maintenance summaries. No failed CI diagnostics were
+supplied. Official news/shows match the recent content refresh; regression
+coverage for another existing interaction is a useful small improvement.
 
 Changed areas and tests:
-- `src/app/page.tsx` and `page.module.css`: queue keyboard interaction, roving
-  tab stops, stable panel semantics, and panel focus styling.
-- `src/lib/tab-keyboard.ts` and its test: 16 behavior cases covering adjacent
-  navigation, wrapping, Home/End, native keys, modified shortcuts, and empty lists.
-- `src/app/friday-queue.test.ts`: server-render regression for the single active
-  tab stop, selection state, valid panel references, and panel labelling/focusability.
-- `src/app/news-reel.test.ts`: resolve the new utility import in the existing
-  page-render test using its established module-mock pattern.
+- `src/lib/friday-quiz.ts` and `src/app/page.tsx`: move scoring without changing
+  the algorithm or UI.
+- `src/lib/friday-quiz.test.ts`: 22 cases cover every mood winning unanimously,
+  by majority, and by plurality; all six two-way ties in both answer orders;
+  a four-way tie answered out of question order; replacing answers, repeated
+  scoring, input preservation, unanswered entries, and the reset fallback.
+- Existing page-render tests resolve the extracted module using their established
+  import-mock pattern.
 
 ## Sources
 
-All sources checked on **2026-10-31**. No news or tour claims were added.
+All sources checked on **2026-11-01**. No news or tour claims were added.
 
 | Source URL | What it supports | Publication / event date |
 | --- | --- | --- |
 | https://www.thecure.com/news/ | Official index still lists “Boys Don't Cry — The Music Box” as its newest entry. | Index undated; newest entry published 2026-09-18. |
 | https://www.thecure.com/shows/ | Official page states “No shows currently announced!” | Undated; no upcoming event dates listed. |
-| https://instagram.com/thecure/ | Official social link followed from the band's site. Only images returned, with no readable posts or dates. | No publication/event date verified; no social content used. |
-| https://www.w3.org/WAI/ARIA/apg/patterns/tabs/ | Standard horizontal-tab keyboard behavior, automatic activation without latency, panel focusability, and ARIA relationships. | Undated technical guidance; no event date. |
+| https://instagram.com/thecure/ | Official social link followed from the band's site; request returned HTTP 429. | No publication/event date verified; no social content used. |
 
-Official news/shows and W3C guidance were publicly readable. No Chain of Flowers
-link was found in the application; no fan commentary was used.
+Official news and shows were publicly readable. No Chain of Flowers link was
+found in `src/`; no fan commentary was used. Quiz expectations come from the
+existing repository behavior, not external music claims.
 
 ## Validation
 
-- `pnpm install --frozen-lockfile` — passed, including supply-chain checks.
-- `pnpm exec vitest run src/lib/tab-keyboard.test.ts` — passed, 16 tests.
-- `pnpm check` — passed: ESLint, TypeScript, 41 application tests, 23 feature
+- `pnpm exec vitest run src/lib/friday-quiz.test.ts` — passed, 22 tests;
+  pnpm also installed the locked dependencies and passed supply-chain checks.
+- `pnpm check` — passed: ESLint, TypeScript, 63 application tests, 23 feature
   automation tests, 27 maintenance tests, and the static production build.
 - `pnpm audit --prod --audit-level=high` — passed: **No known vulnerabilities found**.
 - `git diff --check` — passed.
-- `node scripts/check-queue-browser.mjs` (temporary CDP harness, removed after
-  use) — final run passed against the exported site in headless Chromium at
-  1280px with normal motion and 390px with reduced motion. Checked real keyboard
-  events for wrapping, Home/End, Tab/Shift+Tab, panel focus outline, pointer mood
-  selection, selection/panel ARIA consistency, and queue viewport bounds. The
-  first run's mobile pointer assertion failed because keyboard navigation had
-  scrolled the target outside the viewport; scrolling it into view corrected the
-  harness before the passing run. No screenshot or screen-reader review performed.
 
-No unresolved application or required-check failures remain.
+No unresolved failures or next repair remain.

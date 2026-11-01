@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { getNextFridayCountdown } from "@/lib/friday-countdown";
+import { getFridayQuizResult, type FridayQueueMood } from "@/lib/friday-quiz";
 import { handleHorizontalTabKey } from "@/lib/tab-keyboard";
 import {
   ChordMidiPlayer,
@@ -21,8 +22,6 @@ type LyricMoodMeter = {
   low: string;
   high: string;
 };
-
-type FridayQueueMood = "lift-off" | "twilight" | "glitter" | "afterglow";
 
 type FanResourceCategoryId = "all" | "official" | "video" | "live" | "collectors" | "charts";
 
@@ -1725,8 +1724,6 @@ const WEEKDAY_FORECASTS: WeekdayForecast[] = [
   },
 ];
 
-const FRIDAY_QUIZ_RESULT_ORDER: FridayQueueMood[] = ["lift-off", "twilight", "glitter", "afterglow"];
-
 const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
   {
     id: "start",
@@ -1833,25 +1830,6 @@ const FRIDAY_QUIZ_QUESTIONS: FridayQuizQuestion[] = [
     ],
   },
 ];
-
-function getFridayQuizResult(answers: Partial<Record<string, FridayQueueMood>>) {
-  const scorecard: Record<FridayQueueMood, number> = {
-    "lift-off": 0,
-    twilight: 0,
-    glitter: 0,
-    afterglow: 0,
-  };
-
-  Object.values(answers).forEach((answer) => {
-    if (answer) {
-      scorecard[answer] += 1;
-    }
-  });
-
-  return FRIDAY_QUIZ_RESULT_ORDER.reduce((bestMood, mood) =>
-    scorecard[mood] > scorecard[bestMood] ? mood : bestMood,
-  );
-}
 
 function getCoverMatchResult(answers: Partial<Record<string, CoverVersionId>>) {
   const scorecard: Record<CoverVersionId, number> = {
