@@ -1015,21 +1015,21 @@ const VIDEO_SCENES: VideoScene[] = [
 
 const NEWS_ITEMS = [
   {
+    date: "2026-11-02",
+    source: "The Cure · Official news",
+    text: "The Cure announced Robert Smith’s artwork contribution to Heart Research UK’s anonymous heART project, with the charity auction scheduled to close on November 8, 2026. Follow the source for details.",
+    link: "https://www.thecure.com/news/2026/11/heart-research-auction/",
+  },
+  {
     date: "2026-09-18",
     source: "The Cure · Official news",
     text: "The Cure announced a ‘Boys Don’t Cry’ music box, with artwork by Andy Vella and proceeds supporting Doctors Without Borders.",
     link: "https://www.thecure.com/news/2026/09/boys-dont-cry-the-music-box/",
   },
   {
-    date: "2026-08-30",
-    source: "The Cure · Official news",
-    text: "The band announced a worldwide livestream for its Rock en Seine headline set on August 30, closing its 31-show festival summer. This is a past event.",
-    link: "https://www.thecure.com/news/2026/08/rock-en-seine-live-stream/",
-  },
-  {
-    date: "Checked 2026-10-27",
+    date: "Checked 2026-11-02",
     source: "The Cure · Official shows",
-    text: "No upcoming shows were listed on the official shows page when checked on October 27, 2026. Follow the source for the latest tour announcements.",
+    text: "No upcoming shows were listed on the official shows page when checked on November 2, 2026. Follow the source for the latest tour announcements.",
     link: "https://www.thecure.com/shows/",
   },
 ];
