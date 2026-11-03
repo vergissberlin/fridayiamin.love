@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import Home from "./page";
 
 vi.mock("@/lib/friday-countdown", () => import("../lib/friday-countdown"));
+vi.mock("@/components/friday-countdown-display", () => import("../components/friday-countdown-display"));
+vi.mock("@/app/page.module.css", () => ({ default: {} }));
 vi.mock("@/lib/friday-quiz", () => import("../lib/friday-quiz"));
 vi.mock("@/lib/tab-keyboard", () => import("../lib/tab-keyboard"));
 vi.mock("@/components/chord-midi-player", () => ({

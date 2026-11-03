@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
-import { getNextFridayCountdown } from "@/lib/friday-countdown";
+import { FridayCountdownDisplay } from "@/components/friday-countdown-display";
 import { getFridayQuizResult, type FridayQueueMood } from "@/lib/friday-quiz";
 import { handleHorizontalTabKey } from "@/lib/tab-keyboard";
 import {
@@ -2155,46 +2155,7 @@ const FridayCountdown = () => {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  if (!now) {
-    return null;
-  }
-
-  const countdown = getNextFridayCountdown(now);
-  const isFriday = now.getDay() === 5;
-
-  return (
-    <div className={styles.fridayCountdown} aria-live="polite">
-      {isFriday ? (
-        <div className={styles.fridayParty} role="status" aria-label="Today is Friday celebration">
-          <p className={styles.fridayPartyKicker}>it is happening</p>
-          <p className={styles.fridayPartyTitle}>Today is Friday</p>
-          <p className={styles.fridayPartySubline}>Party mode unlocked for all Friday lovers. ✨</p>
-        </div>
-      ) : (
-        <div>
-          <p className={styles.fridayCountdownLabel}>Countdown to next Friday</p>
-          <div className={styles.fridayCountdownGrid}>
-            <div className={styles.fridayCountdownItem}>
-              <span>{countdown.days}</span>
-              <small>days</small>
-            </div>
-            <div className={styles.fridayCountdownItem}>
-              <span>{countdown.hours}</span>
-              <small>hours</small>
-            </div>
-            <div className={styles.fridayCountdownItem}>
-              <span>{countdown.minutes}</span>
-              <small>minutes</small>
-            </div>
-            <div className={styles.fridayCountdownItem}>
-              <span>{countdown.seconds}</span>
-              <small>seconds</small>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <FridayCountdownDisplay now={now} />;
 };
 
 const WeekdayForecastCard = () => {
