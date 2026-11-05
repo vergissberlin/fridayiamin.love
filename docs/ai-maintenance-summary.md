@@ -1,50 +1,57 @@
-# Daily maintenance — 2026-11-04
+# Daily maintenance — 2026-11-05
 
 ## Pull request description
 
-Add harmony regression coverage for the downloadable verse, chorus, and bridge
-practice MIDI files. Existing tests verify timing and loop behavior but would
-accept incorrect pitches or reordered chords. The new tests decode the actual
-public MIDI assets and verify every chord's pitch classes in sequence, including
-repeated steps and the bridge's minor chords. Octave/voicing changes remain
-possible while missing, extra, or incorrect notes fail the check.
+Repair three broken official tour links in the live-era timeline, live-set
+snapshots, and fan resources. The old `/tour/` destination returns HTTP 404;
+the band's navigation now uses `/shows/`. Visitors can reach the working official
+show-announcement page, with labels and resource descriptions that accurately
+describe it rather than promising a historical archive. Live-era copy now
+explicitly identifies the descriptions and snapshots as fan commentary.
 
-Chosen after reviewing the clean working tree and recent countdown-accessibility,
-news-refresh, quiz-test, and queue-keyboard maintenance. No failed CI diagnostics
-were supplied; official news and shows still match the recent refresh. Protecting
-the existing practice downloads is a small useful test improvement.
+This run repairs the existing pull request after CI reported missing regression
+coverage matching `src/**/*.test.ts`. It retains the broken-link fix and adds
+coverage for its rendered navigation; no different feature was added.
 
 ## Changed areas and tests
 
-- `src/lib/chord-midi-harmony.test.ts`: three asset-level tests cover the full
-  verse, chorus, and bridge sequences, exact triad pitch-class membership, and
-  chord-step counts. Expectations are independent of the MIDI generator and
-  reflect the site's existing fan-made practice progressions.
-- Inspected `src/app/page.tsx` and
-  `scripts/generate-friday-chord-midis.mjs` for the existing progression contract.
-  No new claim about the original recording is introduced.
+- `src/app/page.tsx`: replace all three obsolete official tour URLs, rename
+  archive labels, clarify the fan-resource destination, and distinguish fan
+  interpretation from official announcements. The listening-lane description
+  now points readers to fan-maintained statistics rather than an unavailable archive.
+- `src/app/official-show-links.test.ts`: renders the modern live-era state and
+  verifies that both source links and the official fan-resource link use `/shows/`,
+  retain safe new-tab attributes, and never render the obsolete `/tour/` URL.
+  Uses the existing server-render test approach without live network assertions.
+- Regression reproduced by temporarily restoring all three obsolete URLs: the
+  new test failed on the timeline destination (69 existing tests passed). The
+  repaired URLs were then restored before full validation.
 
 ## Sources
 
-All public sources checked on **2026-11-04**. No news or tour claims were added.
+All sources checked on **2026-11-05**. No news or tour announcements were added.
 
 | Source URL | What it supports | Publication / event date |
 | --- | --- | --- |
-| https://www.thecure.com/news/ | Official index still lists “HEART RESEARCH AUCTION” as its newest story. | Index undated; newest entry published 2026-11-02. No event date used. |
-| https://www.thecure.com/shows/ | Official page states “No shows currently announced!” | Undated; no upcoming event dates listed. |
-| https://instagram.com/thecure/ | Official social link followed from the band's site; response contained images without readable posts. | No post or publication/event date could be verified; no social content used. |
+| https://www.thecure.com/tour/ | Old link returned HTTP 404, reproducing the broken destination before the fix. | Unavailable; no publication/event date verified. |
+| https://www.thecure.com/shows/ | Working official destination, linked from band navigation; states “No shows currently announced!” and links to tour-announcement signup. Supports the revised resource description, not historical setlist commentary. | Undated; no upcoming event dates listed. |
+| https://www.thecure.com/news/ | Official index still lists “HEART RESEARCH AUCTION” as its newest story. Also provides official social links. | Index undated; newest entry published 2026-11-02. No event date used. |
+| https://instagram.com/thecure/ | Followed the official social link from the band's site; request returned HTTP 429. | Inaccessible on this check; no post or publication/event date verified or used. |
 
-Official news and shows were publicly readable. No linked Chain of Flowers URL
-was found in the repository's application or documentation; the maintenance
-instructions only mention the resource by name. No fan commentary was used.
+Official news and shows were publicly readable. No Chain of Flowers URL was
+found in the repository; instructions mention the resource only by name. No new
+fan-source material was used. Existing live-era commentary is explicitly labeled.
 
 ## Validation
 
-- `pnpm exec vitest run src/lib/chord-midi-harmony.test.ts` — passed: all three
-  new tests. pnpm installed locked dependencies and passed supply-chain checks.
-- `pnpm check` — passed: ESLint, TypeScript, 69 application tests, 23 feature
+- `pnpm test -- src/app/official-show-links.test.ts` — expected failure with the
+  obsolete URLs temporarily restored; the runner executed all 70 tests, with only
+  the new regression test failing.
+- `pnpm check` — passed: ESLint, TypeScript, 70 application tests, 23 feature
   automation tests, 27 maintenance tests, and the static production build.
 - `pnpm audit --prod --audit-level=high` — passed: **No known vulnerabilities found**.
 - `git diff --check` — passed.
+- No browser automation tool was available; desktop/mobile rendering and keyboard
+  interaction were not browser-verified. Destination checks used public web fetches.
 
 No unresolved failures or next repair remain.

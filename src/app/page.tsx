@@ -763,8 +763,8 @@ const TOUR_LIVE_MOMENTS: TourLiveMoment[] = [
     detail:
       "On recent tours, the song still sparks the singalong, but it also carries more tenderness than pure rush. It lands as proof that brightness has always belonged in the band's story, even inside heavier modern sets.",
     fanCue: "The crowd sings it like a shared memory rather than a novelty break.",
-    link: "https://www.thecure.com/tour/",
-    source: "Official tour archive",
+    link: "https://www.thecure.com/shows/",
+    source: "Official show updates",
   },
 ];
 
@@ -889,8 +889,8 @@ const LIVE_SET_SNAPSHOTS: LiveSetSnapshot[] = [
       { label: "Crowd release", value: 4, low: "Soft sway", high: "Full singalong" },
       { label: "Tender glow", value: 5, low: "Pure rush", high: "Soft glow" },
     ],
-    source: "Official tour archive",
-    href: "https://www.thecure.com/tour/",
+    source: "Official show updates",
+    href: "https://www.thecure.com/shows/",
     tracks: [
       {
         slot: "Prelude",
@@ -1055,12 +1055,12 @@ const FAN_RESOURCES: FanResource[] = [
   },
   {
     category: "live",
-    title: "Tour archive",
+    title: "Official shows",
     source: "Live",
-    href: "https://www.thecure.com/tour/",
+    href: "https://www.thecure.com/shows/",
     description:
-      "Check the band's current and archived touring universe when you want to trace where Friday still glows inside modern Cure setlists.",
-    whyVisit: "Use this when you want to follow the song into the broader live history of The Cure.",
+      "Check The Cure's official shows page for upcoming dates and the band's link to tour-announcement updates.",
+    whyVisit: "Use this for current show announcements; explore the separate Setlist.fm resource for live-history statistics.",
   },
   {
     category: "live",
@@ -1572,7 +1572,7 @@ const LISTENING_LANES: ListeningLane[] = [
     eyebrow: "Crowd-wide singalong",
     headline: "Trace how the song keeps detonating warmth on stage.",
     body:
-      "Live, the single stops being only a pop outlier and starts reading like a shared release valve. The stats and tour archive show how often it still arrives as the room-reset grin in long Cure sets.",
+      "Live, the single stops being only a pop outlier and starts reading like a shared release valve. Explore the song's performance history through fan-maintained Setlist.fm statistics.",
     detailLabel: "Best when",
     detail: "your favorite version of the song is the one that turns thousands of voices into one title-line release.",
     href: "https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5",
@@ -3991,7 +3991,8 @@ const TourLiveMomentsSection = () => {
 
       <p className={styles.sectionIntro}>
         An interactive timeline of how &quot;Friday I&apos;m in Love&quot; became one of The Cure&apos;s most
-        beloved live singalong moments.
+        beloved live singalong moments. The era descriptions and set snapshots are fan commentary;
+        official show links lead to current announcements, not historical setlists.
       </p>
 
       <div className={styles.tourLiveLayout}>
