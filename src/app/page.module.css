@@ -4273,6 +4273,12 @@
   outline-offset: 2px;
 }
 
+.videoDecoderPanelFocus:focus-visible {
+  outline: 3px solid var(--yellow-neon);
+  outline-offset: 2px;
+  border-radius: 24px;
+}
+
 .videoDecoderTabActive {
   border-color: rgba(255, 238, 0, 0.55);
   box-shadow:
