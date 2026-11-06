@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { FridayCountdownDisplay } from "@/components/friday-countdown-display";
 import { getFridayQuizResult, type FridayQueueMood } from "@/lib/friday-quiz";
-import { handleHorizontalTabKey } from "@/lib/tab-keyboard";
+import { handleHorizontalTabKey, handleVerticalTabKey } from "@/lib/tab-keyboard";
 import {
   ChordMidiPlayer,
   CHORD_PROGRESSION_MIDI_IDS,
@@ -3880,20 +3880,28 @@ const VideoSceneDecoderSection = () => {
       </p>
 
       <div className={styles.videoDecoderShell}>
-        <div className={styles.videoDecoderTabs} role="tablist" aria-label="Friday I'm in Love video scenes">
-          {VIDEO_SCENES.map((scene) => (
+        <div className={styles.videoDecoderTabs} role="tablist" aria-orientation="vertical" aria-label="Friday I'm in Love video scenes">
+          {VIDEO_SCENES.map((scene, index) => (
             <button
               key={scene.id}
               type="button"
               role="tab"
               id={`video-scene-tab-${scene.id}`}
               aria-selected={selectedScene.id === scene.id}
-              aria-controls={`video-scene-panel-${scene.id}`}
+              aria-controls="video-scene-panel"
               tabIndex={selectedScene.id === scene.id ? 0 : -1}
               className={`${styles.videoDecoderTab} ${
                 selectedScene.id === scene.id ? styles.videoDecoderTabActive : ""
               }`}
               onClick={() => setSelectedSceneId(scene.id)}
+              onKeyDown={(event) => {
+                const tabs = Array.from(
+                  event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+                );
+                handleVerticalTabKey(event, index, tabs, (nextIndex) => {
+                  setSelectedSceneId(VIDEO_SCENES[nextIndex].id);
+                });
+              }}
             >
               <span className={styles.videoDecoderTabLabel}>{scene.label}</span>
               <span className={styles.videoDecoderTabScene}>{scene.scene}</span>
@@ -3901,63 +3909,68 @@ const VideoSceneDecoderSection = () => {
           ))}
         </div>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.article
-            key={selectedScene.id}
-            id={`video-scene-panel-${selectedScene.id}`}
-            role="tabpanel"
-            aria-labelledby={`video-scene-tab-${selectedScene.id}`}
-            className={styles.videoDecoderPanel}
-            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
-          >
-            <div className={styles.videoDecoderPanelHeader}>
-              <p className={styles.videoDecoderKicker}>{selectedScene.kicker}</p>
-              <h3 className={styles.videoDecoderHeadline}>{selectedScene.headline}</h3>
-              <p className={styles.videoDecoderSceneDetail}>{selectedScene.scene}</p>
-            </div>
-
-            <p className={styles.videoDecoderBody}>{selectedScene.body}</p>
-
-            <dl className={styles.videoDecoderFacts}>
-              <div>
-                <dt>Why it lands</dt>
-                <dd>{selectedScene.whyItWorks}</dd>
-              </div>
-              <div>
-                <dt>Fan mood</dt>
-                <dd>{selectedScene.fanMood}</dd>
-              </div>
-            </dl>
-
-            <div className={styles.videoDecoderPaletteBlock}>
-              <p className={styles.videoDecoderPaletteLabel}>Palette cue</p>
-              <ul className={styles.videoDecoderPaletteList}>
-                {selectedScene.palette.map((swatch) => (
-                  <li key={swatch.name} className={styles.videoDecoderPaletteItem}>
-                    <span
-                      className={styles.videoDecoderSwatch}
-                      style={{ backgroundColor: swatch.color }}
-                      aria-hidden="true"
-                    />
-                    <span>{swatch.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <a
-              href={OFFICIAL_VIDEO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.videoDecoderLink}
+        <div
+          id="video-scene-panel"
+          role="tabpanel"
+          aria-labelledby={`video-scene-tab-${selectedScene.id}`}
+          tabIndex={0}
+          className={styles.videoDecoderPanelFocus}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.article
+              key={selectedScene.id}
+              className={styles.videoDecoderPanel}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
             >
-              Revisit the official video
-            </a>
-          </motion.article>
-        </AnimatePresence>
+              <div className={styles.videoDecoderPanelHeader}>
+                <p className={styles.videoDecoderKicker}>{selectedScene.kicker}</p>
+                <h3 className={styles.videoDecoderHeadline}>{selectedScene.headline}</h3>
+                <p className={styles.videoDecoderSceneDetail}>{selectedScene.scene}</p>
+              </div>
+
+              <p className={styles.videoDecoderBody}>{selectedScene.body}</p>
+
+              <dl className={styles.videoDecoderFacts}>
+                <div>
+                  <dt>Why it lands</dt>
+                  <dd>{selectedScene.whyItWorks}</dd>
+                </div>
+                <div>
+                  <dt>Fan mood</dt>
+                  <dd>{selectedScene.fanMood}</dd>
+                </div>
+              </dl>
+
+              <div className={styles.videoDecoderPaletteBlock}>
+                <p className={styles.videoDecoderPaletteLabel}>Palette cue</p>
+                <ul className={styles.videoDecoderPaletteList}>
+                  {selectedScene.palette.map((swatch) => (
+                    <li key={swatch.name} className={styles.videoDecoderPaletteItem}>
+                      <span
+                        className={styles.videoDecoderSwatch}
+                        style={{ backgroundColor: swatch.color }}
+                        aria-hidden="true"
+                      />
+                      <span>{swatch.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <a
+                href={OFFICIAL_VIDEO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.videoDecoderLink}
+              >
+                Revisit the official video
+              </a>
+            </motion.article>
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );

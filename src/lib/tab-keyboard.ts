@@ -7,14 +7,34 @@ export function handleHorizontalTabKey(
   tabs: readonly { focus: () => void }[],
   activateTab: (index: number) => void,
 ): void {
+  handleTabKey(event, currentIndex, tabs, activateTab, "horizontal");
+}
+
+/** Automatic activation for a vertical tablist; leave horizontal scrolling alone. */
+export function handleVerticalTabKey(
+  event: TabKeyEvent,
+  currentIndex: number,
+  tabs: readonly { focus: () => void }[],
+  activateTab: (index: number) => void,
+): void {
+  handleTabKey(event, currentIndex, tabs, activateTab, "vertical");
+}
+
+function handleTabKey(
+  event: TabKeyEvent,
+  currentIndex: number,
+  tabs: readonly { focus: () => void }[],
+  activateTab: (index: number) => void,
+  orientation: "horizontal" | "vertical",
+): void {
   if (event.altKey || event.ctrlKey || event.metaKey || tabs.length === 0) return;
 
   let nextIndex: number;
   switch (event.key) {
-    case "ArrowRight":
+    case orientation === "horizontal" ? "ArrowRight" : "ArrowDown":
       nextIndex = (currentIndex + 1) % tabs.length;
       break;
-    case "ArrowLeft":
+    case orientation === "horizontal" ? "ArrowLeft" : "ArrowUp":
       nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
       break;
     case "Home":
