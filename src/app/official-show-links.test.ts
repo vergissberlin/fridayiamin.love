@@ -31,7 +31,7 @@ describe("Official show navigation", () => {
     const showSources = anchors.filter((anchor) => anchor.includes("Source: Official show updates"));
     const showResource = anchors.filter((anchor) => /<h3[^>]*>Official shows<\/h3>/.test(anchor));
 
-    expect(html).toContain('id="tour-snapshot-panel-lost-world-glow"');
+    expect(html).toContain('aria-labelledby="tour-snapshot-tab-lost-world-glow"');
     expect(showSources).toHaveLength(2);
     expect(showResource).toHaveLength(1);
     for (const anchor of [...showSources, ...showResource]) {
