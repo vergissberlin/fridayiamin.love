@@ -4091,19 +4091,27 @@ const TourLiveMomentsSection = () => {
           </div>
 
           <div className={styles.tourSnapshotTabs} role="tablist" aria-label="Friday I'm in Love live set snapshots">
-            {LIVE_SET_SNAPSHOTS.map((snapshot) => (
+            {LIVE_SET_SNAPSHOTS.map((snapshot, index) => (
               <button
                 key={snapshot.id}
                 type="button"
                 role="tab"
                 id={`tour-snapshot-tab-${snapshot.id}`}
                 aria-selected={selectedSnapshot.id === snapshot.id}
-                aria-controls={`tour-snapshot-panel-${snapshot.id}`}
+                aria-controls="tour-snapshot-panel"
                 tabIndex={selectedSnapshot.id === snapshot.id ? 0 : -1}
                 className={`${styles.tourSnapshotTab} ${
                   selectedSnapshot.id === snapshot.id ? styles.tourSnapshotTabActive : ""
                 }`}
                 onClick={() => setSelectedSnapshotId(snapshot.id)}
+                onKeyDown={(event) => {
+                  const tabs = Array.from(
+                    event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+                  );
+                  handleHorizontalTabKey(event, index, tabs, (nextIndex) => {
+                    setSelectedSnapshotId(LIVE_SET_SNAPSHOTS[nextIndex].id);
+                  });
+                }}
               >
                 <span className={styles.tourSnapshotTabLabel}>{snapshot.label}</span>
                 <span className={styles.tourSnapshotTabYears}>{snapshot.years}</span>
@@ -4111,170 +4119,175 @@ const TourLiveMomentsSection = () => {
             ))}
           </div>
 
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.article
-              key={selectedSnapshot.id}
-              id={`tour-snapshot-panel-${selectedSnapshot.id}`}
-              role="tabpanel"
-              aria-labelledby={`tour-snapshot-tab-${selectedSnapshot.id}`}
-              className={styles.tourSnapshotPanel}
-              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
-            >
-              <div className={styles.tourSnapshotPanelHeader}>
-                <p className={styles.tourSnapshotPanelKicker}>{selectedSnapshot.kicker}</p>
-                <h3 className={styles.tourSnapshotPanelTitle}>{selectedSnapshot.headline}</h3>
-                <p className={styles.tourSnapshotPanelYears}>{selectedSnapshot.years}</p>
-              </div>
-
-              <p className={styles.tourSnapshotBody}>{selectedSnapshot.body}</p>
-
-              <div className={styles.tourSnapshotFactCard}>
-                <p className={styles.tourSnapshotFactLabel}>Crowd cue</p>
-                <p className={styles.tourSnapshotFactValue}>{selectedSnapshot.crowdCue}</p>
-              </div>
-
-              <section className={styles.tourSnapshotMeterBoard} aria-labelledby="tour-snapshot-meter-title">
-                <div className={styles.tourSnapshotMeterHeader}>
-                  <p id="tour-snapshot-meter-title" className={styles.tourSnapshotMeterTitle}>
-                    Set feel board
-                  </p>
-                  <p className={styles.tourSnapshotMeterIntro}>
-                    A quick read on how this era frames the song once it hits the set.
-                  </p>
+          <div
+            id="tour-snapshot-panel"
+            role="tabpanel"
+            aria-labelledby={`tour-snapshot-tab-${selectedSnapshot.id}`}
+            tabIndex={0}
+            className={styles.tourSnapshotPanelFocus}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.article
+                key={selectedSnapshot.id}
+                className={styles.tourSnapshotPanel}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -18 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+              >
+                <div className={styles.tourSnapshotPanelHeader}>
+                  <p className={styles.tourSnapshotPanelKicker}>{selectedSnapshot.kicker}</p>
+                  <h3 className={styles.tourSnapshotPanelTitle}>{selectedSnapshot.headline}</h3>
+                  <p className={styles.tourSnapshotPanelYears}>{selectedSnapshot.years}</p>
                 </div>
 
-                <ul className={styles.tourSnapshotMeterList}>
-                  {selectedSnapshot.setFeel.map((meter) => (
-                    <li key={`${selectedSnapshot.id}-${meter.label}`} className={styles.tourSnapshotMeterItem}>
-                      <div className={styles.tourSnapshotMeterMeta}>
-                        <span className={styles.tourSnapshotMeterName}>{meter.label}</span>
-                        <span className={styles.tourSnapshotMeterValue}>{meter.value}/5</span>
-                      </div>
-                      <div
-                        className={styles.tourSnapshotMeterTrack}
-                        role="meter"
-                        aria-valuemin={1}
-                        aria-valuemax={5}
-                        aria-valuenow={meter.value}
-                        aria-label={`${meter.label}: ${meter.value} out of 5`}
-                      >
-                        <span
-                          className={styles.tourSnapshotMeterFill}
-                          style={{ width: `${(meter.value / 5) * 100}%` }}
-                        />
-                      </div>
-                      <div className={styles.tourSnapshotMeterScale} aria-hidden="true">
-                        <span>{meter.low}</span>
-                        <span>{meter.high}</span>
+                <p className={styles.tourSnapshotBody}>{selectedSnapshot.body}</p>
+
+                <div className={styles.tourSnapshotFactCard}>
+                  <p className={styles.tourSnapshotFactLabel}>Crowd cue</p>
+                  <p className={styles.tourSnapshotFactValue}>{selectedSnapshot.crowdCue}</p>
+                </div>
+
+                <section className={styles.tourSnapshotMeterBoard} aria-labelledby="tour-snapshot-meter-title">
+                  <div className={styles.tourSnapshotMeterHeader}>
+                    <p id="tour-snapshot-meter-title" className={styles.tourSnapshotMeterTitle}>
+                      Set feel board
+                    </p>
+                    <p className={styles.tourSnapshotMeterIntro}>
+                      A quick read on how this era frames the song once it hits the set.
+                    </p>
+                  </div>
+
+                  <ul className={styles.tourSnapshotMeterList}>
+                    {selectedSnapshot.setFeel.map((meter) => (
+                      <li key={`${selectedSnapshot.id}-${meter.label}`} className={styles.tourSnapshotMeterItem}>
+                        <div className={styles.tourSnapshotMeterMeta}>
+                          <span className={styles.tourSnapshotMeterName}>{meter.label}</span>
+                          <span className={styles.tourSnapshotMeterValue}>{meter.value}/5</span>
+                        </div>
+                        <div
+                          className={styles.tourSnapshotMeterTrack}
+                          role="meter"
+                          aria-valuemin={1}
+                          aria-valuemax={5}
+                          aria-valuenow={meter.value}
+                          aria-label={`${meter.label}: ${meter.value} out of 5`}
+                        >
+                          <span
+                            className={styles.tourSnapshotMeterFill}
+                            style={{ width: `${(meter.value / 5) * 100}%` }}
+                          />
+                        </div>
+                        <div className={styles.tourSnapshotMeterScale} aria-hidden="true">
+                          <span>{meter.low}</span>
+                          <span>{meter.high}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className={styles.tourContrastBoard} aria-labelledby="tour-contrast-board-title">
+                  <div className={styles.tourContrastHeader}>
+                    <p className={styles.tourContrastEyebrow}>Era Contrast Board</p>
+                    <h4 id="tour-contrast-board-title" className={styles.tourContrastTitle}>
+                      Compare this live stop with another Cure era.
+                    </h4>
+                    <p className={styles.tourContrastIntro}>
+                      Keep the current snapshot on top, then pick a second era to see where the live feel turns brighter,
+                      harder, or more tender.
+                    </p>
+                  </div>
+
+                  <div className={styles.tourContrastPicker} role="group" aria-label="Choose a live era to compare against">
+                    {LIVE_SET_SNAPSHOTS.map((snapshot) => {
+                      const isSelected = snapshot.id === comparisonSnapshot.id;
+
+                      return (
+                        <button
+                          key={`tour-contrast-${snapshot.id}`}
+                          type="button"
+                          className={`${styles.tourContrastButton} ${isSelected ? styles.tourContrastButtonActive : ""}`}
+                          onClick={() => setComparisonSnapshotId(snapshot.id)}
+                          aria-pressed={isSelected}
+                        >
+                          <span className={styles.tourContrastButtonLabel}>{snapshot.label}</span>
+                          <span className={styles.tourContrastButtonMeta}>{snapshot.years}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className={styles.tourContrastSummary}>
+                    <p className={styles.tourContrastSummaryLabel}>
+                      {selectedSnapshot.label} vs {comparisonSnapshot.label}
+                    </p>
+                    <p className={styles.tourContrastSummaryBody}>{tourContrastSummary}</p>
+                  </div>
+
+                  <ul className={styles.tourContrastList}>
+                    {tourContrastRows.map((row) => {
+                      const deltaLabel = row.delta > 0 ? `+${row.delta}` : `${row.delta}`;
+                      const deltaDirection = row.delta > 0 ? "up" : row.delta < 0 ? "down" : "even";
+
+                      return (
+                        <li key={`${selectedSnapshot.id}-${comparisonSnapshot.id}-${row.label}`} className={styles.tourContrastItem}>
+                          <div className={styles.tourContrastItemHeader}>
+                            <p className={styles.tourContrastMetric}>{row.label}</p>
+                            <span className={styles.tourContrastDelta} data-direction={deltaDirection}>
+                              {deltaLabel}
+                            </span>
+                          </div>
+
+                          <div className={styles.tourContrastValueRow}>
+                            <span>{selectedSnapshot.label}</span>
+                            <span>{row.currentValue}/5</span>
+                          </div>
+                          <div className={styles.tourContrastTrack} aria-hidden="true">
+                            <span className={styles.tourContrastFill} style={{ width: `${(row.currentValue / 5) * 100}%` }} />
+                          </div>
+
+                          <div className={styles.tourContrastValueRow}>
+                            <span>{comparisonSnapshot.label}</span>
+                            <span>{row.comparisonValue}/5</span>
+                          </div>
+                          <div className={`${styles.tourContrastTrack} ${styles.tourContrastTrackComparison}`} aria-hidden="true">
+                            <span
+                              className={`${styles.tourContrastFill} ${styles.tourContrastFillComparison}`}
+                              style={{ width: `${(row.comparisonValue / 5) * 100}%` }}
+                            />
+                          </div>
+
+                          <p className={styles.tourContrastNote}>{row.note}</p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+
+                <ol className={styles.tourSnapshotTrackList}>
+                  {selectedSnapshot.tracks.map((track) => (
+                    <li key={`${selectedSnapshot.id}-${track.slot}-${track.title}`} className={styles.tourSnapshotTrackItem}>
+                      <span className={styles.tourSnapshotTrackSlot}>{track.slot}</span>
+                      <div className={styles.tourSnapshotTrackCopy}>
+                        <p className={styles.tourSnapshotTrackTitle}>{track.title}</p>
+                        <p className={styles.tourSnapshotTrackNote}>{track.note}</p>
                       </div>
                     </li>
                   ))}
-                </ul>
-              </section>
+                </ol>
 
-              <section className={styles.tourContrastBoard} aria-labelledby="tour-contrast-board-title">
-                <div className={styles.tourContrastHeader}>
-                  <p className={styles.tourContrastEyebrow}>Era Contrast Board</p>
-                  <h4 id="tour-contrast-board-title" className={styles.tourContrastTitle}>
-                    Compare this live stop with another Cure era.
-                  </h4>
-                  <p className={styles.tourContrastIntro}>
-                    Keep the current snapshot on top, then pick a second era to see where the live feel turns brighter,
-                    harder, or more tender.
-                  </p>
-                </div>
-
-                <div className={styles.tourContrastPicker} role="group" aria-label="Choose a live era to compare against">
-                  {LIVE_SET_SNAPSHOTS.map((snapshot) => {
-                    const isSelected = snapshot.id === comparisonSnapshot.id;
-
-                    return (
-                      <button
-                        key={`tour-contrast-${snapshot.id}`}
-                        type="button"
-                        className={`${styles.tourContrastButton} ${isSelected ? styles.tourContrastButtonActive : ""}`}
-                        onClick={() => setComparisonSnapshotId(snapshot.id)}
-                        aria-pressed={isSelected}
-                      >
-                        <span className={styles.tourContrastButtonLabel}>{snapshot.label}</span>
-                        <span className={styles.tourContrastButtonMeta}>{snapshot.years}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className={styles.tourContrastSummary}>
-                  <p className={styles.tourContrastSummaryLabel}>
-                    {selectedSnapshot.label} vs {comparisonSnapshot.label}
-                  </p>
-                  <p className={styles.tourContrastSummaryBody}>{tourContrastSummary}</p>
-                </div>
-
-                <ul className={styles.tourContrastList}>
-                  {tourContrastRows.map((row) => {
-                    const deltaLabel = row.delta > 0 ? `+${row.delta}` : `${row.delta}`;
-                    const deltaDirection = row.delta > 0 ? "up" : row.delta < 0 ? "down" : "even";
-
-                    return (
-                      <li key={`${selectedSnapshot.id}-${comparisonSnapshot.id}-${row.label}`} className={styles.tourContrastItem}>
-                        <div className={styles.tourContrastItemHeader}>
-                          <p className={styles.tourContrastMetric}>{row.label}</p>
-                          <span className={styles.tourContrastDelta} data-direction={deltaDirection}>
-                            {deltaLabel}
-                          </span>
-                        </div>
-
-                        <div className={styles.tourContrastValueRow}>
-                          <span>{selectedSnapshot.label}</span>
-                          <span>{row.currentValue}/5</span>
-                        </div>
-                        <div className={styles.tourContrastTrack} aria-hidden="true">
-                          <span className={styles.tourContrastFill} style={{ width: `${(row.currentValue / 5) * 100}%` }} />
-                        </div>
-
-                        <div className={styles.tourContrastValueRow}>
-                          <span>{comparisonSnapshot.label}</span>
-                          <span>{row.comparisonValue}/5</span>
-                        </div>
-                        <div className={`${styles.tourContrastTrack} ${styles.tourContrastTrackComparison}`} aria-hidden="true">
-                          <span
-                            className={`${styles.tourContrastFill} ${styles.tourContrastFillComparison}`}
-                            style={{ width: `${(row.comparisonValue / 5) * 100}%` }}
-                          />
-                        </div>
-
-                        <p className={styles.tourContrastNote}>{row.note}</p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-
-              <ol className={styles.tourSnapshotTrackList}>
-                {selectedSnapshot.tracks.map((track) => (
-                  <li key={`${selectedSnapshot.id}-${track.slot}-${track.title}`} className={styles.tourSnapshotTrackItem}>
-                    <span className={styles.tourSnapshotTrackSlot}>{track.slot}</span>
-                    <div className={styles.tourSnapshotTrackCopy}>
-                      <p className={styles.tourSnapshotTrackTitle}>{track.title}</p>
-                      <p className={styles.tourSnapshotTrackNote}>{track.note}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-
-              <a
-                href={selectedSnapshot.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.tourSnapshotLink}
-              >
-                Source: {selectedSnapshot.source}
-              </a>
-            </motion.article>
-          </AnimatePresence>
+                <a
+                  href={selectedSnapshot.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.tourSnapshotLink}
+                >
+                  Source: {selectedSnapshot.source}
+                </a>
+              </motion.article>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>

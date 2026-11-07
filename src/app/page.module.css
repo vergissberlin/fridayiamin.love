@@ -4762,7 +4762,8 @@
   border-color: rgba(0, 240, 255, 0.46);
 }
 
-.tourSnapshotTab:focus-visible {
+.tourSnapshotTab:focus-visible,
+.tourSnapshotPanelFocus:focus-visible {
   outline: 3px solid var(--yellow-neon);
   outline-offset: 2px;
 }
