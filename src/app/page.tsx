@@ -2597,20 +2597,28 @@ const SongSnapshotSection = () => {
         </div>
 
         <div className={styles.releaseFormatGuideShell}>
-          <div className={styles.releaseFormatTabs} role="tablist" aria-label="Friday I'm in Love release formats">
-            {RELEASE_FORMATS.map((format) => (
+          <div className={styles.releaseFormatTabs} role="tablist" aria-orientation="vertical" aria-label="Friday I'm in Love release formats">
+            {RELEASE_FORMATS.map((format, index) => (
               <button
                 key={format.id}
                 type="button"
                 role="tab"
                 id={`release-format-tab-${format.id}`}
                 aria-selected={selectedFormat.id === format.id}
-                aria-controls={`release-format-panel-${format.id}`}
+                aria-controls="release-format-panel"
                 tabIndex={selectedFormat.id === format.id ? 0 : -1}
                 className={`${styles.releaseFormatTab} ${
                   selectedFormat.id === format.id ? styles.releaseFormatTabActive : ""
                 }`}
                 onClick={() => setSelectedFormatId(format.id)}
+                onKeyDown={(event) => {
+                  const tabs = Array.from(
+                    event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+                  );
+                  handleVerticalTabKey(event, index, tabs, (nextIndex) => {
+                    setSelectedFormatId(RELEASE_FORMATS[nextIndex].id);
+                  });
+                }}
               >
                 <span className={styles.releaseFormatTabLabel}>{format.tabLabel}</span>
                 <span className={styles.releaseFormatTabMeta}>{format.kicker}</span>
@@ -2618,52 +2626,57 @@ const SongSnapshotSection = () => {
             ))}
           </div>
 
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.article
-              key={selectedFormat.id}
-              id={`release-format-panel-${selectedFormat.id}`}
-              role="tabpanel"
-              aria-labelledby={`release-format-tab-${selectedFormat.id}`}
-              className={styles.releaseFormatPanel}
-              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-            >
-              <div className={styles.releaseFormatPanelHeader}>
-                <p className={styles.releaseFormatPanelKicker}>{selectedFormat.kicker}</p>
-                <h4 className={styles.releaseFormatPanelTitle}>{selectedFormat.format}</h4>
-                <p className={styles.releaseFormatPanelBody}>{selectedFormat.body}</p>
-              </div>
+          <div
+            id="release-format-panel"
+            role="tabpanel"
+            aria-labelledby={`release-format-tab-${selectedFormat.id}`}
+            tabIndex={0}
+            className={styles.releaseFormatPanelFocus}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.article
+                key={selectedFormat.id}
+                className={styles.releaseFormatPanel}
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+              >
+                <div className={styles.releaseFormatPanelHeader}>
+                  <p className={styles.releaseFormatPanelKicker}>{selectedFormat.kicker}</p>
+                  <h4 className={styles.releaseFormatPanelTitle}>{selectedFormat.format}</h4>
+                  <p className={styles.releaseFormatPanelBody}>{selectedFormat.body}</p>
+                </div>
 
-              <ol className={styles.releaseFormatTrackList}>
-                {selectedFormat.tracks.map((track, index) => (
-                  <li key={`${selectedFormat.id}-${track.title}`} className={styles.releaseFormatTrackItem}>
-                    <span className={styles.releaseFormatTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
-                    <div className={styles.releaseFormatTrackCopy}>
-                      <p className={styles.releaseFormatTrackTitle}>
-                        {track.title}
-                        <span>{track.length}</span>
-                      </p>
-                      <p className={styles.releaseFormatTrackNote}>{track.note}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+                <ol className={styles.releaseFormatTrackList}>
+                  {selectedFormat.tracks.map((track, index) => (
+                    <li key={`${selectedFormat.id}-${track.title}`} className={styles.releaseFormatTrackItem}>
+                      <span className={styles.releaseFormatTrackNumber}>{String(index + 1).padStart(2, "0")}</span>
+                      <div className={styles.releaseFormatTrackCopy}>
+                        <p className={styles.releaseFormatTrackTitle}>
+                          {track.title}
+                          <span>{track.length}</span>
+                        </p>
+                        <p className={styles.releaseFormatTrackNote}>{track.note}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
 
-              <div className={styles.releaseFormatFooter}>
-                <p className={styles.releaseFormatCollectorNote}>{selectedFormat.collectorNote}</p>
-                <a
-                  href={selectedFormat.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.releaseFormatLink}
-                >
-                  {selectedFormat.linkLabel}
-                </a>
-              </div>
-            </motion.article>
-          </AnimatePresence>
+                <div className={styles.releaseFormatFooter}>
+                  <p className={styles.releaseFormatCollectorNote}>{selectedFormat.collectorNote}</p>
+                  <a
+                    href={selectedFormat.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.releaseFormatLink}
+                  >
+                    {selectedFormat.linkLabel}
+                  </a>
+                </div>
+              </motion.article>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>

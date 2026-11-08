@@ -1780,6 +1780,17 @@
   box-shadow: 0 0 20px rgba(255, 238, 0, 0.12);
 }
 
+.releaseFormatTab:focus-visible,
+.releaseFormatPanelFocus:focus-visible {
+  outline: 3px solid var(--yellow-neon);
+  outline-offset: 4px;
+}
+
+.releaseFormatPanelFocus {
+  min-width: 0;
+  border-radius: 22px;
+}
+
 .releaseFormatTabLabel,
 .releaseFormatTabMeta {
   display: block;
