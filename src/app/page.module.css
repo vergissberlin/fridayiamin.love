@@ -1143,6 +1143,7 @@
 }
 
 .songSnapshotCompanionButton:focus-visible,
+.songSnapshotCompanionPanelFocus:focus-visible,
 .songSnapshotCompanionLink:focus-visible {
   outline: 2px solid var(--yellow-neon);
   outline-offset: 2px;
@@ -1171,6 +1172,11 @@
 
 .songSnapshotCompanionButtonTag {
   color: rgba(255, 255, 255, 0.78);
+}
+
+.songSnapshotCompanionPanelFocus {
+  min-width: 0;
+  border-radius: 20px;
 }
 
 .songSnapshotCompanionPanel {
