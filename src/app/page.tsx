@@ -2325,8 +2325,8 @@ const SongSnapshotSection = () => {
           </div>
 
           <div className={styles.songSnapshotCompanionLayout}>
-            <div className={styles.songSnapshotCompanionList} role="tablist" aria-label="Single companion tracks">
-              {availableCompanions.map((companion) => {
+            <div className={styles.songSnapshotCompanionList} role="tablist" aria-label="Single companion tracks" aria-orientation="vertical">
+              {availableCompanions.map((companion, index) => {
                 const isSelected = selectedCompanion.id === companion.id;
 
                 return (
@@ -2336,12 +2336,18 @@ const SongSnapshotSection = () => {
                     role="tab"
                     id={`single-companion-tab-${companion.id}`}
                     aria-selected={isSelected}
-                    aria-controls={`single-companion-panel-${companion.id}`}
+                    aria-controls="single-companion-panel"
                     tabIndex={isSelected ? 0 : -1}
                     className={`${styles.songSnapshotCompanionButton} ${
                       isSelected ? styles.songSnapshotCompanionButtonActive : ""
                     }`}
                     onClick={() => setSelectedCompanionId(companion.id)}
+                    onKeyDown={(event) => handleVerticalTabKey(
+                      event,
+                      index,
+                      Array.from(event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]')),
+                      (nextIndex) => setSelectedCompanionId(availableCompanions[nextIndex].id),
+                    )}
                   >
                     <span className={styles.songSnapshotCompanionButtonTitle}>{companion.title}</span>
                     <span className={styles.songSnapshotCompanionButtonTag}>{companion.tag}</span>
@@ -2350,66 +2356,71 @@ const SongSnapshotSection = () => {
               })}
             </div>
 
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.aside
-                key={`${selectedFormat.id}-${selectedCompanion.id}`}
-                id={`single-companion-panel-${selectedCompanion.id}`}
-                role="tabpanel"
-                aria-labelledby={`single-companion-tab-${selectedCompanion.id}`}
-                className={styles.songSnapshotCompanionPanel}
-                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-              >
-                <p className={styles.songSnapshotCompanionKicker}>{selectedCompanion.tag}</p>
-                <h4 className={styles.songSnapshotCompanionPanelTitle}>{selectedCompanion.title}</h4>
-                <p className={styles.songSnapshotCompanionHook}>{selectedCompanion.hook}</p>
-                <p className={styles.songSnapshotCompanionBody}>{selectedCompanion.body}</p>
-
-                <dl className={styles.songSnapshotCompanionFacts}>
-                  <div>
-                    <dt>Best for</dt>
-                    <dd>{selectedCompanion.bestFor}</dd>
-                  </div>
-                  <div>
-                    <dt>Current format cue</dt>
-                    <dd>
-                      {availableCompanions.length === 1
-                        ? "This format keeps things lean with one companion route."
-                        : `This format opens ${availableCompanions.length} companion routes around the single.`}
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className={styles.songSnapshotCompanionFormats} aria-label="Formats carrying this companion track">
-                  {RELEASE_FORMATS.map((format) => {
-                    const isAvailable = selectedCompanion.formatIds.includes(format.id);
-                    const isCurrentFormat = selectedFormat.id === format.id;
-
-                    return (
-                      <span
-                        key={`${selectedCompanion.id}-${format.id}`}
-                        className={`${styles.songSnapshotCompanionFormatChip} ${
-                          isAvailable ? styles.songSnapshotCompanionFormatChipAvailable : ""
-                        } ${isCurrentFormat ? styles.songSnapshotCompanionFormatChipCurrent : ""}`}
-                      >
-                        {format.tabLabel}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <a
-                  href={selectedCompanion.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.songSnapshotCompanionLink}
+            <div
+              id="single-companion-panel"
+              role="tabpanel"
+              aria-labelledby={`single-companion-tab-${selectedCompanion.id}`}
+              tabIndex={0}
+              className={styles.songSnapshotCompanionPanelFocus}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.aside
+                  key={`${selectedFormat.id}-${selectedCompanion.id}`}
+                  className={styles.songSnapshotCompanionPanel}
+                  initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: -12 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
                 >
-                  {selectedCompanion.linkLabel}
-                </a>
-              </motion.aside>
-            </AnimatePresence>
+                  <p className={styles.songSnapshotCompanionKicker}>{selectedCompanion.tag}</p>
+                  <h4 className={styles.songSnapshotCompanionPanelTitle}>{selectedCompanion.title}</h4>
+                  <p className={styles.songSnapshotCompanionHook}>{selectedCompanion.hook}</p>
+                  <p className={styles.songSnapshotCompanionBody}>{selectedCompanion.body}</p>
+
+                  <dl className={styles.songSnapshotCompanionFacts}>
+                    <div>
+                      <dt>Best for</dt>
+                      <dd>{selectedCompanion.bestFor}</dd>
+                    </div>
+                    <div>
+                      <dt>Current format cue</dt>
+                      <dd>
+                        {availableCompanions.length === 1
+                          ? "This format keeps things lean with one companion route."
+                          : `This format opens ${availableCompanions.length} companion routes around the single.`}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className={styles.songSnapshotCompanionFormats} aria-label="Formats carrying this companion track">
+                    {RELEASE_FORMATS.map((format) => {
+                      const isAvailable = selectedCompanion.formatIds.includes(format.id);
+                      const isCurrentFormat = selectedFormat.id === format.id;
+
+                      return (
+                        <span
+                          key={`${selectedCompanion.id}-${format.id}`}
+                          className={`${styles.songSnapshotCompanionFormatChip} ${
+                            isAvailable ? styles.songSnapshotCompanionFormatChipAvailable : ""
+                          } ${isCurrentFormat ? styles.songSnapshotCompanionFormatChipCurrent : ""}`}
+                        >
+                          {format.tabLabel}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  <a
+                    href={selectedCompanion.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.songSnapshotCompanionLink}
+                  >
+                    {selectedCompanion.linkLabel}
+                  </a>
+                </motion.aside>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
