@@ -4460,17 +4460,25 @@ const CoverVersionsSection = () => {
       </div>
 
       <div className={styles.coverMoodBar} role="tablist" aria-label="Cover version moods">
-        {COVER_VERSIONS.map((cover) => (
+        {COVER_VERSIONS.map((cover, index) => (
           <button
             key={cover.id}
             type="button"
             role="tab"
             id={`cover-tab-${cover.id}`}
             aria-selected={selectedCover.id === cover.id}
-            aria-controls={`cover-panel-${cover.id}`}
+            aria-controls="cover-panel"
             tabIndex={selectedCover.id === cover.id ? 0 : -1}
             className={`${styles.coverMoodButton} ${selectedCover.id === cover.id ? styles.coverMoodButtonActive : ""}`}
             onClick={() => setSelectedCoverId(cover.id)}
+            onKeyDown={(event) =>
+              handleHorizontalTabKey(
+                event,
+                index,
+                Array.from(event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]')),
+                (nextIndex) => setSelectedCoverId(COVER_VERSIONS[nextIndex].id),
+              )
+            }
           >
             <span className={styles.coverMoodLabel}>{cover.label}</span>
             <span className={styles.coverMoodDescription}>{cover.description}</span>
@@ -4507,24 +4515,28 @@ const CoverVersionsSection = () => {
           </ul>
         </div>
 
-        <motion.aside
-          key={selectedCover.id}
-          id={`cover-panel-${selectedCover.id}`}
+        <aside
+          id="cover-panel"
           role="tabpanel"
           aria-labelledby={`cover-tab-${selectedCover.id}`}
+          tabIndex={0}
           className={styles.coverSpotlight}
-          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
         >
-          <p className={styles.coverSpotlightKicker}>{selectedCover.label}</p>
-          <h3 className={styles.coverSpotlightTitle}>{selectedCover.artist}</h3>
-          <p className={styles.coverSpotlightMeta}>{selectedCover.context}</p>
-          <p className={styles.coverSpotlightBody}>{selectedCover.body}</p>
-          <a href={selectedCover.href} target="_blank" rel="noopener noreferrer" className={styles.coverSpotlightLink}>
-            {selectedCover.linkLabel}
-          </a>
-        </motion.aside>
+          <motion.div
+            key={selectedCover.id}
+            initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+          >
+            <p className={styles.coverSpotlightKicker}>{selectedCover.label}</p>
+            <h3 className={styles.coverSpotlightTitle}>{selectedCover.artist}</h3>
+            <p className={styles.coverSpotlightMeta}>{selectedCover.context}</p>
+            <p className={styles.coverSpotlightBody}>{selectedCover.body}</p>
+            <a href={selectedCover.href} target="_blank" rel="noopener noreferrer" className={styles.coverSpotlightLink}>
+              {selectedCover.linkLabel}
+            </a>
+          </motion.div>
+        </aside>
       </div>
 
       <div className={styles.coverFooter}>
