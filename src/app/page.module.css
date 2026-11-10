@@ -5647,7 +5647,8 @@
   border-color: rgba(255, 238, 0, 0.45);
 }
 
-.coverMoodButton:focus-visible {
+.coverMoodButton:focus-visible,
+.coverSpotlight:focus-visible {
   outline: 3px solid var(--yellow-neon);
   outline-offset: 2px;
 }
