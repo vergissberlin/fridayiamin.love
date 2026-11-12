@@ -50,6 +50,7 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
     const synthRef = useRef<ToneNS.PolySynth | null>(null);
     const partRef = useRef<ToneNS.Part | null>(null);
     const cancelEndTimerRef = useRef<(() => void) | null>(null);
+    const loadRequestRef = useRef(0);
     const progressionRef = useRef(progressionId);
     const onActiveChordIndexRef = useRef(onActiveChordIndex);
     onActiveChordIndexRef.current = onActiveChordIndex;
@@ -84,6 +85,9 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
     }, []);
 
     const teardown = useCallback(() => {
+      // Invalidate work still awaiting imports, audio permission, or a MIDI fetch.
+      loadRequestRef.current += 1;
+      setLoading(false);
       clearStopTimer();
       clearChordHighlight();
       resetPlaybackData();
@@ -180,24 +184,24 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
 
     const loadMidiAndStart = useCallback(
       async (fromChordIndex: number) => {
+        teardown();
+        const requestId = loadRequestRef.current;
+        const isCurrentRequest = () =>
+          loadRequestRef.current === requestId && progressionRef.current === progressionId;
         setError(null);
         setLoading(true);
         try {
           const [{ Midi }, Tone] = await Promise.all([import("@tonejs/midi"), import("tone")]);
+          if (!isCurrentRequest()) return;
 
           await Tone.start();
+          if (!isCurrentRequest()) return;
 
-          if (progressionRef.current !== progressionId) {
-            Tone.Transport.stop();
-            Tone.Transport.cancel(0);
-            return;
-          }
-
-          teardown();
           toneRef.current = Tone;
 
           const url = `/midi/${progressionId}.mid`;
           const midi = await Midi.fromUrl(url);
+          if (!isCurrentRequest()) return;
           const bpm = midi.header.tempos[0]?.bpm ?? 138;
           Tone.Transport.bpm.value = bpm;
 
@@ -217,12 +221,13 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           const clampedStart = Math.min(Math.max(0, fromChordIndex), Math.max(0, sortedStarts.length - 1));
           beginPlayback(sortedStarts.length ? clampedStart : 0);
         } catch (e) {
+          if (!isCurrentRequest()) return;
           console.error(e);
           setError("Could not load or play MIDI — check connection or try again.");
           teardown();
           toneRef.current = null;
         } finally {
-          setLoading(false);
+          if (isCurrentRequest()) setLoading(false);
         }
       },
       [beginPlayback, progressionId, teardown],
@@ -240,7 +245,9 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           chordStartsSecRef.current.length > 0;
 
         if (hasSession && toneRef.current) {
+          const requestId = loadRequestRef.current;
           await toneRef.current.start();
+          if (loadRequestRef.current !== requestId || progressionRef.current !== progressionId) return;
           beginPlayback(index);
           return;
         }
