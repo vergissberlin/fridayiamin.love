@@ -245,16 +245,26 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           chordStartsSecRef.current.length > 0;
 
         if (hasSession && toneRef.current) {
-          const requestId = loadRequestRef.current;
-          await toneRef.current.start();
-          if (loadRequestRef.current !== requestId || progressionRef.current !== progressionId) return;
-          beginPlayback(index);
+          const requestId = ++loadRequestRef.current;
+          const isCurrentRequest = () =>
+            loadRequestRef.current === requestId && progressionRef.current === progressionId;
+          try {
+            await toneRef.current.start();
+            if (!isCurrentRequest()) return;
+            beginPlayback(index);
+          } catch (e) {
+            if (!isCurrentRequest()) return;
+            console.error(e);
+            setError("Could not load or play MIDI — check connection or try again.");
+            teardown();
+            toneRef.current = null;
+          }
           return;
         }
 
         await loadMidiAndStart(index);
       },
-      [beginPlayback, loadMidiAndStart, progressionId],
+      [beginPlayback, loadMidiAndStart, progressionId, teardown],
     );
 
     useImperativeHandle(

@@ -184,4 +184,76 @@ describe("MIDI pending-load lifecycle", () => {
     expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
     player.unmount();
   });
+
+  it("keeps the latest cached chord jump when audio permissions resolve out of order", async () => {
+    audio.fromUrl.mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    const older = deferred<void>();
+    const newer = deferred<void>();
+    audio.unlock.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
+    player.handle.playFromChordIndex(0);
+    player.handle.playFromChordIndex(1);
+    newer.resolve();
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    player.onActiveChordIndex.mockClear();
+    older.resolve();
+    await settle();
+    expect(audio.start).toHaveBeenCalledTimes(2);
+    expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+    expect(audio.fromUrl).toHaveBeenCalledOnce();
+    expect(audio.synth).toHaveBeenCalledOnce();
+    player.unmount();
+  });
+
+  it("handles a cached audio-permission rejection and allows a fresh retry", async () => {
+    const error = new Error("Audio permission denied");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    audio.fromUrl.mockResolvedValue(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    audio.unlock.mockRejectedValueOnce(error);
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(log).toHaveBeenCalledWith(error));
+    expect(audio.dispose).toHaveBeenCalledOnce();
+    expect(audio.start).toHaveBeenCalledOnce();
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(null);
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+    expect(audio.fromUrl).toHaveBeenCalledTimes(2);
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    player.unmount();
+  });
+
+  it.each(["newer jump", "unmount"] as const)(
+    "ignores a cached permission rejection after %s",
+    async (supersededBy) => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      audio.fromUrl.mockResolvedValueOnce(midi);
+      const player = mountPlayer();
+      player.handle.playFromChordIndex(0);
+      await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+      const permission = deferred<void>();
+      audio.unlock.mockReturnValueOnce(permission.promise);
+      player.handle.playFromChordIndex(0);
+      if (supersededBy === "newer jump") {
+        player.handle.playFromChordIndex(1);
+        await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+      } else {
+        player.unmount();
+      }
+      player.onActiveChordIndex.mockClear();
+      audio.dispose.mockClear();
+      permission.reject(new Error("Obsolete audio permission failed"));
+      await settle();
+      expect(log).not.toHaveBeenCalled();
+      expect(audio.dispose).not.toHaveBeenCalled();
+      expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+      expect(audio.start).toHaveBeenCalledTimes(supersededBy === "newer jump" ? 2 : 1);
+      if (supersededBy === "newer jump") player.unmount();
+    },
+  );
 });

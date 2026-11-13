@@ -1,61 +1,59 @@
-# Daily maintenance — 2026-11-12
+# Daily maintenance — 2026-11-13
 
 ## Pull request description
 
-Fix stale MIDI loads starting audio after leaving a progression or replacing a
-pending chord request. Previously, a delayed fetch could create a synth after
-unmount, override a newer chord selection, or tear down newer playback when the
-old fetch failed. Pending audio-permission requests could also outlive cleanup.
+Fix request ordering and error recovery when visitors jump between chord cards
+in an already-loaded MIDI practice session. Previously, overlapping audio-unlock
+requests could finish out of order and jump back to an older selection. A rejected
+unlock also escaped as an unhandled promise rejection instead of using the
+player's existing error-and-retry flow.
 
-The practice player now invalidates pending work on teardown and checks request
-identity after each asynchronous loading step. Only the current request can
-start playback, report errors, or finish its loading state. Cleanup resets loading
-so a progression change cannot leave the player stuck on “Loading…”.
+Cached jumps now each receive a request identity. Only the latest active request
+can restart playback or handle a failure. Current failures display the existing
+error message and dispose playback so visitors can retry; obsolete failures are
+ignored, including after unmount.
 
-Chosen after inspecting the clean working tree and recent countdown and tab
-maintenance. No failed CI diagnostics or unfinished work were supplied. Official
-news is unchanged; this reproducible playback bug offered a useful small fix to
-an existing feature.
+Chosen after reviewing the clean working tree and recent MIDI lifecycle,
+countdown, and keyboard-tab maintenance. No failed CI diagnostics or unfinished
+work were supplied. Official news and show listings are unchanged; this
+reproducible gap complements the previous fix for pending MIDI fetches.
 
 ## Changed areas and tests
 
-- `src/components/chord-midi-player.tsx`: request invalidation for imports,
-  audio permission, MIDI fetches, and cached-session audio permission.
-- `src/components/chord-midi-player.test.ts`: six behavior regressions covering
-  unmount during fetch, overlapping loads completing out of order, stale fetch
-  rejection, unmount during initial/cached audio permission, and a current fetch
-  failure followed by a successful retry. Assertions check actual playback,
-  synth creation/disposal, and chord-highlight callbacks.
-- Tests use real React refs/callbacks during server rendering, explicitly invoke
-  captured effects/cleanup, and mock MIDI requests and Tone audio. No browser or
-  physical audio-device verification was performed; these tests do not establish
-  visual or audible quality.
+- `src/components/chord-midi-player.tsx`: identity checks and guarded error
+  handling for the cached-session audio-unlock path.
+- `src/components/chord-midi-player.test.ts`: four regression cases cover
+  out-of-order cached jumps, current permission rejection followed by a successful
+  fresh retry, and obsolete rejection after either a newer jump or unmount.
+  Assertions cover actual transport starts, chord-highlight callbacks, synth
+  disposal, fetch reuse/retry, and failure logging.
+- Tests use real React refs/callbacks during server rendering, captured effects,
+  and mocked Tone/MIDI requests. Browser, rendered error-state, and audible
+  playback verification were not performed; no browser tool is available in this
+  run. These tests do not establish visual or audible quality.
 
 ## Sources
 
-All URLs checked on **2026-11-12**. No news or tour claims were added to the site.
+All URLs checked on **2026-11-13**. No news or tour claims were added to the site.
 
 | Source URL | What it supports / access result | Publication / event date |
 | --- | --- | --- |
-| https://www.thecure.com/news/ | Public official index; newest entry remains “HEART RESEARCH AUCTION”; provides official social links. | Index undated; newest entry published 2026-11-02. |
+| https://www.thecure.com/news/ | Public official index; latest entry remains “HEART RESEARCH AUCTION”; links to official social accounts. | Index undated; latest entry published 2026-11-02. |
 | https://www.thecure.com/shows/ | Public official page states “No shows currently announced!” | Undated; no upcoming event dates listed. |
-| https://www.youtube.com/thecure | Followed the band's official social link. Response identifies The Cure but exposes only navigation/footer, with no readable posts or videos. | No publication/event dates verified. |
-| https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5 | Verified this fan-contributed resource is linked in the repository; fetch returned no readable content. No statistics or commentary used. | No publication/event dates verified. |
+| https://www.youtube.com/thecure | Followed the official social link from the band's site. Response identifies The Cure but exposes only navigation/footer, with no readable posts or videos. | No publication/event dates verified. |
+| https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5 | Verified this fan-contributed URL in `src/app/page.tsx`; fetch returned no readable content. No statistics or commentary used. | No publication/event dates verified. |
 
-No Chain of Flowers URL appears among the site's source links. The bug evidence
-is the local component behavior and the reproduced regression failures.
+No Chain of Flowers URL was found in the site's source links. Bug evidence comes
+from the local component and the reproduced behavior regression.
 
 ## Validation
 
 - Before the fix, `pnpm exec vitest run src/components/chord-midi-player.test.ts`
-  failed both initial regressions: unmount still created a synth, and an older
-  fetch completing last created a second synth and restarted playback.
-- After the fix,
-  `pnpm exec vitest run src/components/chord-midi-player.test.ts src/lib/chord-midi-playback.test.ts`
-  passed all 13 tests then present; two additional lifecycle cases were
-  subsequently included in the full check.
-- `pnpm check` — passed: ESLint, TypeScript, **114 application tests**, 23 feature
-  automation tests, 27 maintenance tests, and the static production build.
+  failed the new ordering regression: the stale request started transport a third
+  time rather than preserving the latest jump (six existing tests passed).
+- After the fix, the same command passed all **10 player tests**.
+- `pnpm check` — passed: ESLint, TypeScript, **118 application tests**, **23 feature
+  automation tests**, **27 maintenance tests**, and the static production build.
 - `pnpm audit --prod --audit-level=high` — passed: **No known vulnerabilities found**.
 - `git diff --check` — passed.
 
