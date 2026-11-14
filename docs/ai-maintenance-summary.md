@@ -1,40 +1,38 @@
-# Daily maintenance — 2026-11-13
+# Daily maintenance — 2026-11-14
 
 ## Pull request description
 
-Fix request ordering and error recovery when visitors jump between chord cards
-in an already-loaded MIDI practice session. Previously, overlapping audio-unlock
-requests could finish out of order and jump back to an older selection. A rejected
-unlock also escaped as an unhandled promise rejection instead of using the
-player's existing error-and-retry flow.
+Add missing behavior coverage for MIDI note delivery and synchronized chord
+highlights. Recent maintenance tested asynchronous loading and permission races,
+but the player tests never invoked the Tone.Part callback that actually plays
+notes and schedules highlights.
 
-Cached jumps now each receive a request identity. Only the latest active request
-can restart playback or handle a failure. Current failures display the existing
-error message and dispose playback so visitors can retry; obsolete failures are
-ignored, including after unmount.
+Two new tests protect polyphonic playback, audio-time highlight scheduling, and
+highlight resets across loops and cached chord jumps. They cover existing correct
+behavior; no production bug fix or pre-fix failure is claimed.
 
-Chosen after reviewing the clean working tree and recent MIDI lifecycle,
-countdown, and keyboard-tab maintenance. No failed CI diagnostics or unfinished
-work were supplied. Official news and show listings are unchanged; this
-reproducible gap complements the previous fix for pending MIDI fetches.
+Chosen after reviewing the clean working tree and recent MIDI lifecycle and
+countdown summaries. No failed CI diagnostics or unfinished work were supplied.
+Official news and shows remain unchanged; protecting this untested playback path
+is a focused improvement to an existing practice feature.
 
 ## Changed areas and tests
 
-- `src/components/chord-midi-player.tsx`: identity checks and guarded error
-  handling for the cached-session audio-unlock path.
-- `src/components/chord-midi-player.test.ts`: four regression cases cover
-  out-of-order cached jumps, current permission rejection followed by a successful
-  fresh retry, and obsolete rejection after either a newer jump or unmount.
-  Assertions cover actual transport starts, chord-highlight callbacks, synth
-  disposal, fetch reuse/retry, and failure logging.
+- `src/components/chord-midi-player.test.ts`: extend the existing Tone mock to
+  capture Part callbacks, synth note commands, and scheduled draw callbacks.
+- The polyphony case checks all three voices' pitches, durations, velocities,
+  and absolute audio times. It checks that no highlight occurs early and that
+  simultaneous voices produce just one scheduled highlight.
+- The loop/jump case checks highlight order `0 → 1 → 0`, successive audio draw
+  times, and a fresh first-chord highlight after a cached jump without refetching.
 - Tests use real React refs/callbacks during server rendering, captured effects,
-  and mocked Tone/MIDI requests. Browser, rendered error-state, and audible
-  playback verification were not performed; no browser tool is available in this
-  run. These tests do not establish visual or audible quality.
+  and mocked Tone/MIDI requests. Browser and audible playback verification were
+  unavailable; these tests verify commands and callbacks, not visual or audible
+  quality.
 
 ## Sources
 
-All URLs checked on **2026-11-13**. No news or tour claims were added to the site.
+All URLs checked on **2026-11-14**. No news or tour claims were added to the site.
 
 | Source URL | What it supports / access result | Publication / event date |
 | --- | --- | --- |
@@ -43,16 +41,14 @@ All URLs checked on **2026-11-13**. No news or tour claims were added to the sit
 | https://www.youtube.com/thecure | Followed the official social link from the band's site. Response identifies The Cure but exposes only navigation/footer, with no readable posts or videos. | No publication/event dates verified. |
 | https://www.setlist.fm/stats/songs/the-cure-6bd6b266.html?songid=13d6b9a5 | Verified this fan-contributed URL in `src/app/page.tsx`; fetch returned no readable content. No statistics or commentary used. | No publication/event dates verified. |
 
-No Chain of Flowers URL was found in the site's source links. Bug evidence comes
-from the local component and the reproduced behavior regression.
+No Chain of Flowers URL appears in the site's source links. Test expectations
+come from the existing player's note and highlight behavior, not fan commentary.
 
 ## Validation
 
-- Before the fix, `pnpm exec vitest run src/components/chord-midi-player.test.ts`
-  failed the new ordering regression: the stale request started transport a third
-  time rather than preserving the latest jump (six existing tests passed).
-- After the fix, the same command passed all **10 player tests**.
-- `pnpm check` — passed: ESLint, TypeScript, **118 application tests**, **23 feature
+- `pnpm exec vitest run src/components/chord-midi-player.test.ts` — passed all
+  **12 player tests**, including the two new cases.
+- `pnpm check` — passed: ESLint, TypeScript, **120 application tests**, **23 feature
   automation tests**, **27 maintenance tests**, and the static production build.
 - `pnpm audit --prod --audit-level=high` — passed: **No known vulnerabilities found**.
 - `git diff --check` — passed.
