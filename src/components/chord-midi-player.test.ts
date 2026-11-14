@@ -2,6 +2,7 @@ import { createElement, type EffectCallback } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChordMidiPlayer, type ChordMidiPlayerHandle } from "./chord-midi-player";
+import type { NoteEventValue } from "../lib/chord-midi-playback";
 
 // Server rendering supplies real React refs/callbacks. Capture the imperative
 // handle and effects so these tests can drive pending loads and unmount cleanup
@@ -16,6 +17,9 @@ const audio = vi.hoisted(() => ({
   start: vi.fn(),
   synth: vi.fn(),
   dispose: vi.fn(),
+  triggerAttackRelease: vi.fn(),
+  scheduleDraw: vi.fn(),
+  partCallbacks: [] as ((time: number, note: NoteEventValue) => void)[],
 }));
 
 vi.mock("react", async (importOriginal) => ({
@@ -30,7 +34,7 @@ vi.mock("@/lib/chord-midi-playback", () => import("../lib/chord-midi-playback"))
 vi.mock("@tonejs/midi", () => ({ Midi: { fromUrl: audio.fromUrl } }));
 vi.mock("tone", () => ({
   start: audio.unlock,
-  getDraw: () => ({ cancel: vi.fn(), schedule: vi.fn() }),
+  getDraw: () => ({ cancel: vi.fn(), schedule: audio.scheduleDraw }),
   Transport: {
     stop: vi.fn(), cancel: vi.fn(), start: audio.start,
     bpm: { value: 138 }, seconds: 0, loop: false, loopStart: 0, loopEnd: 0,
@@ -40,9 +44,13 @@ vi.mock("tone", () => ({
     constructor() { audio.synth(); }
     toDestination() { return this; }
     dispose() { audio.dispose(); }
+    triggerAttackRelease = audio.triggerAttackRelease;
   },
   Synth: class {},
   Part: class {
+    constructor(callback: (time: number, note: NoteEventValue) => void) {
+      audio.partCallbacks.push(callback);
+    }
     start() {}
     dispose() {}
   },
@@ -82,7 +90,61 @@ describe("MIDI pending-load lifecycle", () => {
     vi.clearAllMocks();
     lifecycle.effects = [];
     lifecycle.handle = null;
+    audio.partCallbacks = [];
     audio.unlock.mockResolvedValue(undefined);
+  });
+
+  it("plays every voice of a chord but highlights it only once at the audio draw time", async () => {
+    audio.fromUrl.mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    player.onActiveChordIndex.mockClear();
+    const playNote = audio.partCallbacks[0];
+
+    // Tone supplies absolute audio-context times, not the MIDI's relative seconds.
+    playNote(12.5, { name: "D3", duration: 0.8, velocity: 0.7, chordIndex: 0 });
+    playNote(12.5, { name: "F#3", duration: 0.9, velocity: 0.6, chordIndex: 0 });
+    playNote(12.5, { name: "A3", duration: 1, velocity: 0.5, chordIndex: 0 });
+
+    expect(audio.triggerAttackRelease.mock.calls).toEqual([
+      ["D3", 0.8, 12.5, 0.7],
+      ["F#3", 0.9, 12.5, 0.6],
+      ["A3", 1, 12.5, 0.5],
+    ]);
+    expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+    expect(audio.scheduleDraw).toHaveBeenCalledExactlyOnceWith(expect.any(Function), 12.5);
+    const drawChord = audio.scheduleDraw.mock.calls[0][0] as () => void;
+    drawChord();
+    expect(player.onActiveChordIndex).toHaveBeenCalledExactlyOnceWith(0);
+    player.unmount();
+  });
+
+  it("highlights the first chord again on each loop and after a cached jump", async () => {
+    audio.fromUrl.mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    player.onActiveChordIndex.mockClear();
+    const playNote = audio.partCallbacks[0];
+    const note = { name: "D3", duration: 1, velocity: 0.8 };
+    playNote(20, { ...note, chordIndex: 0 });
+    playNote(21, { ...note, chordIndex: 1 });
+    playNote(22, { ...note, chordIndex: 0 });
+    expect(audio.scheduleDraw.mock.calls.map(([, time]) => time)).toEqual([20, 21, 22]);
+    for (const [draw] of audio.scheduleDraw.mock.calls) (draw as () => void)();
+    expect(player.onActiveChordIndex.mock.calls).toEqual([[0], [1], [0]]);
+
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+    player.onActiveChordIndex.mockClear();
+    audio.scheduleDraw.mockClear();
+    audio.partCallbacks[1](30, { ...note, chordIndex: 0 });
+    expect(audio.scheduleDraw).toHaveBeenCalledExactlyOnceWith(expect.any(Function), 30);
+    (audio.scheduleDraw.mock.calls[0][0] as () => void)();
+    expect(player.onActiveChordIndex).toHaveBeenCalledExactlyOnceWith(0);
+    expect(audio.fromUrl).toHaveBeenCalledOnce();
+    player.unmount();
   });
 
   it("does not start audio or restore a chord highlight after unmount during a MIDI fetch", async () => {
