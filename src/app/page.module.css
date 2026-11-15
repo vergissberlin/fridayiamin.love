@@ -350,6 +350,12 @@
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.5);
 }
 
+.dayRow span[aria-current="date"] {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
 .dayMon,
 .dayTue,
 .dayWed,
@@ -7549,6 +7555,16 @@
   
   .dayProgress {
     gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .dayRow {
+    gap: 0.3rem;
+  }
+
+  .dayRow span {
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
   }
 
   .fridayCountdownGrid {

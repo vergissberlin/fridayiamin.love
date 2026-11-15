@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from "framer-motion";
 import { FridayCountdownDisplay } from "@/components/friday-countdown-display";
+import { DayProgressDisplay } from "@/components/day-progress-display";
 import { getFridayQuizResult, type FridayQueueMood } from "@/lib/friday-quiz";
 import { handleHorizontalTabKey, handleVerticalTabKey } from "@/lib/tab-keyboard";
 import {
@@ -2112,37 +2113,7 @@ const DayProgress = () => {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  return (
-    <div className={styles.dayProgress}>
-      <div className={styles.dayRow}>
-        <span className={styles.dayMon}>Mon</span>
-        <span className={styles.dayTue}>Tue</span>
-        <span className={styles.dayWed}>Wed</span>
-        <span className={styles.dayThu}>Thu</span>
-        <span className={styles.dayFri}>Fri</span>
-        <span className={styles.daySat}>Sat</span>
-        <span className={styles.daySun}>Sun</span>
-      </div>
-      <div className={styles.progressBarBg}>
-        <motion.div
-          className={styles.progressBar}
-          initial={{ width: "0%" }}
-          whileInView={{ width: now?.getDay() === 5 ? "71%" : "57%" }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-        />
-        <motion.div
-          className={styles.fridayGlow}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 1 }}
-        >
-          <span role="img" aria-label="sparkle">
-            ✨
-          </span>
-        </motion.div>
-      </div>
-    </div>
-  );
+  return <DayProgressDisplay now={now} />;
 };
 
 const FridayCountdown = () => {
