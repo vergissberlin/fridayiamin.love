@@ -1,7 +1,8 @@
+import { readFileSync } from "node:fs";
 import { createElement, type EffectCallback } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ChordMidiPlayer, type ChordMidiPlayerHandle } from "./chord-midi-player";
+import { ChordMidiPlayer, type ChordMidiPlayerHandle, type ChordProgressionMidiId } from "./chord-midi-player";
 import type { NoteEventValue } from "../lib/chord-midi-playback";
 
 // Server rendering supplies real React refs/callbacks. Capture the imperative
@@ -19,6 +20,8 @@ const audio = vi.hoisted(() => ({
   dispose: vi.fn(),
   triggerAttackRelease: vi.fn(),
   scheduleDraw: vi.fn(),
+  partStart: vi.fn(),
+  partEvents: [] as [number, NoteEventValue][][],
   partCallbacks: [] as ((time: number, note: NoteEventValue) => void)[],
 }));
 
@@ -48,10 +51,11 @@ vi.mock("tone", () => ({
   },
   Synth: class {},
   Part: class {
-    constructor(callback: (time: number, note: NoteEventValue) => void) {
+    constructor(callback: (time: number, note: NoteEventValue) => void, events: [number, NoteEventValue][]) {
       audio.partCallbacks.push(callback);
+      audio.partEvents.push(events);
     }
-    start() {}
+    start(time: number) { audio.partStart(time); }
     dispose() {}
   },
 }));
@@ -69,9 +73,9 @@ const midi = {
   tracks: [{ notes: [0, 1].map((time) => ({ name: "D3", time, duration: 1, velocity: 0.8 })) }],
 };
 
-function mountPlayer() {
+function mountPlayer(progressionId: ChordProgressionMidiId = "verse") {
   const onActiveChordIndex = vi.fn();
-  renderToStaticMarkup(createElement(ChordMidiPlayer, { progressionId: "verse", onActiveChordIndex }));
+  renderToStaticMarkup(createElement(ChordMidiPlayer, { progressionId, onActiveChordIndex }));
   const cleanups = lifecycle.effects.map((effect) => effect());
   return {
     handle: lifecycle.handle!,
@@ -91,7 +95,55 @@ describe("MIDI pending-load lifecycle", () => {
     lifecycle.effects = [];
     lifecycle.handle = null;
     audio.partCallbacks = [];
+    audio.partEvents = [];
     audio.unlock.mockResolvedValue(undefined);
+  });
+
+  it.each([
+    { id: "verse", chordCount: 7 },
+    { id: "chorus", chordCount: 7 },
+    { id: "bridge", chordCount: 6 },
+  ] as const)("positions $id chord jumps on the downloadable MIDI timeline", async ({ id, chordCount }) => {
+    // Parse the shipped asset rather than supplying an invented note timeline.
+    const { Midi } = await vi.importActual<typeof import("@tonejs/midi")>("@tonejs/midi");
+    const asset = new Midi(readFileSync(new URL(`../../public/midi/${id}.mid`, import.meta.url)));
+    const { Transport } = await import("tone");
+    const secondsPerChord = 2 * 60 / asset.header.tempos[0].bpm;
+    audio.fromUrl.mockResolvedValueOnce(asset);
+    const player = mountPlayer(id);
+
+    // The first request loads at a nonzero step; later requests reuse the session.
+    const requestedSteps = [2, 3, 0, 999, -1];
+    const expectedSteps = [2, 3, 0, chordCount - 1, 0];
+    for (const [requestIndex, requestedStep] of requestedSteps.entries()) {
+      player.handle.playFromChordIndex(requestedStep);
+      await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(requestIndex + 1));
+      const expectedOffset = expectedSteps[requestIndex] * secondsPerChord;
+      expect(Transport.seconds).toBeCloseTo(expectedOffset, 4);
+      expect(Transport.loopStart).toBeCloseTo(expectedOffset, 4);
+      expect(Transport.loopEnd).toBeCloseTo(asset.duration, 4);
+      expect(Transport.loop).toBe(true);
+      expect(Transport.bpm.value).toBe(asset.header.tempos[0].bpm);
+      expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(expectedSteps[requestIndex]);
+
+      // Parts retain the absolute MIDI timeline. Starting them at the jump offset
+      // would apply it twice, while filtering would lose earlier chords on a rewind.
+      expect(audio.partStart).toHaveBeenLastCalledWith(0);
+      const events = audio.partEvents[requestIndex];
+      expect(events).toHaveLength(asset.tracks.flatMap((track) => track.notes).length);
+      const firstChord = events.filter(([, note]) => note.chordIndex === 0);
+      const lastChord = events.filter(([, note]) => note.chordIndex === chordCount - 1);
+      expect(firstChord).toHaveLength(3);
+      expect(firstChord.every(([time]) => time === 0)).toBe(true);
+      expect(lastChord).toHaveLength(3);
+      for (const [time] of lastChord) {
+        expect(time).toBeCloseTo((chordCount - 1) * secondsPerChord, 4);
+      }
+    }
+
+    expect(audio.fromUrl).toHaveBeenCalledExactlyOnceWith(`/midi/${id}.mid`);
+    expect(audio.synth).toHaveBeenCalledOnce();
+    player.unmount();
   });
 
   it("plays every voice of a chord but highlights it only once at the audio draw time", async () => {
