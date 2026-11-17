@@ -299,6 +299,28 @@ describe("MIDI pending-load lifecycle", () => {
     player.unmount();
   });
 
+  it.each([
+    { description: "no tracks", tracks: [] },
+    { description: "tracks without notes", tracks: [{ notes: [] }, { notes: [] }] },
+  ])("rejects MIDI with $description and allows a fresh retry", async ({ tracks }) => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    audio.fromUrl.mockResolvedValueOnce({ ...midi, duration: 0, tracks }).mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await settle();
+    expect(log).toHaveBeenCalledExactlyOnceWith(new Error("MIDI contains no playable notes."));
+    expect(audio.synth).not.toHaveBeenCalled();
+    expect(audio.start).not.toHaveBeenCalled();
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(null);
+
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    expect(audio.fromUrl).toHaveBeenCalledTimes(2);
+    expect(audio.synth).toHaveBeenCalledOnce();
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    player.unmount();
+  });
+
   it("keeps the latest cached chord jump when audio permissions resolve out of order", async () => {
     audio.fromUrl.mockResolvedValueOnce(midi);
     const player = mountPlayer();
