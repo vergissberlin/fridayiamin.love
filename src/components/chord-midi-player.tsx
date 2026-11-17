@@ -202,6 +202,10 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           const url = `/midi/${progressionId}.mid`;
           const midi = await Midi.fromUrl(url);
           if (!isCurrentRequest()) return;
+          const { events, starts: sortedStarts } = buildMidiPlaybackEvents(midi.tracks);
+          if (events.length === 0) {
+            throw new Error("MIDI contains no playable notes.");
+          }
           const bpm = midi.header.tempos[0]?.bpm ?? 138;
           Tone.Transport.bpm.value = bpm;
 
@@ -211,8 +215,6 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
           }).toDestination();
           synth.volume.value = -10;
           synthRef.current = synth;
-
-          const { events, starts: sortedStarts } = buildMidiPlaybackEvents(midi.tracks);
 
           playbackEventsRef.current = events;
           chordStartsSecRef.current = sortedStarts;
