@@ -21,6 +21,7 @@ const audio = vi.hoisted(() => ({
   triggerAttackRelease: vi.fn(),
   scheduleDraw: vi.fn(),
   partStart: vi.fn(),
+  partDispose: vi.fn(),
   partEvents: [] as [number, NoteEventValue][][],
   partCallbacks: [] as ((time: number, note: NoteEventValue) => void)[],
 }));
@@ -56,7 +57,7 @@ vi.mock("tone", () => ({
       audio.partEvents.push(events);
     }
     start(time: number) { audio.partStart(time); }
-    dispose() {}
+    dispose() { audio.partDispose(); }
   },
 }));
 
@@ -283,6 +284,61 @@ describe("MIDI pending-load lifecycle", () => {
     await settle();
     expect(audio.start).toHaveBeenCalledOnce();
     expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+  });
+
+  it("allows a fresh retry after the initial audio permission is denied", async () => {
+    const error = new Error("Audio permission denied");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    audio.unlock.mockRejectedValueOnce(error);
+    audio.fromUrl.mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(log).toHaveBeenCalledExactlyOnceWith(error));
+    expect(audio.fromUrl).not.toHaveBeenCalled();
+    expect(audio.synth).not.toHaveBeenCalled();
+    expect(audio.start).not.toHaveBeenCalled();
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(null);
+
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    expect(audio.unlock).toHaveBeenCalledTimes(2);
+    expect(audio.fromUrl).toHaveBeenCalledExactlyOnceWith("/midi/verse.mid");
+    expect(audio.synth).toHaveBeenCalledOnce();
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    player.unmount();
+  });
+
+  it("disposes a partially started session and reloads successfully after transport startup fails", async () => {
+    const error = new Error("Audio transport failed to start");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { Transport } = await import("tone");
+    audio.fromUrl.mockResolvedValueOnce(midi).mockResolvedValueOnce(midi);
+    audio.start.mockImplementationOnce(() => { throw error; });
+    const player = mountPlayer();
+
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(log).toHaveBeenCalledExactlyOnceWith(error));
+    expect(audio.synth).toHaveBeenCalledOnce();
+    expect(audio.dispose).toHaveBeenCalledOnce();
+    expect(audio.partDispose).toHaveBeenCalledOnce();
+    expect(Transport.stop).toHaveBeenCalled();
+    expect(Transport.cancel).toHaveBeenCalledWith(0);
+    expect(Transport.loop).toBe(false);
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(null);
+
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+    expect(audio.fromUrl).toHaveBeenCalledTimes(2);
+    expect(audio.synth).toHaveBeenCalledTimes(2);
+    expect(audio.dispose).toHaveBeenCalledOnce();
+    expect(audio.partDispose).toHaveBeenCalledOnce();
+    expect(Transport.seconds).toBe(1);
+    expect(Transport.loop).toBe(true);
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    player.unmount();
+    expect(audio.dispose).toHaveBeenCalledTimes(2);
+    expect(audio.partDispose).toHaveBeenCalledTimes(2);
   });
 
   it("still reports a current fetch failure and allows a successful retry", async () => {
