@@ -3709,7 +3709,7 @@ const ChordTabsSection = () => {
                 type="button"
                 className={styles.chordTabsChordHit}
                 onClick={() => chordMidiRef.current?.playFromChordIndex(idx)}
-                aria-label={`Play progression from chord ${chord}`}
+                aria-label={`Play progression from chord ${chord}, step ${idx + 1} of ${CHORD_PROGRESSIONS[selectedProg].chords.length}`}
               >
                 <span className={styles.chordTabsChordName}>{chord}</span>
                 <span className={styles.chordTabsFingering}>{getChordFingering(chord)}</span>
