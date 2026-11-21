@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.12.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.11.0...fridayiamin.love-v1.12.0) (2026-11-21)
+
+
+### Features
+
+* improve fan site through daily maintenance ([#103](https://github.com/vergissberlin/fridayiamin.love/issues/103)) ([d3e4bc8](https://github.com/vergissberlin/fridayiamin.love/commit/d3e4bc80575e3c3c6ecec8b936d4173754dac5af))
+* improve fan site through daily maintenance ([#105](https://github.com/vergissberlin/fridayiamin.love/issues/105)) ([3f0e165](https://github.com/vergissberlin/fridayiamin.love/commit/3f0e1656f53ef4ad2f06daf93a48efccae556055))
+* improve fan site through daily maintenance ([#106](https://github.com/vergissberlin/fridayiamin.love/issues/106)) ([054b5f3](https://github.com/vergissberlin/fridayiamin.love/commit/054b5f37a5f960c48e431096cc0f6625a8438cae))
+* improve fan site through daily maintenance ([#107](https://github.com/vergissberlin/fridayiamin.love/issues/107)) ([7a79553](https://github.com/vergissberlin/fridayiamin.love/commit/7a7955397dfacf28899280f89cb8914637647313))
+* improve fan site through daily maintenance ([#108](https://github.com/vergissberlin/fridayiamin.love/issues/108)) ([4367b17](https://github.com/vergissberlin/fridayiamin.love/commit/4367b176bde330e973e3b4b52b605f4369aa4920))
+* improve fan site through daily maintenance ([#109](https://github.com/vergissberlin/fridayiamin.love/issues/109)) ([1565120](https://github.com/vergissberlin/fridayiamin.love/commit/15651201ca50a2b58ac3770c0e5eae29718cd3b4))
+* improve fan site through daily maintenance ([#111](https://github.com/vergissberlin/fridayiamin.love/issues/111)) ([41a89f2](https://github.com/vergissberlin/fridayiamin.love/commit/41a89f22917d3c70dbc8f715a14bcfd3bfbac845))
+* improve fan site through daily maintenance ([#112](https://github.com/vergissberlin/fridayiamin.love/issues/112)) ([22cac2d](https://github.com/vergissberlin/fridayiamin.love/commit/22cac2d740a25a1ceaa99683945534def3b26565))
+* improve fan site through daily maintenance ([#113](https://github.com/vergissberlin/fridayiamin.love/issues/113)) ([4a23c63](https://github.com/vergissberlin/fridayiamin.love/commit/4a23c63c88c7eff1cdd2452c39d12bc37b7e458d))
+* improve fan site through daily maintenance ([#114](https://github.com/vergissberlin/fridayiamin.love/issues/114)) ([3e3b371](https://github.com/vergissberlin/fridayiamin.love/commit/3e3b371ebe0996658b86551a05b2125fa9b19cd9))
+* improve fan site through daily maintenance ([#115](https://github.com/vergissberlin/fridayiamin.love/issues/115)) ([0cc16b1](https://github.com/vergissberlin/fridayiamin.love/commit/0cc16b121940d91f92794b62420855e8aaec6db1))
+* improve fan site through daily maintenance ([#116](https://github.com/vergissberlin/fridayiamin.love/issues/116)) ([a28a9ae](https://github.com/vergissberlin/fridayiamin.love/commit/a28a9ae645ca3c9b77380494e3c3467a205b8cbe))
+* improve fan site through daily maintenance ([#117](https://github.com/vergissberlin/fridayiamin.love/issues/117)) ([43cab12](https://github.com/vergissberlin/fridayiamin.love/commit/43cab12732d9f077144b7a85609308ae273486f2))
+* improve fan site through daily maintenance ([#118](https://github.com/vergissberlin/fridayiamin.love/issues/118)) ([f32fc80](https://github.com/vergissberlin/fridayiamin.love/commit/f32fc80196faadbe139000b5c5ffe16b01a12b44))
+* improve fan site through daily maintenance ([#119](https://github.com/vergissberlin/fridayiamin.love/issues/119)) ([968a008](https://github.com/vergissberlin/fridayiamin.love/commit/968a0084be9694203b0bc5d4838c57f46ba8e8f5))
+* improve fan site through daily maintenance ([#120](https://github.com/vergissberlin/fridayiamin.love/issues/120)) ([268f3ec](https://github.com/vergissberlin/fridayiamin.love/commit/268f3ec962b0898e301064d6f070cbb41d77a076))
+* improve fan site through daily maintenance ([#121](https://github.com/vergissberlin/fridayiamin.love/issues/121)) ([f3ec53f](https://github.com/vergissberlin/fridayiamin.love/commit/f3ec53fb40ddcd7669d65539e0260194b719b0b2))
+* improve fan site through daily maintenance ([#122](https://github.com/vergissberlin/fridayiamin.love/issues/122)) ([122ba2e](https://github.com/vergissberlin/fridayiamin.love/commit/122ba2e953fc3cf1212831f1c4c6c502a169e17f))
+* improve fan site through daily maintenance ([#123](https://github.com/vergissberlin/fridayiamin.love/issues/123)) ([c52b58d](https://github.com/vergissberlin/fridayiamin.love/commit/c52b58d622b36fc9d22be1f7961ec6bd2d47a43f))
+* improve fan site through daily maintenance ([#124](https://github.com/vergissberlin/fridayiamin.love/issues/124)) ([a560bc2](https://github.com/vergissberlin/fridayiamin.love/commit/a560bc21be38bcc98a4187312823783f86a504cf))
+* improve fan site through daily maintenance ([#125](https://github.com/vergissberlin/fridayiamin.love/issues/125)) ([f6b0c94](https://github.com/vergissberlin/fridayiamin.love/commit/f6b0c94d2c44f6c238d63bf33a4e568ed9418390))
+* improve fan site through daily maintenance ([#126](https://github.com/vergissberlin/fridayiamin.love/issues/126)) ([0d1e10e](https://github.com/vergissberlin/fridayiamin.love/commit/0d1e10e00b8ca0836a0161c5a02adb7b48536ed7))
+* improve fan site through daily maintenance ([#127](https://github.com/vergissberlin/fridayiamin.love/issues/127)) ([3c1c463](https://github.com/vergissberlin/fridayiamin.love/commit/3c1c4636a1f8b1994b7c2c05d148f2a33488c911))
+* improve fan site through daily maintenance ([#128](https://github.com/vergissberlin/fridayiamin.love/issues/128)) ([b9e4725](https://github.com/vergissberlin/fridayiamin.love/commit/b9e472554c8bf227ab13b70fa088772c3864d425))
+* improve fan site through daily maintenance ([#129](https://github.com/vergissberlin/fridayiamin.love/issues/129)) ([9da1d24](https://github.com/vergissberlin/fridayiamin.love/commit/9da1d247822a79e2afd73e0ea245332355fb399a))
+* improve fan site through daily maintenance ([#130](https://github.com/vergissberlin/fridayiamin.love/issues/130)) ([bbb220a](https://github.com/vergissberlin/fridayiamin.love/commit/bbb220aa3374af8296794eeb7541f991a738ad07))
+
 ## [1.11.0](https://github.com/vergissberlin/fridayiamin.love/compare/fridayiamin.love-v1.10.0...fridayiamin.love-v1.11.0) (2026-10-26)
 
 
