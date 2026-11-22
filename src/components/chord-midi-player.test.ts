@@ -269,6 +269,52 @@ describe("MIDI pending-load lifecycle", () => {
     expect(audio.start).not.toHaveBeenCalled();
   });
 
+  it.each(["approval", "rejection"] as const)(
+    "ignores late initial audio-permission %s after a newer chord starts",
+    async (outcome) => {
+      const permission = deferred<void>();
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      const { Transport } = await import("tone");
+      audio.unlock.mockReturnValueOnce(permission.promise);
+      audio.fromUrl.mockResolvedValueOnce(midi);
+      const player = mountPlayer();
+
+      // The first request has not fetched MIDI or allocated a session yet.
+      player.handle.playFromChordIndex(0);
+      await vi.waitFor(() => expect(audio.unlock).toHaveBeenCalledOnce());
+      expect(audio.fromUrl).not.toHaveBeenCalled();
+      expect(audio.synth).not.toHaveBeenCalled();
+
+      player.handle.playFromChordIndex(1);
+      await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+      expect(audio.unlock).toHaveBeenCalledTimes(2);
+      expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+      player.onActiveChordIndex.mockClear();
+      vi.mocked(Transport.stop).mockClear();
+      vi.mocked(Transport.cancel).mockClear();
+
+      if (outcome === "approval") permission.resolve();
+      else permission.reject(new Error("Obsolete initial audio permission denied"));
+      await settle();
+
+      expect(log).not.toHaveBeenCalled();
+      expect(audio.fromUrl).toHaveBeenCalledExactlyOnceWith("/midi/verse.mid");
+      expect(audio.synth).toHaveBeenCalledOnce();
+      expect(audio.start).toHaveBeenCalledOnce();
+      expect(audio.dispose).not.toHaveBeenCalled();
+      expect(audio.partDispose).not.toHaveBeenCalled();
+      expect(Transport.stop).not.toHaveBeenCalled();
+      expect(Transport.cancel).not.toHaveBeenCalled();
+      expect(Transport.seconds).toBe(1);
+      expect(Transport.loop).toBe(true);
+      expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+
+      player.unmount();
+      expect(audio.dispose).toHaveBeenCalledOnce();
+      expect(audio.partDispose).toHaveBeenCalledOnce();
+    },
+  );
+
   it("does not restart a cached session after unmount during audio permission", async () => {
     audio.fromUrl.mockResolvedValueOnce(midi);
     const player = mountPlayer();
