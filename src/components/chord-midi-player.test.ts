@@ -19,6 +19,7 @@ const audio = vi.hoisted(() => ({
   synth: vi.fn(),
   dispose: vi.fn(),
   triggerAttackRelease: vi.fn(),
+  releaseAll: vi.fn(),
   scheduleDraw: vi.fn(),
   partStart: vi.fn(),
   partDispose: vi.fn(),
@@ -49,6 +50,7 @@ vi.mock("tone", () => ({
     toDestination() { return this; }
     dispose() { audio.dispose(); }
     triggerAttackRelease = audio.triggerAttackRelease;
+    releaseAll = audio.releaseAll;
   },
   Synth: class {},
   Part: class {
@@ -197,6 +199,36 @@ describe("MIDI pending-load lifecycle", () => {
     (audio.scheduleDraw.mock.calls[0][0] as () => void)();
     expect(player.onActiveChordIndex).toHaveBeenCalledExactlyOnceWith(0);
     expect(audio.fromUrl).toHaveBeenCalledOnce();
+    player.unmount();
+  });
+
+  it("releases held voices before restarting a cached chord jump", async () => {
+    const { Transport } = await import("tone");
+    audio.fromUrl.mockResolvedValueOnce(midi);
+    const player = mountPlayer();
+    player.handle.playFromChordIndex(0);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    expect(audio.releaseAll).not.toHaveBeenCalled();
+
+    // Already-triggered voices belong to the synth, not the MIDI Part. Replacing
+    // the schedule alone leaves them held while the newly selected chord plays.
+    audio.partCallbacks[0](12.5, { name: "D3", duration: 1, velocity: 0.8, chordIndex: 0 });
+    expect(audio.triggerAttackRelease).toHaveBeenCalledOnce();
+    vi.mocked(Transport.stop).mockClear();
+    audio.start.mockClear();
+
+    player.handle.playFromChordIndex(1);
+    await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+    expect(audio.releaseAll).toHaveBeenCalledExactlyOnceWith();
+    expect(Transport.stop).toHaveBeenCalledBefore(audio.releaseAll);
+    expect(audio.releaseAll).toHaveBeenCalledBefore(audio.partDispose);
+    expect(audio.releaseAll).toHaveBeenCalledBefore(audio.start);
+    expect(Transport.seconds).toBe(1);
+    expect(Transport.loopStart).toBe(1);
+    expect(player.onActiveChordIndex).toHaveBeenLastCalledWith(1);
+    expect(audio.fromUrl).toHaveBeenCalledOnce();
+    expect(audio.synth).toHaveBeenCalledOnce();
+    expect(audio.dispose).not.toHaveBeenCalled();
     player.unmount();
   });
 
