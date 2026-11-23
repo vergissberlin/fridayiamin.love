@@ -168,6 +168,9 @@ export const ChordMidiPlayer = forwardRef<ChordMidiPlayerHandle, ChordMidiPlayer
         Tone.Transport.stop();
         Tone.Transport.cancel(0);
 
+        // Replacing a Part does not release voices it already triggered.
+        // Let held notes enter their release tail before the selected chord starts.
+        if (partRef.current) synth.releaseAll();
         partRef.current?.dispose();
         partRef.current = makePart(Tone, synth, events);
 
