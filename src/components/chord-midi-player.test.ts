@@ -20,6 +20,7 @@ const audio = vi.hoisted(() => ({
   dispose: vi.fn(),
   triggerAttackRelease: vi.fn(),
   releaseAll: vi.fn(),
+  cancelDraw: vi.fn(),
   scheduleDraw: vi.fn(),
   partStart: vi.fn(),
   partDispose: vi.fn(),
@@ -39,7 +40,7 @@ vi.mock("@/lib/chord-midi-playback", () => import("../lib/chord-midi-playback"))
 vi.mock("@tonejs/midi", () => ({ Midi: { fromUrl: audio.fromUrl } }));
 vi.mock("tone", () => ({
   start: audio.unlock,
-  getDraw: () => ({ cancel: vi.fn(), schedule: audio.scheduleDraw }),
+  getDraw: () => ({ cancel: audio.cancelDraw, schedule: audio.scheduleDraw }),
   Transport: {
     stop: vi.fn(), cancel: vi.fn(), start: audio.start,
     bpm: { value: 138 }, seconds: 0, loop: false, loopStart: 0, loopEnd: 0,
@@ -91,7 +92,11 @@ function mountPlayer(progressionId: ChordProgressionMidiId = "verse") {
 const settle = () => new Promise<void>((resolve) => setImmediate(resolve));
 
 describe("MIDI pending-load lifecycle", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    audio.cancelDraw.mockReset();
+    audio.scheduleDraw.mockReset();
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -201,6 +206,52 @@ describe("MIDI pending-load lifecycle", () => {
     expect(audio.fromUrl).toHaveBeenCalledOnce();
     player.unmount();
   });
+
+  it.each(["cached jump", "unmount"] as const)(
+    "cancels queued chord highlights on %s without delivering stale updates",
+    async (action) => {
+      // Model Draw's pending frame callbacks separately from note playback:
+      // audio may be scheduled ahead of the frame that displays its chord.
+      const pendingFrames: (() => void)[] = [];
+      audio.scheduleDraw.mockImplementation((callback: () => void) => pendingFrames.push(callback));
+      audio.cancelDraw.mockImplementation(() => { pendingFrames.length = 0; });
+      const flushFrames = () => pendingFrames.splice(0).forEach((callback) => callback());
+      audio.fromUrl.mockResolvedValueOnce(midi);
+      const player = mountPlayer();
+      player.handle.playFromChordIndex(0);
+      await vi.waitFor(() => expect(audio.start).toHaveBeenCalledOnce());
+
+      audio.partCallbacks[0](42, audio.partEvents[0][0][1]);
+      expect(pendingFrames).toHaveLength(1);
+      player.onActiveChordIndex.mockClear();
+      audio.cancelDraw.mockClear();
+
+      if (action === "cached jump") {
+        player.handle.playFromChordIndex(1);
+        await vi.waitFor(() => expect(audio.start).toHaveBeenCalledTimes(2));
+      } else {
+        player.unmount();
+      }
+
+      expect(player.onActiveChordIndex).toHaveBeenCalledExactlyOnceWith(action === "cached jump" ? 1 : null);
+      player.onActiveChordIndex.mockClear();
+      flushFrames();
+      expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+      expect(audio.cancelDraw).toHaveBeenCalledExactlyOnceWith(0);
+
+      if (action === "cached jump") {
+        // Cancellation must not prevent the new Part's future highlights.
+        audio.partCallbacks[1](43, audio.partEvents[1][1][1]);
+        expect(pendingFrames).toHaveLength(1);
+        expect(player.onActiveChordIndex).not.toHaveBeenCalled();
+        flushFrames();
+        expect(player.onActiveChordIndex).toHaveBeenCalledExactlyOnceWith(1);
+        expect(audio.fromUrl).toHaveBeenCalledOnce();
+        expect(audio.synth).toHaveBeenCalledOnce();
+        player.unmount();
+      }
+    },
+  );
 
   it("releases held voices before restarting a cached chord jump", async () => {
     const { Transport } = await import("tone");
