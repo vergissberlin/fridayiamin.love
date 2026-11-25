@@ -6,6 +6,7 @@ import { FridayCountdownDisplay } from "@/components/friday-countdown-display";
 import { DayProgressDisplay } from "@/components/day-progress-display";
 import { getFridayQuizResult, type FridayQueueMood } from "@/lib/friday-quiz";
 import { handleHorizontalTabKey, handleVerticalTabKey } from "@/lib/tab-keyboard";
+import { startVisibleClock } from "@/lib/visible-clock";
 import {
   ChordMidiPlayer,
   CHORD_PROGRESSION_MIDI_IDS,
@@ -2106,12 +2107,7 @@ const PatternShapes = () => (
 const DayProgress = () => {
   const [now, setNow] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    tick();
-    const intervalId = window.setInterval(tick, 60_000);
-    return () => window.clearInterval(intervalId);
-  }, []);
+  useEffect(() => startVisibleClock(() => setNow(new Date()), 60_000), []);
 
   return <DayProgressDisplay now={now} />;
 };
@@ -2119,12 +2115,7 @@ const DayProgress = () => {
 const FridayCountdown = () => {
   const [now, setNow] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    tick();
-    const intervalId = window.setInterval(tick, 1000);
-    return () => window.clearInterval(intervalId);
-  }, []);
+  useEffect(() => startVisibleClock(() => setNow(new Date()), 1000), []);
 
   return <FridayCountdownDisplay now={now} />;
 };
@@ -2133,12 +2124,7 @@ const WeekdayForecastCard = () => {
   const prefersReducedMotion = useReducedMotion();
   const [now, setNow] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const tick = () => setNow(new Date());
-    tick();
-    const intervalId = window.setInterval(tick, 60_000);
-    return () => window.clearInterval(intervalId);
-  }, []);
+  useEffect(() => startVisibleClock(() => setNow(new Date()), 60_000), []);
 
   const activeForecast = now ? WEEKDAY_FORECASTS[now.getDay()] ?? DEFAULT_WEEKDAY_FORECAST : DEFAULT_WEEKDAY_FORECAST;
   const isExternalLink = activeForecast.cueHref.startsWith("http");
