@@ -9,6 +9,7 @@ vi.mock("@/components/day-progress-display", () => import("../components/day-pro
 vi.mock("@/app/page.module.css", () => ({ default: {} }));
 vi.mock("@/lib/friday-quiz", () => import("../lib/friday-quiz"));
 vi.mock("@/lib/tab-keyboard", () => import("../lib/tab-keyboard"));
+vi.mock("@/lib/visible-clock", () => import("../lib/visible-clock"));
 vi.mock("@/components/chord-midi-player", () => ({
   ChordMidiPlayer: () => null,
   CHORD_PROGRESSION_MIDI_IDS: ["verse", "chorus", "bridge"],
