@@ -3107,7 +3107,7 @@ const FridayFanFlyerSection = () => {
   const [selectedMood, setSelectedMood] = useState<FridayQueueMood>(FRIDAY_CURE_QUEUES[0].mood);
   const [selectedSceneId, setSelectedSceneId] = useState<VideoSceneId>(VIDEO_SCENES[0].id);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<LiveSetSnapshotId>(LIVE_SET_SNAPSHOTS[0].id);
-  const [copyStatus, setCopyStatus] = useState("Copy the flyer text for later.");
+  const [copyResult, setCopyResult] = useState<{ text: string; failed: boolean } | null>(null);
 
   const selectedQueue = FRIDAY_CURE_QUEUES.find((queue) => queue.mood === selectedMood) ?? FRIDAY_CURE_QUEUES[0];
   const selectedScene = VIDEO_SCENES.find((scene) => scene.id === selectedSceneId) ?? VIDEO_SCENES[0];
@@ -3115,13 +3115,18 @@ const FridayFanFlyerSection = () => {
     LIVE_SET_SNAPSHOTS.find((snapshot) => snapshot.id === selectedSnapshotId) ?? LIVE_SET_SNAPSHOTS[0];
 
   const flyerText = buildFridayFanFlyerText(selectedQueue, selectedScene, selectedSnapshot);
+  const copyStatus = copyResult?.text === flyerText
+    ? copyResult.failed
+      ? "Copy did not work here, but the flyer links are still ready below."
+      : "Flyer text copied."
+    : "Copy the flyer text for later.";
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(flyerText);
-      setCopyStatus("Flyer text copied.");
+      setCopyResult({ text: flyerText, failed: false });
     } catch {
-      setCopyStatus("Copy did not work here, but the flyer links are still ready below.");
+      setCopyResult({ text: flyerText, failed: true });
     }
   };
 
