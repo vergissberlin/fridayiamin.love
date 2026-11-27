@@ -4840,6 +4840,7 @@ const LyricsMeaningSection = () => {
             <button
               key={option.code}
               type="button"
+              lang={option.code}
               className={selectedLanguage === option.code ? styles.activeLanguageButton : styles.languageButton}
               onClick={() => setSelectedLanguage(option.code)}
               aria-pressed={selectedLanguage === option.code}
@@ -4852,7 +4853,7 @@ const LyricsMeaningSection = () => {
         <div className={styles.lyricsHeaderCards}>
           <div className={styles.lyricSummaryCard}>
             <p className={styles.lyricSummaryText}>Quick meaning summary</p>
-            <p className={styles.lyricSummaryBody}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
+            <p className={styles.lyricSummaryBody} lang={selectedLanguage}>{LYRIC_SUMMARIES[selectedLanguage]}</p>
           </div>
 
           <AnimatePresence mode="wait" initial={false}>
@@ -4878,7 +4879,7 @@ const LyricsMeaningSection = () => {
 
               <ul className={styles.lyricPhrasebookTags} aria-label={`${selectedLanguageLabel} Friday mood words`}>
                 {selectedPhrasebook.moodWords.map((word) => (
-                  <li key={`${selectedLanguage}-${word}`} className={styles.lyricPhrasebookTag}>
+                  <li key={`${selectedLanguage}-${word}`} className={styles.lyricPhrasebookTag} lang={selectedLanguage}>
                     {word}
                   </li>
                 ))}
@@ -4964,7 +4965,7 @@ const LyricsMeaningSection = () => {
 
                 <ul className={styles.lyricPostcardWordList} aria-label={`${selectedLanguageLabel} postcard mood words`}>
                   {selectedPhrasebook.moodWords.map((word) => (
-                    <li key={`${selectedLyricMoment.id}-${selectedPostcardTone}-${word}`} className={styles.lyricPostcardWord}>
+                    <li key={`${selectedLyricMoment.id}-${selectedPostcardTone}-${word}`} className={styles.lyricPostcardWord} lang={selectedLanguage}>
                       {word}
                     </li>
                   ))}
